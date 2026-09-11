@@ -14,18 +14,21 @@ import enAccount from '@/i18n/locales/en/account.json';
 import enAuth from '@/i18n/locales/en/auth.json';
 import enBooking from '@/i18n/locales/en/booking.json';
 import enCommon from '@/i18n/locales/en/common.json';
+import enHome from '@/i18n/locales/en/home.json';
 import enPlatforms from '@/i18n/locales/en/platforms.json';
 import enSearch from '@/i18n/locales/en/search.json';
 import koAccount from '@/i18n/locales/ko/account.json';
 import koAuth from '@/i18n/locales/ko/auth.json';
 import koBooking from '@/i18n/locales/ko/booking.json';
 import koCommon from '@/i18n/locales/ko/common.json';
+import koHome from '@/i18n/locales/ko/home.json';
 import koPlatforms from '@/i18n/locales/ko/platforms.json';
 import koSearch from '@/i18n/locales/ko/search.json';
 
 export const I18N_NAMESPACES = [
   'common',
   'auth',
+  'home',
   'search',
   'booking',
   'account',
@@ -37,6 +40,7 @@ const resources = {
   en: {
     common: enCommon,
     auth: enAuth,
+    home: enHome,
     search: enSearch,
     booking: enBooking,
     account: enAccount,
@@ -45,6 +49,7 @@ const resources = {
   ko: {
     common: koCommon,
     auth: koAuth,
+    home: koHome,
     search: koSearch,
     booking: koBooking,
     account: koAccount,

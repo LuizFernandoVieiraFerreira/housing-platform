@@ -94,6 +94,11 @@ export const tokens = {
   sizes: {
     contentMax: '90rem',
     accommodationCard: '7.5rem',
+    /** Shared hero min-heights for home and professional platform landings. */
+    marketingHero: '400px',
+    marketingHeroMd: '596px',
+    marketingHeroXl: '639px',
+    marketingHero2xl: '648px',
   },
   gaps: {
     nav: 'clamp(32px, 4vw, 48px)',

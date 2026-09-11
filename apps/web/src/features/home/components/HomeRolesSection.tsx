@@ -3,11 +3,16 @@ import type { LucideIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
-import { professionalPlatforms } from '@/features/platforms/lib/professional-platforms';
+import {
+  professionalPlatforms,
+  type ProfessionalPlatformKey,
+} from '@/features/platforms/lib/professional-platforms';
 import { PageContainer } from '@/shared/components/PageContainer';
 
+type HomeRoleKey = 'guest' | ProfessionalPlatformKey;
+
 interface RoleConfig {
-  key: string;
+  key: HomeRoleKey;
   icon: LucideIcon;
   to: string;
 }
@@ -19,18 +24,18 @@ const roleConfigs: RoleConfig[] = [
 ];
 
 export function HomeRolesSection() {
-  const { t } = useTranslation('search');
+  const { t } = useTranslation('home');
 
   return (
-    <section className="home-roles px-4 sm:px-6 lg:px-20">
+    <section className="home-roles bg-marketing-roles px-4 text-white sm:px-6 lg:px-20">
       <PageContainer className="home-roles-inner">
         <div className="home-roles-video">
-          <h2 className="home-roles-title">{t('home.roles.title')}</h2>
+          <h2 className="home-roles-title">{t('roles.title')}</h2>
           <div className="home-roles-video-wrapper">
             <div className="elastic-media-container">
               <div className="elastic-media home-roles-video-placeholder">
                 <Play aria-hidden="true" />
-                <span>{t('home.roles.videoPlaceholder')}</span>
+                <span>{t('roles.videoPlaceholder')}</span>
               </div>
             </div>
           </div>
@@ -43,12 +48,10 @@ export function HomeRolesSection() {
                 <Icon aria-hidden="true" />
               </span>
               <div>
-                <h3 className="home-roles-item-name">{t(`home.roles.items.${key}.name`)}</h3>
-                <p className="home-roles-item-description">
-                  {t(`home.roles.items.${key}.description`)}
-                </p>
+                <h3 className="home-roles-item-name">{t(`roles.items.${key}.name`)}</h3>
+                <p className="home-roles-item-description">{t(`roles.items.${key}.description`)}</p>
                 <span className="home-roles-item-cta">
-                  {t(`home.roles.items.${key}.cta`)}
+                  {t(`roles.items.${key}.cta`)}
                   <ArrowRight aria-hidden="true" />
                 </span>
               </div>

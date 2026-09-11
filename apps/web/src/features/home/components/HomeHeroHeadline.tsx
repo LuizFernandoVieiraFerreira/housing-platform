@@ -4,15 +4,15 @@ import { useTranslation } from 'react-i18next';
 import { usePrefersReducedMotion } from '@/shared/hooks/usePrefersReducedMotion';
 
 const audienceKeys = [
-  'home.audiences.internationalStudents',
-  'home.audiences.businessStay',
-  'home.audiences.monthlyTravelers',
+  'audiences.internationalStudents',
+  'audiences.businessStay',
+  'audiences.monthlyTravelers',
 ] as const;
 
 const ROTATION_INTERVAL_MS = 2000;
 
 export function HomeHeroHeadline() {
-  const { t } = useTranslation('search');
+  const { t } = useTranslation('home');
   const prefersReducedMotion = usePrefersReducedMotion();
   const [labelIndex, setLabelIndex] = useState(0);
 
@@ -30,7 +30,7 @@ export function HomeHeroHeadline() {
 
   return (
     <h1 className="home-headline-title text-ink">
-      {t('home.heroPrefix')}{' '}
+      {t('heroPrefix')}{' '}
       {/*
        * The rotation is decoration: an <h1> whose accessible name changes every two
        * seconds is unusable with a screen reader and gives crawlers nothing stable.

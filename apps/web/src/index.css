@@ -173,7 +173,6 @@
       background-repeat: no-repeat;
       background-size: 100% calc(100% + 6em);
       background-position: bottom -20px center;
-      min-height: 596px;
     }
 
     .home-background-container {
@@ -185,15 +184,10 @@
     .home-background {
       background-size: 100% 110%;
       background-position: bottom -70px center;
-      min-height: 639px;
     }
   }
 
   @media (min-width: 1280px) {
-    .home-background {
-      min-height: 648px;
-    }
-
     /* Clouds are laid out against the centred 1200px content column, not the viewport. */
     .home-background-container {
       width: 1200px;
@@ -422,8 +416,6 @@
    * continues it without a seam.
    */
   .home-roles {
-    background-color: theme('colors.marketing.roles');
-    color: #fff;
     padding-top: 35px;
     text-align: center;
   }
@@ -610,40 +602,11 @@
    * Professional platform pages (/for-hosts, /for-photographers, /for-agents)
    * ------------------------------------------------------------------------- */
 
-  /* Hero section — same min-heights as the home page for visual consistency. */
-  .platform-hero {
-    min-height: 400px;
-  }
-
-  @media (min-width: 720px) {
-    .platform-hero {
-      min-height: 596px;
-    }
-  }
-
-  @media (min-width: 1200px) {
-    .platform-hero {
-      min-height: 639px;
-    }
-  }
-
-  @media (min-width: 1280px) {
-    .platform-hero {
-      min-height: 648px;
-    }
-  }
-
   /* Steps section — dark band closing the page, above the footer. */
-  .platform-steps {
-    background-color: theme('colors.marketing.steps');
-    color: #fff;
-  }
-
   .platform-steps-title {
     font-size: 1.5em;
     font-weight: bold;
     margin-bottom: 40px;
-    color: #fff;
   }
 
   @media (min-width: 720px) {
@@ -677,8 +640,6 @@
     width: 44px;
     height: 44px;
     border-radius: 9999px;
-    background-color: #fff;
-    color: rgb(var(--brand-600));
     font-size: 0.875em;
     font-weight: bold;
   }
@@ -691,13 +652,11 @@
   .platform-step-title {
     font-size: 1em;
     font-weight: 600;
-    color: #fff;
     margin-bottom: 4px;
   }
 
   .platform-step-description {
     font-size: 0.875em;
-    color: rgb(255 255 255 / 0.85);
     line-height: 1.5;
   }
 

@@ -58,6 +58,12 @@ export function createTailwindTheme() {
     height: {
       'accommodation-card': tokens.sizes.accommodationCard,
     },
+    minHeight: {
+      'marketing-hero': tokens.sizes.marketingHero,
+      'marketing-hero-md': tokens.sizes.marketingHeroMd,
+      'marketing-hero-xl': tokens.sizes.marketingHeroXl,
+      'marketing-hero-2xl': tokens.sizes.marketingHero2xl,
+    },
     gap: {
       nav: tokens.gaps.nav,
     },

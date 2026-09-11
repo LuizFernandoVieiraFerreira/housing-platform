@@ -11,51 +11,51 @@ import { HomeSearchBar } from '@/features/home/components/HomeSearchBar';
 import { PageContainer } from '@/shared/components/PageContainer';
 
 interface AccommodationTypeConfig {
-  titleKey: string;
-  descriptionKey: string;
+  titleKey: `accommodationTypes.${AccommodationType}.title`;
+  descriptionKey: `accommodationTypes.${AccommodationType}.description`;
   icon: LucideIcon;
   slug: AccommodationType;
 }
 
 const accommodationTypeConfigs: AccommodationTypeConfig[] = [
   {
-    titleKey: 'home.accommodationTypes.share-house.title',
-    descriptionKey: 'home.accommodationTypes.share-house.description',
+    titleKey: 'accommodationTypes.share-house.title',
+    descriptionKey: 'accommodationTypes.share-house.description',
     icon: Users,
     slug: 'share-house',
   },
   {
-    titleKey: 'home.accommodationTypes.studio.title',
-    descriptionKey: 'home.accommodationTypes.studio.description',
+    titleKey: 'accommodationTypes.studio.title',
+    descriptionKey: 'accommodationTypes.studio.description',
     icon: DoorOpen,
     slug: 'studio',
   },
   {
-    titleKey: 'home.accommodationTypes.micro-studio.title',
-    descriptionKey: 'home.accommodationTypes.micro-studio.description',
+    titleKey: 'accommodationTypes.micro-studio.title',
+    descriptionKey: 'accommodationTypes.micro-studio.description',
     icon: Minimize2,
     slug: 'micro-studio',
   },
   {
-    titleKey: 'home.accommodationTypes.multi-bedroom.title',
-    descriptionKey: 'home.accommodationTypes.multi-bedroom.description',
+    titleKey: 'accommodationTypes.multi-bedroom.title',
+    descriptionKey: 'accommodationTypes.multi-bedroom.description',
     icon: LayoutGrid,
     slug: 'multi-bedroom',
   },
 ];
 
 export function HomePage() {
-  const { t } = useTranslation('search');
+  const { t } = useTranslation('home');
 
   return (
     <div>
-      <section className="home-background bg-surface-page flex flex-col px-4 py-10 sm:px-6 lg:px-20">
+      <section className="home-background bg-surface-page min-h-marketing-hero md:min-h-marketing-hero-md xl:min-h-marketing-hero-xl 2xl:min-h-marketing-hero-2xl flex flex-col px-4 py-10 sm:px-6 lg:px-20">
         <HomeAnimatedBackground />
 
         <PageContainer className="relative z-[3] flex flex-1 flex-col gap-10">
           <div className="home-headline">
             <HomeHeroHeadline />
-            <p className="home-headline-subtitle text-ink-muted">{t('home.heroSubtitle')}</p>
+            <p className="home-headline-subtitle text-ink-muted">{t('heroSubtitle')}</p>
           </div>
 
           <HomeSearchBar />
@@ -64,7 +64,7 @@ export function HomePage() {
             {accommodationTypeConfigs.map((type) => (
               <AccommodationTypeCard
                 key={type.slug}
-                eyebrow={t('home.accommodationTypes.eyebrow')}
+                eyebrow={t('accommodationTypes.eyebrow')}
                 title={t(type.titleKey)}
                 description={t(type.descriptionKey)}
                 icon={type.icon}

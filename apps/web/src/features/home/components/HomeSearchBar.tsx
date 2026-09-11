@@ -11,7 +11,7 @@ interface HomeSearchFormValues {
 }
 
 export function HomeSearchBar() {
-  const { t } = useTranslation('search');
+  const { t } = useTranslation('home');
   const navigate = useNavigate();
   const { register, handleSubmit } = useForm<HomeSearchFormValues>({
     defaultValues: { query: '' },
@@ -37,13 +37,13 @@ export function HomeSearchBar() {
         <Search className="text-ink-subtle h-5 w-5 shrink-0" aria-hidden="true" />
         <Input
           type="text"
-          placeholder={t('home.search.placeholder')}
-          aria-label={t('home.search.queryLabel')}
+          placeholder={t('search.placeholder')}
+          aria-label={t('search.queryLabel')}
           className="flex-1 rounded-none border-0 bg-transparent px-0 focus-visible:ring-0 focus-visible:ring-offset-0"
           {...register('query')}
         />
         <Button type="submit" className="shrink-0 rounded-full px-6">
-          {t('home.search.submit')}
+          {t('search.submit')}
         </Button>
       </div>
     </form>

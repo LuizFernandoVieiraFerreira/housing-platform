@@ -22,8 +22,7 @@ export function ProfessionalPlatformPage({ platform }: ProfessionalPlatformPageP
 
   return (
     <div>
-      {/* Hero section — same height as the home page hero for visual consistency. */}
-      <section className="platform-hero bg-brand-50 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-20">
+      <section className="min-h-marketing-hero bg-brand-50 md:min-h-marketing-hero-md xl:min-h-marketing-hero-xl 2xl:min-h-marketing-hero-2xl flex flex-col items-center justify-center px-4 sm:px-6 lg:px-20">
         <PageContainer className="max-w-2xl text-center">
           <span className="text-brand-600 mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-sm">
             <Icon size={28} aria-hidden />
@@ -46,26 +45,33 @@ export function ProfessionalPlatformPage({ platform }: ProfessionalPlatformPageP
           ) : (
             <div className="mt-8">
               <Badge variant="outline">{t('cta.comingSoon')}</Badge>
-              <p className="text-ink-muted mx-auto mt-3 max-w-md text-sm">
-                {t(`${platform}.comingSoonNote`)}
-              </p>
+              {platform === 'photographer' || platform === 'agent' ? (
+                <p className="text-ink-muted mx-auto mt-3 max-w-md text-sm">
+                  {t(`${platform}.comingSoonNote`)}
+                </p>
+              ) : null}
             </div>
           )}
         </PageContainer>
       </section>
 
-      {/* Steps section — stepper explaining the registration process. */}
-      <section className="platform-steps px-4 py-16 sm:px-6 lg:px-20">
+      <section className="platform-steps bg-marketing-steps px-4 py-16 text-white sm:px-6 lg:px-20">
         <PageContainer className="max-w-3xl">
-          <h2 className="platform-steps-title text-center">{t(`${platform}.steps.title`)}</h2>
+          <h2 className="platform-steps-title text-center text-white">
+            {t(`${platform}.steps.title`)}
+          </h2>
 
           <div className="platform-stepper">
             {stepKeys.map((step, index) => (
               <div key={step} className="platform-step">
-                <span className="platform-step-number">{String(index + 1).padStart(2, '0')}</span>
+                <span className="platform-step-number text-brand-600 bg-white">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
                 <div className="platform-step-content">
-                  <h3 className="platform-step-title">{t(`${platform}.steps.${step}.title`)}</h3>
-                  <p className="platform-step-description">
+                  <h3 className="platform-step-title text-white">
+                    {t(`${platform}.steps.${step}.title`)}
+                  </h3>
+                  <p className="platform-step-description text-white/85">
                     {t(`${platform}.steps.${step}.description`)}
                   </p>
                 </div>
