@@ -87,9 +87,7 @@ export function CheckoutPage() {
 
   if (error) {
     return (
-      <Alert variant="error">
-        {getBookingErrorMessage(error, 'Unable to load checkout.')}
-      </Alert>
+      <Alert variant="error">{getBookingErrorMessage(error, 'Unable to load checkout.')}</Alert>
     );
   }
 

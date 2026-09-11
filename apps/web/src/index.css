@@ -49,7 +49,15 @@
   .ch-desk-launcher {
     display: none !important;
   }
+}
 
+/*
+ * Marketing surfaces sit in the components layer, not utilities, so a Tailwind
+ * utility on the same element still wins — `className="home-type-card p-8"` has to
+ * mean p-8. Tailwind purges these the same way it purges utilities, so a class that
+ * no longer appears in a scanned file is dropped from the bundle.
+ */
+@layer components {
   /*
    * Animated city background.
    *
@@ -159,7 +167,10 @@
 
   @media (min-width: 720px) {
     .home-background {
-      background: url('/images/background-city-skyline.svg') no-repeat bottom center;
+      /* Longhands, not the `background` shorthand: the shorthand resets
+         background-color and would silently drop the `bg-*` utility on the section. */
+      background-image: url('/images/background-city-skyline.svg');
+      background-repeat: no-repeat;
       background-size: 100% calc(100% + 6em);
       background-position: bottom -20px center;
       min-height: 596px;
@@ -199,10 +210,9 @@
   }
 
   /*
-   * Marketing cards for the accommodation types, modelled on Alura's category
-   * cards: solid colour blocks flush against each other, icon in the corner and
-   * an italic strapline. They stack two-up until 1200px, where they flatten into
-   * a single row and gain the top highlight rule.
+   * Marketing cards for the accommodation types: solid colour blocks flush against
+   * each other, icon in the corner and an italic strapline. They stack two-up until
+   * 1200px, where they flatten into a single row and gain the top highlight rule.
    */
   .home-type-list {
     display: flex;
@@ -248,35 +258,35 @@
   }
 
   .home-type-card--share-house {
-    background-color: #00c86f;
+    background-color: theme('colors.marketing.share-house.DEFAULT');
   }
 
   .home-type-card--share-house:hover {
-    background-color: #08cc75;
+    background-color: theme('colors.marketing.share-house.hover');
   }
 
   .home-type-card--studio {
-    background-color: #009bdd;
+    background-color: theme('colors.marketing.studio.DEFAULT');
   }
 
   .home-type-card--studio:hover {
-    background-color: #08a0e1;
+    background-color: theme('colors.marketing.studio.hover');
   }
 
   .home-type-card--micro-studio {
-    background-color: #f1634b;
+    background-color: theme('colors.marketing.micro-studio.DEFAULT');
   }
 
   .home-type-card--micro-studio:hover {
-    background-color: #f26d56;
+    background-color: theme('colors.marketing.micro-studio.hover');
   }
 
   .home-type-card--multi-bedroom {
-    background-color: #fdc14a;
+    background-color: theme('colors.marketing.multi-bedroom.DEFAULT');
   }
 
   .home-type-card--multi-bedroom:hover {
-    background-color: #fdc84a;
+    background-color: theme('colors.marketing.multi-bedroom.hover');
   }
 
   @media not all and (min-width: 720px) {
@@ -307,7 +317,7 @@
       gap: 14px;
     }
 
-    /* Same footprint as four Alura cards (15.3% each, max 180px), not six. */
+    /* Four across the content column, capped so they never outgrow the row. */
     .home-type-card {
       width: 15.3%;
       max-width: 180px;
@@ -334,7 +344,7 @@
     }
   }
 
-  /* Centred hero copy, following Alura's titulo/subtitulo-destaque scale. */
+  /* Centred hero copy. Sizes step up at 360/600/1000/1200px, not the Tailwind scale. */
   .home-headline {
     text-align: center;
   }
@@ -390,7 +400,7 @@
     }
   }
 
-  /* Responsive 16:9 embed, after Alura's elasticMedia. */
+  /* Responsive 16:9 embed: padding-top holds the ratio, child fills the box. */
   .elastic-media-container {
     position: relative;
     height: 0;
@@ -407,12 +417,12 @@
   }
 
   /*
-   * Role highlights, after Alura's "diferenciais" band: video on one side, a
-   * stack of icon + copy on the other. The green is sampled from the skyline
-   * SVG's ground fill so this section continues it without a seam.
+   * Role highlights: video on one side, a stack of icon + copy on the other.
+   * The green is sampled from the skyline SVG's ground fill so this section
+   * continues it without a seam.
    */
   .home-roles {
-    background-color: #4bb97a;
+    background-color: theme('colors.marketing.roles');
     color: #fff;
     padding-top: 35px;
     text-align: center;
@@ -623,9 +633,9 @@
     }
   }
 
-  /* Steps section — Alura aprenda / painelPlanos-footer (#324c64). */
+  /* Steps section — dark band closing the page, above the footer. */
   .platform-steps {
-    background-color: #324c64;
+    background-color: theme('colors.marketing.steps');
     color: #fff;
   }
 

@@ -58,8 +58,8 @@ export function VerifyEmailPage() {
         title="Verify your email"
         description={
           <>
-            We sent a confirmation link to <strong className="text-ink">{email}</strong>. Confirm your
-            email to access your account.
+            We sent a confirmation link to <strong className="text-ink">{email}</strong>. Confirm
+            your email to access your account.
           </>
         }
       />

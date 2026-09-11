@@ -54,7 +54,8 @@ export function HostPropertiesPage() {
                 <Badge variant="eyebrow">{statusLabels[property.status]}</Badge>
                 <h2 className="text-ink mt-1 text-lg font-semibold">{property.title}</h2>
                 <p className="text-ink-muted mt-1 text-sm">
-                  {property.district} · {property.roomCount} room{property.roomCount === 1 ? '' : 's'} ·{' '}
+                  {property.district} · {property.roomCount} room
+                  {property.roomCount === 1 ? '' : 's'} ·{' '}
                   {property.bookingMode === 'instant' ? 'Instant book' : 'Request to book'}
                 </p>
               </div>

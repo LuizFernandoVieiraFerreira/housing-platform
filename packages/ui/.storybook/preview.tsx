@@ -1,5 +1,5 @@
 import type { Decorator, Preview } from '@storybook/react';
-import { useEffect } from 'react';
+import { useEffect, type ComponentType } from 'react';
 
 import {
   applyRoleTheme,
@@ -8,14 +8,24 @@ import {
 
 import '../src/styles.css';
 
-const roleThemeDecorator: Decorator = (Story, context) => {
-  const role = (context.globals.role as RoleThemeKey | undefined) ?? 'customer';
-
+function RoleThemeWrapper({
+  role,
+  Story,
+}: {
+  role: RoleThemeKey;
+  Story: ComponentType;
+}) {
   useEffect(() => {
     applyRoleTheme(document.documentElement, role);
   }, [role]);
 
   return <Story />;
+}
+
+const roleThemeDecorator: Decorator = (Story, context) => {
+  const role = (context.globals.role as RoleThemeKey | undefined) ?? 'customer';
+
+  return <RoleThemeWrapper role={role} Story={Story} />;
 };
 
 const preview: Preview = {

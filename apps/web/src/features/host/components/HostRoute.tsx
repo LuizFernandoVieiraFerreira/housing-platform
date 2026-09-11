@@ -31,7 +31,9 @@ export function HostRoute() {
   }
 
   if (!isEmailVerified) {
-    return <Navigate to="/signup/verify-email" replace state={{ email: user?.email ?? undefined }} />;
+    return (
+      <Navigate to="/signup/verify-email" replace state={{ email: user?.email ?? undefined }} />
+    );
   }
 
   if (location.pathname === '/host/register') {

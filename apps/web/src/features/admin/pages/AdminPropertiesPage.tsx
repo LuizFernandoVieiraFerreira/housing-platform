@@ -13,7 +13,8 @@ export function AdminPropertiesPage() {
   const rejectProperty = useRejectAdminProperty();
   const [actionError, setActionError] = useState<string | null>(null);
 
-  const pendingProperties = properties?.filter((property) => property.status === 'pending_review') ?? [];
+  const pendingProperties =
+    properties?.filter((property) => property.status === 'pending_review') ?? [];
 
   const handlePublish = async (propertyId: string) => {
     setActionError(null);
@@ -21,7 +22,9 @@ export function AdminPropertiesPage() {
     try {
       await publishProperty.mutateAsync(propertyId);
     } catch (mutationError) {
-      setActionError(mutationError instanceof Error ? mutationError.message : 'Unable to publish property.');
+      setActionError(
+        mutationError instanceof Error ? mutationError.message : 'Unable to publish property.',
+      );
     }
   };
 
@@ -31,7 +34,9 @@ export function AdminPropertiesPage() {
     try {
       await rejectProperty.mutateAsync(propertyId);
     } catch (mutationError) {
-      setActionError(mutationError instanceof Error ? mutationError.message : 'Unable to reject property.');
+      setActionError(
+        mutationError instanceof Error ? mutationError.message : 'Unable to reject property.',
+      );
     }
   };
 
@@ -57,10 +62,7 @@ export function AdminPropertiesPage() {
       ) : null}
 
       {!pendingProperties.length ? (
-        <EmptyState
-          className="mt-10"
-          description="No properties are waiting for review."
-        />
+        <EmptyState className="mt-10" description="No properties are waiting for review." />
       ) : (
         <div className="mt-8 space-y-4">
           {pendingProperties.map((property) => (

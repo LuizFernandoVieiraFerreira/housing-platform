@@ -64,7 +64,10 @@ export function ResetPasswordPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Choose a new password" description="Enter a new password for your account." />
+      <PageHeader
+        title="Choose a new password"
+        description="Enter a new password for your account."
+      />
 
       {formError ? <Alert variant="error">{formError}</Alert> : null}
 

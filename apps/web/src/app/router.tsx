@@ -152,207 +152,207 @@ function RedirectToBookingDetail() {
 export function AppRouter() {
   return (
     <Routes>
-        <Route element={<MapLayout />}>
-          <Route element={<MarketplaceRoute />}>
-            <Route path="map" element={<MapSearchPage />} />
-          </Route>
+      <Route element={<MapLayout />}>
+        <Route element={<MarketplaceRoute />}>
+          <Route path="map" element={<MapSearchPage />} />
+        </Route>
+      </Route>
+
+      <Route element={<AuthLayout />}>
+        <Route element={<GuestRoute defaultRedirect="/" />}>
+          <Route path="login" element={<LoginPage />} />
+          <Route path="signup" element={<SignUpPage />} />
+          <Route path="forgot-password" element={<ForgotPasswordPage />} />
         </Route>
 
-        <Route element={<AuthLayout />}>
-          <Route element={<GuestRoute defaultRedirect="/" />}>
-            <Route path="login" element={<LoginPage />} />
-            <Route path="signup" element={<SignUpPage />} />
-            <Route path="forgot-password" element={<ForgotPasswordPage />} />
-          </Route>
-
-          <Route element={<GuestRoute defaultRedirect="/host" />}>
-            <Route path="host/login" element={<HostLoginPage />} />
-            <Route path="host/signup" element={<HostSignUpPage />} />
-          </Route>
-
-          <Route element={<GuestRoute defaultRedirect="/admin" />}>
-            <Route path="admin/login" element={<AdminLoginPage />} />
-          </Route>
-
-          <Route path="signup/verify-email" element={<VerifyEmailPage />} />
-          <Route path="auth/callback" element={<AuthCallbackPage />} />
-          <Route path="auth/reset-password" element={<ResetPasswordPage />} />
+        <Route element={<GuestRoute defaultRedirect="/host" />}>
+          <Route path="host/login" element={<HostLoginPage />} />
+          <Route path="host/signup" element={<HostSignUpPage />} />
         </Route>
 
-        <Route element={<PublicLayout />}>
-          <Route element={<MarketplaceRoute />}>
-            <Route index element={<HomePage />} />
-            <Route path="listings/:propertyId" element={<PropertyDetailPage />} />
+        <Route element={<GuestRoute defaultRedirect="/admin" />}>
+          <Route path="admin/login" element={<AdminLoginPage />} />
+        </Route>
 
-            <Route element={<ProtectedRoute />}>
-              <Route path="bookings" element={<BookingsPage />} />
-              <Route path="bookings/:bookingId" element={<BookingDetailPage />} />
-              <Route path="account/bookings" element={<Navigate to="/bookings" replace />} />
-              <Route path="account/bookings/:bookingId" element={<RedirectToBookingDetail />} />
+        <Route path="signup/verify-email" element={<VerifyEmailPage />} />
+        <Route path="auth/callback" element={<AuthCallbackPage />} />
+        <Route path="auth/reset-password" element={<ResetPasswordPage />} />
+      </Route>
 
-              <Route
-                path="checkout/:bookingId"
-                element={
-                  <LazyRoute {...checkoutLazyRoute}>
-                    <CheckoutPage />
-                  </LazyRoute>
-                }
-              />
-              <Route
-                path="payment/success"
-                element={
-                  <LazyRoute {...checkoutLazyRoute}>
-                    <PaymentSuccessPage />
-                  </LazyRoute>
-                }
-              />
-              <Route
-                path="payment/fail"
-                element={
-                  <LazyRoute {...checkoutLazyRoute}>
-                    <PaymentFailPage />
-                  </LazyRoute>
-                }
-              />
-            </Route>
-          </Route>
-
-          {professionalPlatforms.map(({ key, landingPath }) => (
-            <Route
-              key={key}
-              path={landingPath}
-              element={<ProfessionalPlatformPage platform={key} />}
-            />
-          ))}
+      <Route element={<PublicLayout />}>
+        <Route element={<MarketplaceRoute />}>
+          <Route index element={<HomePage />} />
+          <Route path="listings/:propertyId" element={<PropertyDetailPage />} />
 
           <Route element={<ProtectedRoute />}>
-            <Route path="messages" element={<MessagesPage />} />
-            <Route path="notifications" element={<NotificationsPage />} />
+            <Route path="bookings" element={<BookingsPage />} />
+            <Route path="bookings/:bookingId" element={<BookingDetailPage />} />
+            <Route path="account/bookings" element={<Navigate to="/bookings" replace />} />
+            <Route path="account/bookings/:bookingId" element={<RedirectToBookingDetail />} />
 
-            <Route path="account" element={<AccountLayout />}>
-              <Route index element={<AccountPage />} />
-              <Route path="profile" element={<ProfilePage />} />
-            </Route>
-          </Route>
-
-          <Route element={<HostRoute />}>
             <Route
-              path="host/register"
+              path="checkout/:bookingId"
               element={
-                <LazyRoute {...hostLazyRoute}>
-                  <HostRegisterPage />
+                <LazyRoute {...checkoutLazyRoute}>
+                  <CheckoutPage />
                 </LazyRoute>
               }
             />
-            <Route element={<HostLayout />}>
-              <Route
-                path="host"
-                element={
-                  <LazyRoute {...hostLazyRoute}>
-                    <HostDashboardPage />
-                  </LazyRoute>
-                }
-              />
-              <Route
-                path="host/properties"
-                element={
-                  <LazyRoute {...hostLazyRoute}>
-                    <HostPropertiesPage />
-                  </LazyRoute>
-                }
-              />
-              <Route
-                path="host/properties/new"
-                element={
-                  <LazyRoute {...hostLazyRoute}>
-                    <HostPropertyFormPage />
-                  </LazyRoute>
-                }
-              />
-              <Route
-                path="host/properties/:propertyId"
-                element={
-                  <LazyRoute {...hostLazyRoute}>
-                    <HostPropertyFormPage />
-                  </LazyRoute>
-                }
-              />
-              <Route
-                path="host/bookings"
-                element={
-                  <LazyRoute {...hostLazyRoute}>
-                    <HostBookingsPage />
-                  </LazyRoute>
-                }
-              />
-            </Route>
+            <Route
+              path="payment/success"
+              element={
+                <LazyRoute {...checkoutLazyRoute}>
+                  <PaymentSuccessPage />
+                </LazyRoute>
+              }
+            />
+            <Route
+              path="payment/fail"
+              element={
+                <LazyRoute {...checkoutLazyRoute}>
+                  <PaymentFailPage />
+                </LazyRoute>
+              }
+            />
           </Route>
-
-          <Route element={<AdminRoute />}>
-            <Route element={<AdminLayout />}>
-              <Route
-                path="admin"
-                element={
-                  <LazyRoute {...adminLazyRoute}>
-                    <AdminDashboardPage />
-                  </LazyRoute>
-                }
-              />
-              <Route
-                path="admin/properties"
-                element={
-                  <LazyRoute {...adminLazyRoute}>
-                    <AdminPropertiesPage />
-                  </LazyRoute>
-                }
-              />
-              <Route
-                path="admin/hosts"
-                element={
-                  <LazyRoute {...adminLazyRoute}>
-                    <AdminHostsPage />
-                  </LazyRoute>
-                }
-              />
-              <Route
-                path="admin/bookings"
-                element={
-                  <LazyRoute {...adminLazyRoute}>
-                    <AdminBookingsPage />
-                  </LazyRoute>
-                }
-              />
-              <Route
-                path="admin/payments"
-                element={
-                  <LazyRoute {...adminLazyRoute}>
-                    <AdminPaymentsPage />
-                  </LazyRoute>
-                }
-              />
-              <Route
-                path="admin/housing-requests"
-                element={
-                  <LazyRoute {...adminLazyRoute}>
-                    <AdminHousingRequestsPage />
-                  </LazyRoute>
-                }
-              />
-              <Route
-                path="admin/audit-logs"
-                element={
-                  <LazyRoute {...adminLazyRoute}>
-                    <AdminAuditLogsPage />
-                  </LazyRoute>
-                }
-              />
-            </Route>
-          </Route>
-
-          <Route path="*" element={<NotFoundPage />} />
         </Route>
 
-        <Route path="/home" element={<Navigate to="/" replace />} />
-      </Routes>
+        {professionalPlatforms.map(({ key, landingPath }) => (
+          <Route
+            key={key}
+            path={landingPath}
+            element={<ProfessionalPlatformPage platform={key} />}
+          />
+        ))}
+
+        <Route element={<ProtectedRoute />}>
+          <Route path="messages" element={<MessagesPage />} />
+          <Route path="notifications" element={<NotificationsPage />} />
+
+          <Route path="account" element={<AccountLayout />}>
+            <Route index element={<AccountPage />} />
+            <Route path="profile" element={<ProfilePage />} />
+          </Route>
+        </Route>
+
+        <Route element={<HostRoute />}>
+          <Route
+            path="host/register"
+            element={
+              <LazyRoute {...hostLazyRoute}>
+                <HostRegisterPage />
+              </LazyRoute>
+            }
+          />
+          <Route element={<HostLayout />}>
+            <Route
+              path="host"
+              element={
+                <LazyRoute {...hostLazyRoute}>
+                  <HostDashboardPage />
+                </LazyRoute>
+              }
+            />
+            <Route
+              path="host/properties"
+              element={
+                <LazyRoute {...hostLazyRoute}>
+                  <HostPropertiesPage />
+                </LazyRoute>
+              }
+            />
+            <Route
+              path="host/properties/new"
+              element={
+                <LazyRoute {...hostLazyRoute}>
+                  <HostPropertyFormPage />
+                </LazyRoute>
+              }
+            />
+            <Route
+              path="host/properties/:propertyId"
+              element={
+                <LazyRoute {...hostLazyRoute}>
+                  <HostPropertyFormPage />
+                </LazyRoute>
+              }
+            />
+            <Route
+              path="host/bookings"
+              element={
+                <LazyRoute {...hostLazyRoute}>
+                  <HostBookingsPage />
+                </LazyRoute>
+              }
+            />
+          </Route>
+        </Route>
+
+        <Route element={<AdminRoute />}>
+          <Route element={<AdminLayout />}>
+            <Route
+              path="admin"
+              element={
+                <LazyRoute {...adminLazyRoute}>
+                  <AdminDashboardPage />
+                </LazyRoute>
+              }
+            />
+            <Route
+              path="admin/properties"
+              element={
+                <LazyRoute {...adminLazyRoute}>
+                  <AdminPropertiesPage />
+                </LazyRoute>
+              }
+            />
+            <Route
+              path="admin/hosts"
+              element={
+                <LazyRoute {...adminLazyRoute}>
+                  <AdminHostsPage />
+                </LazyRoute>
+              }
+            />
+            <Route
+              path="admin/bookings"
+              element={
+                <LazyRoute {...adminLazyRoute}>
+                  <AdminBookingsPage />
+                </LazyRoute>
+              }
+            />
+            <Route
+              path="admin/payments"
+              element={
+                <LazyRoute {...adminLazyRoute}>
+                  <AdminPaymentsPage />
+                </LazyRoute>
+              }
+            />
+            <Route
+              path="admin/housing-requests"
+              element={
+                <LazyRoute {...adminLazyRoute}>
+                  <AdminHousingRequestsPage />
+                </LazyRoute>
+              }
+            />
+            <Route
+              path="admin/audit-logs"
+              element={
+                <LazyRoute {...adminLazyRoute}>
+                  <AdminAuditLogsPage />
+                </LazyRoute>
+              }
+            />
+          </Route>
+        </Route>
+
+        <Route path="*" element={<NotFoundPage />} />
+      </Route>
+
+      <Route path="/home" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }

@@ -19,12 +19,7 @@ export interface SignUpFormProps {
   loginPath: string;
 }
 
-export function SignUpForm({
-  title,
-  description,
-  successRedirectTo,
-  loginPath,
-}: SignUpFormProps) {
+export function SignUpForm({ title, description, successRedirectTo, loginPath }: SignUpFormProps) {
   const { t } = useTranslation('auth');
   const navigate = useNavigate();
   const [formError, setFormError] = useState<string | null>(null);

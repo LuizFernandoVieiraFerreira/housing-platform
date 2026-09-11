@@ -1,8 +1,17 @@
 import { Alert, Badge, Button, Card, EmptyState, PageHeader } from '@housing-platform/ui';
 import { useState } from 'react';
 
-import { formatBookingDate, formatKrw, getBookingErrorMessage, getBookingStatusLabel } from '@/features/booking/lib/booking-utils';
-import { useApproveHostBooking, useHostBookings, useRejectHostBooking } from '@/features/host/hooks/useHost';
+import {
+  formatBookingDate,
+  formatKrw,
+  getBookingErrorMessage,
+  getBookingStatusLabel,
+} from '@/features/booking/lib/booking-utils';
+import {
+  useApproveHostBooking,
+  useHostBookings,
+  useRejectHostBooking,
+} from '@/features/host/hooks/useHost';
 
 export function HostBookingsPage() {
   const { data: bookings, isLoading, error } = useHostBookings();
@@ -75,7 +84,11 @@ export function HostBookingsPage() {
                   <p className="text-ink text-lg font-semibold">{formatKrw(booking.totalKrw)}</p>
                   {booking.status === 'requested' ? (
                     <div className="flex flex-wrap gap-2">
-                      <Button size="sm" onClick={() => void handleApprove(booking.id)} disabled={approveBooking.isPending}>
+                      <Button
+                        size="sm"
+                        onClick={() => void handleApprove(booking.id)}
+                        disabled={approveBooking.isPending}
+                      >
                         Approve
                       </Button>
                       <Button

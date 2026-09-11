@@ -20,10 +20,7 @@ export function AdminPaymentsPage() {
 
   return (
     <Card>
-      <PageHeader
-        title="Payments"
-        description="Read-only payment records from Toss checkout."
-      />
+      <PageHeader title="Payments" description="Read-only payment records from Toss checkout." />
 
       {!payments?.length ? (
         <EmptyState className="mt-10" description="No payments yet." />
@@ -42,10 +39,16 @@ export function AdminPaymentsPage() {
             <tbody>
               {payments.map((payment) => (
                 <tr key={payment.id} className="border-surface-subtle border-b last:border-b-0">
-                  <td className="text-ink px-3 py-3">{payment.propertyTitle ?? 'Unknown listing'}</td>
-                  <td className="text-ink-muted px-3 py-3">{payment.customerName ?? 'Unknown customer'}</td>
+                  <td className="text-ink px-3 py-3">
+                    {payment.propertyTitle ?? 'Unknown listing'}
+                  </td>
+                  <td className="text-ink-muted px-3 py-3">
+                    {payment.customerName ?? 'Unknown customer'}
+                  </td>
                   <td className="text-ink px-3 py-3 font-medium">{formatKrw(payment.amountKrw)}</td>
-                  <td className="text-ink-muted px-3 py-3 capitalize">{getPaymentStatusLabel(payment.status)}</td>
+                  <td className="text-ink-muted px-3 py-3 capitalize">
+                    {getPaymentStatusLabel(payment.status)}
+                  </td>
                   <td className="text-ink-muted px-3 py-3">
                     {new Date(payment.createdAt).toLocaleString()}
                   </td>

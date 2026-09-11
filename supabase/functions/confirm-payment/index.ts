@@ -75,7 +75,11 @@ serve(async (req) => {
     }
 
     if (paymentRow.amount_krw !== amount) {
-      return errorResponse('PAYMENT_AMOUNT_MISMATCH', 'Payment amount does not match booking total', 409);
+      return errorResponse(
+        'PAYMENT_AMOUNT_MISMATCH',
+        'Payment amount does not match booking total',
+        409,
+      );
     }
 
     if (paymentRow.status === 'confirmed') {

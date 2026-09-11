@@ -7,7 +7,10 @@ import { roleThemes, tokens } from '../tokens';
 function Swatch({ name, value }: { name: string; value: string }) {
   return (
     <div className="space-y-2">
-      <div className="h-12 w-full rounded-lg border border-surface-subtle" style={{ backgroundColor: value }} />
+      <div
+        className="border-surface-subtle h-12 w-full rounded-lg border"
+        style={{ backgroundColor: value }}
+      />
       <div>
         <p className="text-ink text-xs font-medium">{name}</p>
         <p className="text-ink-muted font-mono text-xs">{value}</p>
@@ -51,7 +54,11 @@ export const Colors: Story = {
       <TokenSection title="Surfaces">
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
           {Object.entries(tokens.colors.surface).map(([name, value]) => (
-            <Swatch key={name} name={name === 'DEFAULT' ? 'surface' : `surface-${name}`} value={value} />
+            <Swatch
+              key={name}
+              name={name === 'DEFAULT' ? 'surface' : `surface-${name}`}
+              value={value}
+            />
           ))}
         </div>
       </TokenSection>
@@ -88,7 +95,10 @@ export const SpacingRadiiShadows: Story = {
       <TokenSection title="Spacing">
         <dl className="grid gap-3 sm:grid-cols-2">
           {Object.entries(tokens.spacing).map(([name, value]) => (
-            <div key={name} className="border-surface-subtle flex justify-between rounded-lg border px-4 py-3">
+            <div
+              key={name}
+              className="border-surface-subtle flex justify-between rounded-lg border px-4 py-3"
+            >
               <dt className="text-ink-muted text-sm">{name}</dt>
               <dd className="text-ink font-mono text-sm">{value}</dd>
             </div>
@@ -99,7 +109,11 @@ export const SpacingRadiiShadows: Story = {
       <TokenSection title="Border radius">
         <div className="grid gap-4 sm:grid-cols-2">
           {Object.entries(tokens.radii).map(([name, value]) => (
-            <div key={name} className="border-surface-subtle border bg-white p-4 shadow-sm" style={{ borderRadius: value }}>
+            <div
+              key={name}
+              className="border-surface-subtle border bg-white p-4 shadow-sm"
+              style={{ borderRadius: value }}
+            >
               <p className="text-ink text-sm font-medium">{name}</p>
               <p className="text-ink-muted font-mono text-xs">{value}</p>
             </div>
@@ -125,7 +139,10 @@ export const SpacingRadiiShadows: Story = {
       <TokenSection title="Breakpoints">
         <dl className="grid gap-3 sm:grid-cols-2">
           {Object.entries(tokens.breakpoints).map(([name, value]) => (
-            <div key={name} className="border-surface-subtle flex justify-between rounded-lg border px-4 py-3">
+            <div
+              key={name}
+              className="border-surface-subtle flex justify-between rounded-lg border px-4 py-3"
+            >
               <dt className="text-ink-muted text-sm">{name}</dt>
               <dd className="text-ink font-mono text-sm">{value}</dd>
             </div>

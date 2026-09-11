@@ -15,11 +15,15 @@ const buckets = new Map<string, RateLimitState>();
 
 function getRequestKey(req: Request, bucket: string): string {
   const forwardedFor = req.headers.get('x-forwarded-for');
-  const clientIp = forwardedFor?.split(',')[0]?.trim() || req.headers.get('cf-connecting-ip') || 'unknown';
+  const clientIp =
+    forwardedFor?.split(',')[0]?.trim() || req.headers.get('cf-connecting-ip') || 'unknown';
   return `${bucket}:${clientIp}`;
 }
 
-export function enforceRateLimit(req: Request, options: RateLimitOptions): { allowed: boolean; retryAfterMs: number } {
+export function enforceRateLimit(
+  req: Request,
+  options: RateLimitOptions,
+): { allowed: boolean; retryAfterMs: number } {
   const key = getRequestKey(req, options.bucket);
   const now = Date.now();
   const existing = buckets.get(key);

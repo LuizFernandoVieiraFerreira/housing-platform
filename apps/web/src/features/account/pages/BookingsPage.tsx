@@ -32,54 +32,54 @@ export function BookingsPage() {
           description="Track booking requests, payment holds, and upcoming stays."
         />
 
-      {!bookings?.length ? (
-        <EmptyState
-          className="mt-10"
-          description="You have no bookings yet."
-          action={
-            <Link to="/map">
-              <Button>Browse stays</Button>
-            </Link>
-          }
-        />
-      ) : (
-        <div className="mt-8 space-y-4">
-          {bookings.map((booking) => (
-            <article
-              key={booking.id}
-              className="border-surface-subtle rounded-xl border p-5 transition-colors hover:bg-surface-muted/30"
-            >
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                <div>
-                  <Badge variant="eyebrow">{getBookingStatusLabel(booking.status)}</Badge>
-                  <h2 className="text-ink mt-1 text-lg font-semibold">{booking.propertyTitle}</h2>
-                  <p className="text-ink-muted mt-1 text-sm">
-                    {booking.roomName} · {booking.district}
-                  </p>
-                  <p className="text-ink-muted mt-2 text-sm">
-                    {formatBookingDate(booking.checkIn)} – {formatBookingDate(booking.checkOut)} ·{' '}
-                    {booking.guestCount} guest{booking.guestCount === 1 ? '' : 's'}
-                  </p>
-                  {booking.holdExpiresAt && booking.status === 'pending_payment' ? (
-                    <p className="text-ink-muted mt-1 text-xs">
-                      Hold expires {new Date(booking.holdExpiresAt).toLocaleString()}
+        {!bookings?.length ? (
+          <EmptyState
+            className="mt-10"
+            description="You have no bookings yet."
+            action={
+              <Link to="/map">
+                <Button>Browse stays</Button>
+              </Link>
+            }
+          />
+        ) : (
+          <div className="mt-8 space-y-4">
+            {bookings.map((booking) => (
+              <article
+                key={booking.id}
+                className="border-surface-subtle hover:bg-surface-muted/30 rounded-xl border p-5 transition-colors"
+              >
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <Badge variant="eyebrow">{getBookingStatusLabel(booking.status)}</Badge>
+                    <h2 className="text-ink mt-1 text-lg font-semibold">{booking.propertyTitle}</h2>
+                    <p className="text-ink-muted mt-1 text-sm">
+                      {booking.roomName} · {booking.district}
                     </p>
-                  ) : null}
-                </div>
+                    <p className="text-ink-muted mt-2 text-sm">
+                      {formatBookingDate(booking.checkIn)} – {formatBookingDate(booking.checkOut)} ·{' '}
+                      {booking.guestCount} guest{booking.guestCount === 1 ? '' : 's'}
+                    </p>
+                    {booking.holdExpiresAt && booking.status === 'pending_payment' ? (
+                      <p className="text-ink-muted mt-1 text-xs">
+                        Hold expires {new Date(booking.holdExpiresAt).toLocaleString()}
+                      </p>
+                    ) : null}
+                  </div>
 
-                <div className="flex flex-col items-start gap-3 sm:items-end">
-                  <p className="text-ink text-lg font-semibold">{formatKrw(booking.totalKrw)}</p>
-                  <Link to={`/bookings/${booking.id}`}>
-                    <Button variant="secondary" size="sm">
-                      View details
-                    </Button>
-                  </Link>
+                  <div className="flex flex-col items-start gap-3 sm:items-end">
+                    <p className="text-ink text-lg font-semibold">{formatKrw(booking.totalKrw)}</p>
+                    <Link to={`/bookings/${booking.id}`}>
+                      <Button variant="secondary" size="sm">
+                        View details
+                      </Button>
+                    </Link>
+                  </div>
                 </div>
-              </div>
-            </article>
-          ))}
-        </div>
-      )}
+              </article>
+            ))}
+          </div>
+        )}
       </Card>
     </div>
   );

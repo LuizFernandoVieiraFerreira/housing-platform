@@ -18,12 +18,7 @@ const roleConfigs: RoleConfig[] = [
   ...professionalPlatforms.map(({ key, icon, landingPath }) => ({ key, icon, to: landingPath })),
 ];
 
-interface HomeRolesSectionProps {
-  /** Embed URL for the product tour. A placeholder panel shows until one is set. */
-  videoUrl?: string;
-}
-
-export function HomeRolesSection({ videoUrl }: HomeRolesSectionProps) {
+export function HomeRolesSection() {
   const { t } = useTranslation('search');
 
   return (
@@ -33,19 +28,10 @@ export function HomeRolesSection({ videoUrl }: HomeRolesSectionProps) {
           <h2 className="home-roles-title">{t('home.roles.title')}</h2>
           <div className="home-roles-video-wrapper">
             <div className="elastic-media-container">
-              {videoUrl ? (
-                <iframe
-                  className="elastic-media"
-                  src={videoUrl}
-                  title={t('home.roles.videoTitle')}
-                  allowFullScreen
-                />
-              ) : (
-                <div className="elastic-media home-roles-video-placeholder">
-                  <Play aria-hidden="true" />
-                  <span>{t('home.roles.videoPlaceholder')}</span>
-                </div>
-              )}
+              <div className="elastic-media home-roles-video-placeholder">
+                <Play aria-hidden="true" />
+                <span>{t('home.roles.videoPlaceholder')}</span>
+              </div>
             </div>
           </div>
         </div>

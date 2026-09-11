@@ -45,7 +45,9 @@ async function main() {
   const serviceRoleKey = status.SERVICE_ROLE_KEY ?? status.SECRET_KEY;
 
   if (!functionsUrl || !serviceRoleKey) {
-    console.warn('Skipping embedding backfill: Supabase status missing functions URL or service role key.');
+    console.warn(
+      'Skipping embedding backfill: Supabase status missing functions URL or service role key.',
+    );
     return;
   }
 
@@ -63,7 +65,9 @@ async function main() {
     console.warn(
       'Skipping embedding backfill: Edge Functions are not reachable. Start `supabase functions serve`, then run `pnpm seed:embeddings`.',
     );
-    console.warn('Pending listings will stay queued until the retry cron runs or you backfill manually.');
+    console.warn(
+      'Pending listings will stay queued until the retry cron runs or you backfill manually.',
+    );
     return;
   }
 

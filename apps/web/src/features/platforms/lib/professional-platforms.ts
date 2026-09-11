@@ -43,6 +43,14 @@ export function getProfessionalPlatform(key: ProfessionalPlatformKey): Professio
   return platformsByKey[key];
 }
 
-export function isPlatformOpen(platform: ProfessionalPlatform): boolean {
+/** A platform whose sign-in surfaces exist, so the landing page can link straight into them. */
+export interface OpenProfessionalPlatform extends ProfessionalPlatform {
+  loginPath: string;
+  signupPath: string;
+}
+
+export function isPlatformOpen(
+  platform: ProfessionalPlatform,
+): platform is OpenProfessionalPlatform {
   return Boolean(platform.loginPath && platform.signupPath);
 }

@@ -149,18 +149,16 @@ export async function fetchHostProperty(propertyId: string): Promise<HostPropert
     rooms?: Array<Record<string, unknown>>;
   };
 
-  const rooms = (row.rooms ?? []).map(
-      (room): HostRoomDetail => ({
-        id: String(room.id),
-        name: String(room.name),
-        roomType: (room.room_type as string | null) ?? null,
-        sizeSqm: room.size_sqm == null ? null : Number(room.size_sqm),
-        maxOccupancy: Number(room.max_occupancy),
-        monthlyPriceKrw: Number(room.monthly_price_krw),
-        status: room.status as HostRoomDetail['status'],
-        availableFrom: (room.available_from as string | null) ?? null,
-      }),
-    );
+  const rooms = (row.rooms ?? []).map((room): HostRoomDetail => ({
+    id: String(room.id),
+    name: String(room.name),
+    roomType: (room.room_type as string | null) ?? null,
+    sizeSqm: room.size_sqm == null ? null : Number(room.size_sqm),
+    maxOccupancy: Number(room.max_occupancy),
+    monthlyPriceKrw: Number(room.monthly_price_krw),
+    status: room.status as HostRoomDetail['status'],
+    availableFrom: (room.available_from as string | null) ?? null,
+  }));
 
   return {
     id: String(row.id),
@@ -174,7 +172,8 @@ export async function fetchHostProperty(propertyId: string): Promise<HostPropert
     postalCode: (row.postal_code as string | null) ?? null,
     district: String(row.district),
     nearestStationName: (row.nearest_station_name as string | null) ?? null,
-    nearestStationWalkMin: row.nearest_station_walk_min == null ? null : Number(row.nearest_station_walk_min),
+    nearestStationWalkMin:
+      row.nearest_station_walk_min == null ? null : Number(row.nearest_station_walk_min),
     status: row.status as HostPropertyDetail['status'],
     bookingMode: row.booking_mode as HostPropertyDetail['bookingMode'],
     minStayNights: Number(row.min_stay_nights),
@@ -235,7 +234,10 @@ export async function createHostProperty(input: HostPropertyInput): Promise<stri
   return propertyId;
 }
 
-export async function updateHostProperty(propertyId: string, input: HostPropertyInput): Promise<void> {
+export async function updateHostProperty(
+  propertyId: string,
+  input: HostPropertyInput,
+): Promise<void> {
   const { error } = await supabase
     .from('properties')
     .update({
@@ -311,7 +313,10 @@ async function syncPropertyAmenities(propertyId: string, amenityIds: string[]): 
   }
 }
 
-export async function createHostRoom(propertyId: string, input: HostRoomInput): Promise<HostRoomDetail> {
+export async function createHostRoom(
+  propertyId: string,
+  input: HostRoomInput,
+): Promise<HostRoomDetail> {
   const { data, error } = await supabase
     .from('rooms')
     .insert({
@@ -324,7 +329,9 @@ export async function createHostRoom(propertyId: string, input: HostRoomInput): 
       available_from: input.availableFrom || null,
       status: 'available',
     })
-    .select('id, name, room_type, size_sqm, max_occupancy, monthly_price_krw, status, available_from')
+    .select(
+      'id, name, room_type, size_sqm, max_occupancy, monthly_price_krw, status, available_from',
+    )
     .single();
 
   if (error) {

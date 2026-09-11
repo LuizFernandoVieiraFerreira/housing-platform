@@ -87,7 +87,14 @@ function PropertyCardContent({
   propertyTypeLabel,
   monthlyPriceFormatted,
   priceSuffix = '+/30 days',
-}: Omit<PropertyCardProps, 'coverImageUrl' | 'coverImageAlt' | 'className' | 'photoPlaceholderCompact' | 'photoPlaceholderDefault'>) {
+}: Omit<
+  PropertyCardProps,
+  | 'coverImageUrl'
+  | 'coverImageAlt'
+  | 'className'
+  | 'photoPlaceholderCompact'
+  | 'photoPlaceholderDefault'
+>) {
   const isHorizontal = variant === 'horizontal';
   const isCompact = variant === 'compact';
   const typeLabel = propertyTypeLabel ?? propertyTypeLabels[propertyType];

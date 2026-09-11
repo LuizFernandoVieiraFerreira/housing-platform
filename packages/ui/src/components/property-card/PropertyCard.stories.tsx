@@ -64,7 +64,11 @@ export const Horizontal: Story = {
 };
 
 function LinkLikeRow({ children }: { children: ReactNode }) {
-  return <div className="hover:bg-surface-muted/60 flex gap-3 px-4 py-3 transition-colors">{children}</div>;
+  return (
+    <div className="hover:bg-surface-muted/60 flex gap-3 px-4 py-3 transition-colors">
+      {children}
+    </div>
+  );
 }
 
 export const ResponsiveGrid: Story = {

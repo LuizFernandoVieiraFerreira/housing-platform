@@ -98,9 +98,7 @@ export function ProfileForm() {
   }
 
   if (error) {
-    return (
-      <Alert variant="error">{getAuthErrorMessage(error, t('profile.loadError'))}</Alert>
-    );
+    return <Alert variant="error">{getAuthErrorMessage(error, t('profile.loadError'))}</Alert>;
   }
 
   return (
@@ -112,7 +110,12 @@ export function ProfileForm() {
         </Alert>
       ) : null}
 
-      <FormField label={t('profile.fullName')} htmlFor="fullName" error={errors.fullName?.message} required>
+      <FormField
+        label={t('profile.fullName')}
+        htmlFor="fullName"
+        error={errors.fullName?.message}
+        required
+      >
         <Input
           id="fullName"
           autoComplete="name"
@@ -155,7 +158,11 @@ export function ProfileForm() {
         </Select>
       </FormField>
 
-      <FormField label={t('profile.avatarUrl')} htmlFor="avatarUrl" error={errors.avatarUrl?.message}>
+      <FormField
+        label={t('profile.avatarUrl')}
+        htmlFor="avatarUrl"
+        error={errors.avatarUrl?.message}
+      >
         <Input
           id="avatarUrl"
           type="url"

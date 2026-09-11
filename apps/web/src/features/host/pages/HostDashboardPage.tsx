@@ -7,8 +7,10 @@ export function HostDashboardPage() {
   const { data: properties } = useHostProperties();
 
   const draftCount = properties?.filter((property) => property.status === 'draft').length ?? 0;
-  const pendingCount = properties?.filter((property) => property.status === 'pending_review').length ?? 0;
-  const publishedCount = properties?.filter((property) => property.status === 'published').length ?? 0;
+  const pendingCount =
+    properties?.filter((property) => property.status === 'pending_review').length ?? 0;
+  const publishedCount =
+    properties?.filter((property) => property.status === 'published').length ?? 0;
 
   return (
     <Card>

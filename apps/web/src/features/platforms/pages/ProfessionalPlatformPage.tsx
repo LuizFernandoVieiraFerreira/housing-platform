@@ -18,15 +18,14 @@ interface ProfessionalPlatformPageProps {
 export function ProfessionalPlatformPage({ platform }: ProfessionalPlatformPageProps) {
   const { t } = useTranslation('platforms');
   const config = getProfessionalPlatform(platform);
-  const { icon: Icon, loginPath, signupPath } = config;
-  const isOpen = isPlatformOpen(config);
+  const { icon: Icon } = config;
 
   return (
     <div>
       {/* Hero section — same height as the home page hero for visual consistency. */}
       <section className="platform-hero bg-brand-50 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-20">
         <PageContainer className="max-w-2xl text-center">
-          <span className="bg-white text-brand-600 mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full shadow-sm">
+          <span className="text-brand-600 mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-sm">
             <Icon size={28} aria-hidden />
           </span>
           <Badge variant="eyebrow">{t(`${platform}.tagline`)}</Badge>
@@ -35,16 +34,14 @@ export function ProfessionalPlatformPage({ platform }: ProfessionalPlatformPageP
           </h1>
           <p className="text-ink-muted mt-4 text-lg">{t(`${platform}.subtitle`)}</p>
 
-          {isOpen && signupPath && loginPath ? (
+          {isPlatformOpen(config) ? (
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <Link to={signupPath}>
-                <Button size="lg">{t('cta.getStarted')}</Button>
-              </Link>
-              <Link to={loginPath}>
-                <Button size="lg" variant="ghost">
-                  {t('cta.logIn')}
-                </Button>
-              </Link>
+              <Button size="lg" asChild>
+                <Link to={config.signupPath}>{t('cta.getStarted')}</Link>
+              </Button>
+              <Button size="lg" variant="ghost" asChild>
+                <Link to={config.loginPath}>{t('cta.logIn')}</Link>
+              </Button>
             </div>
           ) : (
             <div className="mt-8">
@@ -60,9 +57,7 @@ export function ProfessionalPlatformPage({ platform }: ProfessionalPlatformPageP
       {/* Steps section — stepper explaining the registration process. */}
       <section className="platform-steps px-4 py-16 sm:px-6 lg:px-20">
         <PageContainer className="max-w-3xl">
-          <h2 className="platform-steps-title text-center">
-            {t(`${platform}.steps.title`)}
-          </h2>
+          <h2 className="platform-steps-title text-center">{t(`${platform}.steps.title`)}</h2>
 
           <div className="platform-stepper">
             {stepKeys.map((step, index) => (

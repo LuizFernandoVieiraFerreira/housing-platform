@@ -97,7 +97,8 @@ export interface FeaturedPropertyCard {
   tags: string[];
 }
 
-export type PropertySearchSort = 'recommended' | 'price_asc' | 'price_desc' | 'distance' | 'semantic';
+export type PropertySearchSort =
+  'recommended' | 'price_asc' | 'price_desc' | 'distance' | 'semantic';
 
 export interface PropertySearchFilters {
   query?: string;

@@ -62,7 +62,7 @@ export function PropertyDetailPage() {
                 />
               ))
             ) : (
-              <div className="border-surface-subtle bg-surface-muted text-ink-muted sm:col-span-2 flex aspect-[16/7] items-center justify-center rounded-xl border text-sm">
+              <div className="border-surface-subtle bg-surface-muted text-ink-muted flex aspect-[16/7] items-center justify-center rounded-xl border text-sm sm:col-span-2">
                 {t('listing.photosComingSoon')}
               </div>
             )}
@@ -114,7 +114,9 @@ export function PropertyDetailPage() {
                   </div>
                   <p className="text-ink font-semibold">
                     {formatPrice(room.monthlyPriceKrw)}
-                    <span className="text-ink-muted text-sm font-normal">{tBooking('perMonth')}</span>
+                    <span className="text-ink-muted text-sm font-normal">
+                      {tBooking('perMonth')}
+                    </span>
                   </p>
                 </article>
               ))}

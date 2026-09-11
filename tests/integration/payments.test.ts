@@ -68,9 +68,12 @@ describe.skipIf(!integrationEnabled || !functionsEnabled)('Payment confirmation'
 
     bookingId = booking.id as string;
 
-    const { data: paymentOrder, error: paymentOrderError } = await client.rpc('create_payment_order', {
-      p_booking_id: booking.id,
-    });
+    const { data: paymentOrder, error: paymentOrderError } = await client.rpc(
+      'create_payment_order',
+      {
+        p_booking_id: booking.id,
+      },
+    );
 
     if (paymentOrderError || !paymentOrder?.[0]) {
       throw paymentOrderError ?? new Error('Unable to create payment order');

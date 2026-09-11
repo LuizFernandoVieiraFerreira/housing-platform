@@ -84,9 +84,9 @@ describe.skipIf(!integrationEnabled)('ai-property-search function', () => {
     expect(payload.items.every((item) => item.id !== HONGDAE_PROPERTY_ID)).toBe(true);
 
     if (payload.interpretedFilters.priceMax != null) {
-      expect(payload.items.every((item) => item.monthlyPriceMin <= payload.interpretedFilters.priceMax!)).toBe(
-        true,
-      );
+      expect(
+        payload.items.every((item) => item.monthlyPriceMin <= payload.interpretedFilters.priceMax!),
+      ).toBe(true);
     }
   });
 });

@@ -98,7 +98,9 @@ const catalog = [
     minStay: 60,
     featured: false,
     tags: ['#Budget', '#LowDeposit'],
-    rooms: [{ name: 'Market studio', price: 780000, sqm: 14.5, occ: 1, avail: 'current_date + 14' }],
+    rooms: [
+      { name: 'Market studio', price: 780000, sqm: 14.5, occ: 1, avail: 'current_date + 14' },
+    ],
     amenities: ['wifi', 'washer', 'heating'],
   },
   // --- Gangnam cluster ---
@@ -251,7 +253,9 @@ const catalog = [
     minStay: 30,
     featured: false,
     tags: ['#Quiet', '#Jamsil'],
-    rooms: [{ name: 'Sports city studio', price: 920000, sqm: 17.5, occ: 1, avail: 'current_date + 7' }],
+    rooms: [
+      { name: 'Sports city studio', price: 920000, sqm: 17.5, occ: 1, avail: 'current_date + 7' },
+    ],
     amenities: ['wifi', 'ac', 'heating'],
   },
   // --- Yongsan / Itaewon ---
@@ -659,7 +663,7 @@ const catalog = [
     lng: 127.071,
     lat: 37.542,
     district: 'Gwangjin-gu',
-    station: 'Children\'s Grand Park Station',
+    station: "Children's Grand Park Station",
     walk: 9,
     mode: 'instant',
     minStay: 30,
@@ -939,8 +943,7 @@ function sqlAvail(avail) {
 function emitProperty(p, { published = true } = {}) {
   const id = propertyId(p.n);
   const status = p.status ?? (published ? 'published' : 'draft');
-  const publishedAt =
-    status === 'published' ? 'timezone(\'utc\', now())' : 'null';
+  const publishedAt = status === 'published' ? "timezone('utc', now())" : 'null';
 
   return `  (
     ${sqlString(id)},
@@ -987,7 +990,9 @@ function generate() {
 
   // Rooms
   lines.push('insert into public.rooms (');
-  lines.push('  id, property_id, name, room_type, size_sqm, max_occupancy, monthly_price_krw, status, available_from');
+  lines.push(
+    '  id, property_id, name, room_type, size_sqm, max_occupancy, monthly_price_krw, status, available_from',
+  );
   lines.push(')');
   lines.push('values');
   const roomRows = [];
@@ -1011,7 +1016,9 @@ function generate() {
   lines.push('');
 
   // Images (published catalog only)
-  lines.push('insert into public.property_images (id, property_id, storage_path, sort_order, alt_text, is_cover)');
+  lines.push(
+    'insert into public.property_images (id, property_id, storage_path, sort_order, alt_text, is_cover)',
+  );
   lines.push('values');
   const imageRows = catalog.map((p) => {
     const photo = UNSPLASH[p.n % UNSPLASH.length];
@@ -1034,9 +1041,7 @@ function generate() {
   const amenityRows = [];
   for (const p of [...catalog, ...workflowListings]) {
     for (const slug of p.amenities) {
-      amenityRows.push(
-        `  (${sqlString(propertyId(p.n))}, ${sqlString(AMENITIES[slug])})`,
-      );
+      amenityRows.push(`  (${sqlString(propertyId(p.n))}, ${sqlString(AMENITIES[slug])})`);
     }
   }
   lines.push(amenityRows.join(',\n'));
@@ -1045,7 +1050,9 @@ function generate() {
 
   lines.push('-- Fix legacy broken Unsplash photo IDs if seed re-runs without db reset');
   lines.push('update public.property_images');
-  lines.push("set storage_path = 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=1200&q=80'");
+  lines.push(
+    "set storage_path = 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=1200&q=80'",
+  );
   lines.push("where storage_path like '%photo-1484154218962-a197022257a8%';");
   lines.push('');
 
@@ -1054,4 +1061,6 @@ function generate() {
 
 const outputPath = join(__dirname, 'catalog_properties.sql');
 writeFileSync(outputPath, generate());
-console.log(`Wrote ${outputPath} (${catalog.length} published + ${workflowListings.length} workflow listings)`);
+console.log(
+  `Wrote ${outputPath} (${catalog.length} published + ${workflowListings.length} workflow listings)`,
+);

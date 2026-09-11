@@ -1,5 +1,21 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Alert, Button, Card, CardDescription, CardHeader, CardTitle, FormField, Input, PageHeader, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea } from '@housing-platform/ui';
+import {
+  Alert,
+  Button,
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  FormField,
+  Input,
+  PageHeader,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Textarea,
+} from '@housing-platform/ui';
 import type { HostPropertyDetail } from '@housing-platform/types';
 import {
   hostPropertySchema,

@@ -53,12 +53,7 @@ export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
 export type ProfileUpdateInput = z.infer<typeof profileUpdateSchema>;
 
-const accommodationTypeValues = [
-  'share-house',
-  'studio',
-  'micro-studio',
-  'multi-bedroom',
-] as const;
+const accommodationTypeValues = ['share-house', 'studio', 'micro-studio', 'multi-bedroom'] as const;
 
 export const accommodationTypeSchema = z.enum(accommodationTypeValues);
 

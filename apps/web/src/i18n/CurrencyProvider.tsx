@@ -7,11 +7,7 @@ import {
   type ReactNode,
 } from 'react';
 
-import {
-  CURRENCY_STORAGE_KEY,
-  DEFAULT_CURRENCY,
-  type CurrencyCode,
-} from '@/i18n/config';
+import { CURRENCY_STORAGE_KEY, DEFAULT_CURRENCY, type CurrencyCode } from '@/i18n/config';
 import { formatPrice as formatPriceValue } from '@/i18n/formatters';
 import { getStoredCurrency } from '@/i18n/storage';
 

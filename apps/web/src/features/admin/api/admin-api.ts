@@ -95,7 +95,9 @@ export async function fetchAdminProperties(): Promise<AdminPropertyListItem[]> {
   }
 
   return ((data ?? []) as Array<Record<string, unknown>>).map((row) => {
-    const host = getRelation(row.hosts as { display_name: string } | { display_name: string }[] | null);
+    const host = getRelation(
+      row.hosts as { display_name: string } | { display_name: string }[] | null,
+    );
 
     return {
       id: String(row.id),
@@ -158,7 +160,9 @@ export async function fetchAdminHosts(): Promise<AdminHostListItem[]> {
   }
 
   return ((data ?? []) as Array<Record<string, unknown>>).map((row) => {
-    const profile = getRelation(row.profiles as { full_name: string } | { full_name: string }[] | null);
+    const profile = getRelation(
+      row.profiles as { full_name: string } | { full_name: string }[] | null,
+    );
 
     return {
       id: String(row.id),
@@ -358,14 +362,18 @@ export async function fetchAdminHousingRequests(): Promise<HousingRequestListIte
     checkIn: (row.check_in as string | null) ?? null,
     checkOut: (row.check_out as string | null) ?? null,
     budgetMax: (row.budget_max as number | null) ?? null,
-    accommodationType: (row.accommodation_type as HousingRequestListItem['accommodationType']) ?? null,
+    accommodationType:
+      (row.accommodation_type as HousingRequestListItem['accommodationType']) ?? null,
     notes: (row.notes as string | null) ?? null,
     status: row.status as HousingRequestListItem['status'],
     createdAt: String(row.created_at),
   }));
 }
 
-export async function updateAdminHousingRequestStatus(requestId: string, status: HousingRequestStatus) {
+export async function updateAdminHousingRequestStatus(
+  requestId: string,
+  status: HousingRequestStatus,
+) {
   const { data, error } = await supabase.rpc('update_housing_request_status', {
     p_request_id: requestId,
     p_status: status,

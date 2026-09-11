@@ -1,9 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import {
-  confirmPayment,
-  createPaymentOrder,
-} from '@/features/checkout/api/payment-api';
+import { confirmPayment, createPaymentOrder } from '@/features/checkout/api/payment-api';
 import { queryKeys } from '@/shared/api/query-keys';
 
 export function useCreatePaymentOrder() {

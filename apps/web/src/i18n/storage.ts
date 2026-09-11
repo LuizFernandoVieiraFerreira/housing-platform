@@ -1,4 +1,9 @@
-import { DEFAULT_CURRENCY, CURRENCY_STORAGE_KEY, isCurrencyCode, type CurrencyCode } from '@/i18n/config';
+import {
+  DEFAULT_CURRENCY,
+  CURRENCY_STORAGE_KEY,
+  isCurrencyCode,
+  type CurrencyCode,
+} from '@/i18n/config';
 
 export { CURRENCY_STORAGE_KEY };
 

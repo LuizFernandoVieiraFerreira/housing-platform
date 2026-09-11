@@ -7,9 +7,7 @@ function mapBrandToCssVars() {
   );
 }
 
-function mapStatusColors(
-  status: (typeof tokens.colors.status)[keyof typeof tokens.colors.status],
-) {
+function mapStatusColors(status: (typeof tokens.colors.status)[keyof typeof tokens.colors.status]) {
   return {
     DEFAULT: status.default,
     bg: status.bg,
@@ -25,6 +23,7 @@ export function createTailwindTheme() {
       brown: tokens.colors.brown,
       surface: tokens.colors.surface,
       ink: tokens.colors.ink,
+      marketing: tokens.colors.marketing,
       status: {
         success: mapStatusColors(tokens.colors.status.success),
         error: mapStatusColors(tokens.colors.status.error),

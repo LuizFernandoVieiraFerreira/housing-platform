@@ -16,7 +16,9 @@ export function AdminHostsPage() {
     try {
       await approveHost.mutateAsync(hostId);
     } catch (mutationError) {
-      setActionError(mutationError instanceof Error ? mutationError.message : 'Unable to approve host.');
+      setActionError(
+        mutationError instanceof Error ? mutationError.message : 'Unable to approve host.',
+      );
     }
   };
 
@@ -54,7 +56,11 @@ export function AdminHostsPage() {
                   <p className="text-ink-muted mt-1 text-sm">Profile: {host.profileName}</p>
                 </div>
 
-                <Button size="sm" onClick={() => void handleApprove(host.id)} disabled={approveHost.isPending}>
+                <Button
+                  size="sm"
+                  onClick={() => void handleApprove(host.id)}
+                  disabled={approveHost.isPending}
+                >
                   Approve host
                 </Button>
               </div>

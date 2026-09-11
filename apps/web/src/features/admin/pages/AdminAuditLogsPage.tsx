@@ -15,10 +15,7 @@ export function AdminAuditLogsPage() {
 
   return (
     <Card>
-      <PageHeader
-        title="Audit logs"
-        description="Recent privileged actions performed by admins."
-      />
+      <PageHeader title="Audit logs" description="Recent privileged actions performed by admins." />
 
       {!logs?.length ? (
         <EmptyState className="mt-10" description="No audit entries yet." />

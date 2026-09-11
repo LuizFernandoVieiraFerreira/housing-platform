@@ -24,10 +24,7 @@ export function getSafeReturnTo(value: string | null, fallback = '/account'): st
 }
 
 /** Home path for an already-authenticated user based on their profile role. */
-export function getAuthenticatedHomePath(
-  role: string | undefined,
-  fallback = '/',
-): string {
+export function getAuthenticatedHomePath(role: string | undefined, fallback = '/'): string {
   if (role === 'admin') {
     return '/admin';
   }

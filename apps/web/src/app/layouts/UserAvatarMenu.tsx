@@ -50,9 +50,7 @@ export function UserAvatarMenu() {
           className="rounded-full focus-visible:outline-none"
         >
           <Avatar>
-            {profile?.avatar_url ? (
-              <AvatarImage src={profile.avatar_url} alt="" />
-            ) : null}
+            {profile?.avatar_url ? <AvatarImage src={profile.avatar_url} alt="" /> : null}
             <AvatarFallback>{initials}</AvatarFallback>
           </Avatar>
         </button>

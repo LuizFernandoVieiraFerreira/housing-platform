@@ -1,10 +1,15 @@
 import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2.49.4';
 
-import { createEmbedding, embeddingToVectorLiteral, extractSearchIntentUsingLlm } from './openai.ts';
+import {
+  createEmbedding,
+  embeddingToVectorLiteral,
+  extractSearchIntentUsingLlm,
+} from './openai.ts';
 
 export type AccommodationType = 'share-house' | 'studio' | 'micro-studio' | 'multi-bedroom';
 
-export type PropertySearchSort = 'recommended' | 'price_asc' | 'price_desc' | 'distance' | 'semantic';
+export type PropertySearchSort =
+  'recommended' | 'price_asc' | 'price_desc' | 'distance' | 'semantic';
 
 export interface AiSearchContext {
   checkIn?: string;
@@ -110,14 +115,14 @@ function parseKrwAmount(raw: string, unit: string): number | null {
 }
 
 function extractPriceMax(query: string): number | null {
-  const millionMatch = query.match(/(?:under|below|max|up to|<=?)\s*₩?\s*(\d+(?:\.\d+)?)\s*(m|million|mil)\b/i);
+  const millionMatch = query.match(
+    /(?:under|below|max|up to|<=?)\s*₩?\s*(\d+(?:\.\d+)?)\s*(m|million|mil)\b/i,
+  );
   if (millionMatch) {
     return parseKrwAmount(millionMatch[1], millionMatch[2]);
   }
 
-  const wonMatch = query.match(
-    /(?:under|below|max|up to|<=?)\s*₩?\s*(\d[\d,]*)\s*(?:won|krw)?\b/i,
-  );
+  const wonMatch = query.match(/(?:under|below|max|up to|<=?)\s*₩?\s*(\d[\d,]*)\s*(?:won|krw)?\b/i);
   if (wonMatch) {
     return parseKrwAmount(wonMatch[1], 'won');
   }
@@ -195,10 +200,15 @@ function extractLocationPhrase(query: string): string | null {
   return null;
 }
 
-function extractSemanticQuery(query: string, intent: Partial<ExtractedSearchIntent>): string | null {
+function extractSemanticQuery(
+  query: string,
+  intent: Partial<ExtractedSearchIntent>,
+): string | null {
   const normalized = normalizeText(query);
 
-  if (/\b(remote work|work from home|wfh|quiet|student|family|nightlife|similar)\b/i.test(normalized)) {
+  if (
+    /\b(remote work|work from home|wfh|quiet|student|family|nightlife|similar)\b/i.test(normalized)
+  ) {
     if (intent.amenity_slugs?.includes('desk') && intent.amenity_slugs.includes('wifi')) {
       return 'good for remote work with desk and wifi';
     }
@@ -238,11 +248,10 @@ export function extractSearchIntentHeuristic(query: string): ExtractedSearchInte
     stay_months: extractStayMonths(query),
     guests: extractGuests(query),
     amenity_slugs: amenitySlugs,
-    max_station_walk_min: /\bnear (a |the )?subway|subway station|close to (a |the )?station\b/i.test(
-        normalized,
-      )
-      ? 10
-      : null,
+    max_station_walk_min:
+      /\bnear (a |the )?subway|subway station|close to (a |the )?station\b/i.test(normalized)
+        ? 10
+        : null,
     location_phrase: locationPhrase,
     district: null,
     sort: semanticQuery ? 'semantic' : 'recommended',

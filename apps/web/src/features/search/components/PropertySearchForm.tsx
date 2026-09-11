@@ -1,4 +1,8 @@
-import type { AccommodationType, PropertySearchFilters, PropertySearchSort } from '@housing-platform/types';
+import type {
+  AccommodationType,
+  PropertySearchFilters,
+  PropertySearchSort,
+} from '@housing-platform/types';
 import {
   Button,
   Card,
@@ -26,12 +30,18 @@ export function PropertySearchForm({
   variant = 'default',
 }: PropertySearchFormProps) {
   const [query, setQuery] = useState(filters.query ?? '');
-  const [propertyType, setPropertyType] = useState<AccommodationType | ''>(filters.propertyType ?? '');
+  const [propertyType, setPropertyType] = useState<AccommodationType | ''>(
+    filters.propertyType ?? '',
+  );
   const [checkIn, setCheckIn] = useState(filters.checkIn ?? '');
   const [checkOut, setCheckOut] = useState(filters.checkOut ?? '');
   const [guests, setGuests] = useState(String(filters.guests ?? 1));
-  const [priceMin, setPriceMin] = useState(filters.priceMin != null ? String(filters.priceMin) : '');
-  const [priceMax, setPriceMax] = useState(filters.priceMax != null ? String(filters.priceMax) : '');
+  const [priceMin, setPriceMin] = useState(
+    filters.priceMin != null ? String(filters.priceMin) : '',
+  );
+  const [priceMax, setPriceMax] = useState(
+    filters.priceMax != null ? String(filters.priceMax) : '',
+  );
   const [sort, setSort] = useState<PropertySearchSort>(filters.sort ?? 'recommended');
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -82,7 +92,9 @@ export function PropertySearchForm({
         />
       </div>
 
-      <div className={`grid gap-3 ${isModal ? 'sm:grid-cols-2' : 'mt-3 md:grid-cols-2 xl:grid-cols-4'}`}>
+      <div
+        className={`grid gap-3 ${isModal ? 'sm:grid-cols-2' : 'mt-3 md:grid-cols-2 xl:grid-cols-4'}`}
+      >
         <FormField label="Type" htmlFor="property-type">
           <Select
             value={propertyType || 'all'}

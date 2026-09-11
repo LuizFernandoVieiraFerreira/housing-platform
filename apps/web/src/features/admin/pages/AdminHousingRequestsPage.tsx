@@ -24,7 +24,9 @@ export function AdminHousingRequestsPage() {
       await updateStatus.mutateAsync({ requestId, status });
     } catch (mutationError) {
       setActionError(
-        mutationError instanceof Error ? mutationError.message : 'Unable to update housing request.',
+        mutationError instanceof Error
+          ? mutationError.message
+          : 'Unable to update housing request.',
       );
     }
   };
@@ -65,7 +67,9 @@ export function AdminHousingRequestsPage() {
                     {request.accommodationType ? ` · ${request.accommodationType}` : ''}
                     {request.budgetMax ? ` · up to ${formatKrw(request.budgetMax)}` : ''}
                   </p>
-                  {request.notes ? <p className="text-ink-muted mt-2 text-sm">{request.notes}</p> : null}
+                  {request.notes ? (
+                    <p className="text-ink-muted mt-2 text-sm">{request.notes}</p>
+                  ) : null}
                 </div>
 
                 <div className="flex flex-wrap gap-2">

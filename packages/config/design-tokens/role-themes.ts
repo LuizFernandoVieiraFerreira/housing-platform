@@ -102,10 +102,7 @@ export function hexToRgbChannels(hex: string): string {
   return `${red} ${green} ${blue}`;
 }
 
-export function applyRoleTheme(
-  element: HTMLElement,
-  role: RoleThemeKey,
-): void {
+export function applyRoleTheme(element: HTMLElement, role: RoleThemeKey): void {
   const palette = roleThemes[role];
 
   element.dataset.role = role;

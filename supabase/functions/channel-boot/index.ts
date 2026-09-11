@@ -28,61 +28,61 @@ serve(async (req) => {
   }
 
   try {
-  const pluginKey = Deno.env.get('CHANNEL_PLUGIN_KEY')?.trim() ?? '';
-  const channelSecret = Deno.env.get('CHANNEL_SECRET')?.trim() ?? '';
-  const user = await getAuthenticatedUser(req);
+    const pluginKey = Deno.env.get('CHANNEL_PLUGIN_KEY')?.trim() ?? '';
+    const channelSecret = Deno.env.get('CHANNEL_SECRET')?.trim() ?? '';
+    const user = await getAuthenticatedUser(req);
 
-  if (!user) {
-    return jsonResponse({
-      pluginKey: pluginKey || null,
-      anonymous: true,
-    });
-  }
-
-  const serviceClient = createServiceClient();
-  const { data: profile, error: profileError } = await serviceClient
-    .from('profiles')
-    .select('id, role, full_name')
-    .eq('id', user.id)
-    .maybeSingle();
-
-  if (profileError || !profile) {
-    return errorResponse('INTERNAL_ERROR', 'Profile not found', 500);
-  }
-
-  const { data: bookings, error: bookingsError } = await serviceClient
-    .from('bookings')
-    .select('id')
-    .eq('customer_id', user.id)
-    .not('status', 'in', '("cancelled","rejected","expired")')
-    .order('created_at', { ascending: false })
-    .limit(10);
-
-  if (bookingsError) {
-    return errorResponse('INTERNAL_ERROR', 'Unable to load bookings', 500);
-  }
-
-  const bookingIds = (bookings ?? []).map((booking) => booking.id as string);
-  const response: Record<string, unknown> = {
-    pluginKey: pluginKey || null,
-    memberId: profile.id,
-    profile: {
-      name: profile.full_name,
-      email: user.email ?? '',
-      role: profile.role,
-      bookingIds,
-    },
-  };
-
-  if (channelSecret) {
-    try {
-      response.memberHash = await createMemberHash(profile.id, channelSecret);
-    } catch {
-      return errorResponse('INTERNAL_ERROR', 'Unable to create member hash', 500);
+    if (!user) {
+      return jsonResponse({
+        pluginKey: pluginKey || null,
+        anonymous: true,
+      });
     }
-  }
 
-  return jsonResponse(response);
+    const serviceClient = createServiceClient();
+    const { data: profile, error: profileError } = await serviceClient
+      .from('profiles')
+      .select('id, role, full_name')
+      .eq('id', user.id)
+      .maybeSingle();
+
+    if (profileError || !profile) {
+      return errorResponse('INTERNAL_ERROR', 'Profile not found', 500);
+    }
+
+    const { data: bookings, error: bookingsError } = await serviceClient
+      .from('bookings')
+      .select('id')
+      .eq('customer_id', user.id)
+      .not('status', 'in', '("cancelled","rejected","expired")')
+      .order('created_at', { ascending: false })
+      .limit(10);
+
+    if (bookingsError) {
+      return errorResponse('INTERNAL_ERROR', 'Unable to load bookings', 500);
+    }
+
+    const bookingIds = (bookings ?? []).map((booking) => booking.id as string);
+    const response: Record<string, unknown> = {
+      pluginKey: pluginKey || null,
+      memberId: profile.id,
+      profile: {
+        name: profile.full_name,
+        email: user.email ?? '',
+        role: profile.role,
+        bookingIds,
+      },
+    };
+
+    if (channelSecret) {
+      try {
+        response.memberHash = await createMemberHash(profile.id, channelSecret);
+      } catch {
+        return errorResponse('INTERNAL_ERROR', 'Unable to create member hash', 500);
+      }
+    }
+
+    return jsonResponse(response);
   } catch (error) {
     await captureException(error, { function: 'channel-boot' });
     return errorResponse('INTERNAL_ERROR', 'Unable to boot Channel.io', 500);

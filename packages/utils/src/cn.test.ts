@@ -8,6 +8,7 @@ describe('cn', () => {
   });
 
   it('handles conditional class values', () => {
-    expect(cn('text-ink', false && 'hidden', 'font-bold')).toBe('text-ink font-bold');
+    const includeHidden = false;
+    expect(cn('text-ink', includeHidden && 'hidden', 'font-bold')).toBe('text-ink font-bold');
   });
 });

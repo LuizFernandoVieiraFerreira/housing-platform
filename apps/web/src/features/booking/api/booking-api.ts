@@ -1,4 +1,9 @@
-import type { Booking, BookingDetail, BookingListItem, BookingQuote } from '@housing-platform/types';
+import type {
+  Booking,
+  BookingDetail,
+  BookingListItem,
+  BookingQuote,
+} from '@housing-platform/types';
 
 import { supabase } from '@/shared/api/supabase';
 
@@ -24,10 +29,7 @@ type BookingListRow = {
   created_at: string;
   properties: { title: string; district: string } | { title: string; district: string }[] | null;
   rooms: { name: string } | { name: string }[] | null;
-  booking_price_snapshots:
-    | { total_krw: number }
-    | { total_krw: number }[]
-    | null;
+  booking_price_snapshots: { total_krw: number } | { total_krw: number }[] | null;
 };
 
 type BookingPriceSnapshotRow = {
@@ -218,9 +220,7 @@ export async function fetchBookingDetail(bookingId: string): Promise<BookingDeta
     rentKrw: snapshot.rent_krw,
     serviceFeeKrw: snapshot.service_fee_krw,
     serviceFeePercent:
-      snapshot.rent_krw > 0
-        ? Math.round((snapshot.service_fee_krw / snapshot.rent_krw) * 100)
-        : 0,
+      snapshot.rent_krw > 0 ? Math.round((snapshot.service_fee_krw / snapshot.rent_krw) * 100) : 0,
     pricingVersion: snapshot.pricing_version,
     propertyId: row.property_id,
     roomId: row.room_id,

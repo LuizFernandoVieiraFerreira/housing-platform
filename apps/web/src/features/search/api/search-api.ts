@@ -84,9 +84,7 @@ function mapSearchProperty(row: SearchPropertyRow): SearchPropertyCard {
     district: row.district,
     nearestStationName: row.nearest_station_name,
     monthlyPriceMin: row.monthly_price_min,
-    coverImageUrl: row.cover_storage_path
-      ? resolvePropertyImageUrl(row.cover_storage_path)
-      : null,
+    coverImageUrl: row.cover_storage_path ? resolvePropertyImageUrl(row.cover_storage_path) : null,
     coverImageAlt: row.cover_alt_text,
     tags: row.tags ?? [],
     latitude: row.latitude,

@@ -28,9 +28,7 @@ function readSupabaseStatus() {
     return JSON.parse(output);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    throw new Error(
-      `Unable to read Supabase status. Run \`supabase start\` first.\n${message}`,
-    );
+    throw new Error(`Unable to read Supabase status. Run \`supabase start\` first.\n${message}`);
   }
 }
 

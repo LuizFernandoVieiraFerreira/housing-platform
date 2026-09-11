@@ -17,9 +17,7 @@ export function GuestRoute({ defaultRedirect = '/' }: { defaultRedirect?: string
   }
 
   if (isAuthenticated && isEmailVerified) {
-    return (
-      <Navigate to={getAuthenticatedHomePath(profile?.role, defaultRedirect)} replace />
-    );
+    return <Navigate to={getAuthenticatedHomePath(profile?.role, defaultRedirect)} replace />;
   }
 
   return <Outlet />;

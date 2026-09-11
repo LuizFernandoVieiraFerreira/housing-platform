@@ -1,6 +1,9 @@
 import type { AccommodationType } from '@housing-platform/types';
+import { cn } from '@housing-platform/utils';
 import type { LucideIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
+
+import { buildSearchParams, SEOUL_CENTER } from '@/features/search/lib/search-params';
 
 // Spelled out rather than built from the slug so Tailwind's scanner keeps these rules.
 const colorClasses: Record<AccommodationType, string> = {
@@ -26,7 +29,13 @@ export function AccommodationTypeCard({
   slug,
 }: AccommodationTypeCardProps) {
   return (
-    <Link to={`/map?propertyType=${slug}`} className={`home-type-card ${colorClasses[slug]}`}>
+    <Link
+      to={{
+        pathname: '/map',
+        search: buildSearchParams({ propertyType: slug, ...SEOUL_CENTER }).toString(),
+      }}
+      className={cn('home-type-card', colorClasses[slug])}
+    >
       <Icon className="home-type-card-icon" aria-hidden="true" />
       <h3 className="home-type-card-name">
         <span className="home-type-card-eyebrow">{eyebrow}</span>

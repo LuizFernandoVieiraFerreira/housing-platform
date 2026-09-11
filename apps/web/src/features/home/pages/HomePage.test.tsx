@@ -2,6 +2,7 @@ import { act, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { HomePage } from '@/features/home/pages/HomePage';
+import { parseSearchParams } from '@/features/search/lib/search-params';
 import { renderWithProviders } from '@/test/render';
 
 function renderHomePage() {
@@ -17,28 +18,46 @@ describe('HomePage', () => {
     vi.useRealTimers();
   });
 
-  it('renders the hero headline', () => {
+  it('gives the hero heading a stable accessible name listing every audience', () => {
     renderHomePage();
 
-    expect(
-      screen.getByRole('heading', { name: /stay for international students/i }),
-    ).toBeInTheDocument();
+    const heading = screen.getByRole('heading', {
+      name: /stay for international students, business stay, monthly travelers/i,
+    });
+
+    act(() => {
+      vi.advanceTimersByTime(4000);
+    });
+
+    // Rotating the accessible name would make the heading unreadable with a screen reader.
+    expect(heading).toHaveAccessibleName(
+      /stay for international students, business stay, monthly travelers/i,
+    );
   });
 
-  it('rotates the hero headline every two seconds', () => {
+  it('rotates the visible audience label every two seconds', () => {
     renderHomePage();
 
-    act(() => {
-      vi.advanceTimersByTime(2000);
-    });
-    expect(screen.getByRole('heading', { name: /stay for business stay/i })).toBeInTheDocument();
+    expect(screen.getByText('international students')).toBeInTheDocument();
 
     act(() => {
       vi.advanceTimersByTime(2000);
     });
-    expect(
-      screen.getByRole('heading', { name: /stay for monthly travelers/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByText('business stay')).toBeInTheDocument();
+
+    act(() => {
+      vi.advanceTimersByTime(2000);
+    });
+    expect(screen.getByText('monthly travelers')).toBeInTheDocument();
+  });
+
+  it('links each accommodation type to a map filter the map actually parses', () => {
+    renderHomePage();
+
+    const shareHouseLink = screen.getByRole('link', { name: /share-house/i });
+    const search = new URLSearchParams(shareHouseLink.getAttribute('href')?.split('?')[1] ?? '');
+
+    expect(parseSearchParams(search).propertyType).toBe('share-house');
   });
 
   it('renders a highlight for every role that uses the platform', () => {

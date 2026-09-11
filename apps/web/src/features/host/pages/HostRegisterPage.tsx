@@ -54,8 +54,16 @@ export function HostRegisterPage() {
         />
 
         <form className="mt-8 space-y-6" onSubmit={onSubmit} noValidate>
-          <FormField label="Host display name" htmlFor="displayName" error={errors.displayName?.message}>
-            <Input id="displayName" hasError={Boolean(errors.displayName)} {...register('displayName')} />
+          <FormField
+            label="Host display name"
+            htmlFor="displayName"
+            error={errors.displayName?.message}
+          >
+            <Input
+              id="displayName"
+              hasError={Boolean(errors.displayName)}
+              {...register('displayName')}
+            />
           </FormField>
 
           {error ? <Alert variant="error">{error}</Alert> : null}
@@ -65,7 +73,10 @@ export function HostRegisterPage() {
           </Button>
         </form>
 
-        <Link to="/account" className="text-brand-600 mt-6 inline-block text-sm font-medium hover:underline">
+        <Link
+          to="/account"
+          className="text-brand-600 mt-6 inline-block text-sm font-medium hover:underline"
+        >
           Back to account
         </Link>
       </Card>

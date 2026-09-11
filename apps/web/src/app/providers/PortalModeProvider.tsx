@@ -62,9 +62,9 @@ export function PortalModeProvider({ children }: { children: ReactNode }) {
 
   const canUseHostPortal = Boolean(
     isAuthenticated &&
-      isEmailVerified &&
-      host &&
-      (profile?.role === 'host' || profile?.role === 'admin'),
+    isEmailVerified &&
+    host &&
+    (profile?.role === 'host' || profile?.role === 'admin'),
   );
 
   const [mode, setModeState] = useState<PortalMode>(() => {

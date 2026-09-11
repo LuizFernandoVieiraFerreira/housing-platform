@@ -53,6 +53,20 @@ export const tokens = {
         foreground: '#111827',
       },
     },
+    /**
+     * Fixed palette for the public marketing surfaces (home, professional landings).
+     * Deliberately outside the role themes: these blocks keep their colours when the
+     * brand scale is re-themed per role, so they cannot be expressed as `brand.*`.
+     */
+    marketing: {
+      'share-house': { DEFAULT: '#00c86f', hover: '#08cc75' },
+      studio: { DEFAULT: '#009bdd', hover: '#08a0e1' },
+      'micro-studio': { DEFAULT: '#f1634b', hover: '#f26d56' },
+      'multi-bedroom': { DEFAULT: '#fdc14a', hover: '#fdc84a' },
+      /** Sampled from the skyline SVG's ground fill so the band continues it seamlessly. */
+      roles: '#4bb97a',
+      steps: '#324c64',
+    },
     semantic: {
       primary: '#ec4899',
       primaryHover: '#db2777',

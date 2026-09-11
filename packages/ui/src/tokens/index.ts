@@ -9,4 +9,8 @@ export {
   resolveRoleThemeKey,
   roleThemes,
 } from '@housing-platform/config/design-tokens/role-themes';
-export type { BrandScale, BrandScaleStep, RoleThemeKey } from '@housing-platform/config/design-tokens/role-themes';
+export type {
+  BrandScale,
+  BrandScaleStep,
+  RoleThemeKey,
+} from '@housing-platform/config/design-tokens/role-themes';

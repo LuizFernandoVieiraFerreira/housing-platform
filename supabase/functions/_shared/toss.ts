@@ -66,5 +66,7 @@ export function isSuccessfulTossPayment(payload: Record<string, unknown>): boole
 }
 
 export function isFailedTossPayment(payload: Record<string, unknown>): boolean {
-  return payload.status === 'ABORTED' || payload.status === 'CANCELED' || payload.status === 'EXPIRED';
+  return (
+    payload.status === 'ABORTED' || payload.status === 'CANCELED' || payload.status === 'EXPIRED'
+  );
 }

@@ -1,5 +1,17 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Alert, Button, Card, FormField, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea } from '@housing-platform/ui';
+import {
+  Alert,
+  Button,
+  Card,
+  FormField,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Textarea,
+} from '@housing-platform/ui';
 import type { PropertyDetail } from '@housing-platform/types';
 import { createBookingHoldSchema, type CreateBookingHoldInput } from '@housing-platform/validation';
 import { useEffect, useMemo, useState } from 'react';
@@ -87,7 +99,11 @@ export function BookingPanel({ property }: BookingPanelProps) {
     return parsed.success ? parsed.data : null;
   }, [roomId, checkIn, checkOut, guestCount]);
 
-  const { data: quote, isFetching: isQuoteLoading, error: quoteError } = useBookingQuote(quoteInput);
+  const {
+    data: quote,
+    isFetching: isQuoteLoading,
+    error: quoteError,
+  } = useBookingQuote(quoteInput);
 
   const returnTo = `/listings/${property.id}?${searchParams.toString()}`;
 
@@ -124,7 +140,8 @@ export function BookingPanel({ property }: BookingPanelProps) {
           <span className="text-ink-muted text-base font-normal">+/30 days</span>
         </p>
         <p className="text-ink-muted mt-2 text-sm">
-          Minimum stay: {property.minStayNights} nights · {property.bookingMode === 'instant' ? 'Instant book' : 'Request to book'}
+          Minimum stay: {property.minStayNights} nights ·{' '}
+          {property.bookingMode === 'instant' ? 'Instant book' : 'Request to book'}
         </p>
         <Link to={`/login?returnTo=${encodeURIComponent(returnTo)}`} className="mt-6 block">
           <Button className="w-full" size="lg">
@@ -149,7 +166,9 @@ export function BookingPanel({ property }: BookingPanelProps) {
   return (
     <Card padding="md">
       <p className="text-ink text-2xl font-bold">
-        {selectedRoom ? formatPrice(selectedRoom.monthlyPriceKrw) : formatPrice(property.monthlyPriceMin)}
+        {selectedRoom
+          ? formatPrice(selectedRoom.monthlyPriceKrw)
+          : formatPrice(property.monthlyPriceMin)}
         <span className="text-ink-muted text-base font-normal">/30 days</span>
       </p>
       <p className="text-ink-muted mt-2 text-sm">
@@ -189,11 +208,21 @@ export function BookingPanel({ property }: BookingPanelProps) {
         )}
 
         <FormField label="Check-in" htmlFor="booking-check-in" error={errors.checkIn?.message}>
-          <Input id="booking-check-in" type="date" hasError={Boolean(errors.checkIn)} {...register('checkIn')} />
+          <Input
+            id="booking-check-in"
+            type="date"
+            hasError={Boolean(errors.checkIn)}
+            {...register('checkIn')}
+          />
         </FormField>
 
         <FormField label="Check-out" htmlFor="booking-check-out" error={errors.checkOut?.message}>
-          <Input id="booking-check-out" type="date" hasError={Boolean(errors.checkOut)} {...register('checkOut')} />
+          <Input
+            id="booking-check-out"
+            type="date"
+            hasError={Boolean(errors.checkOut)}
+            {...register('checkOut')}
+          />
         </FormField>
 
         <FormField label="Guests" htmlFor="booking-guests" error={errors.guestCount?.message}>
@@ -227,7 +256,7 @@ export function BookingPanel({ property }: BookingPanelProps) {
         ) : null}
 
         {quote ? (
-          <div className="border-surface-subtle space-y-2 rounded-lg border bg-surface-muted/40 p-4 text-sm">
+          <div className="border-surface-subtle bg-surface-muted/40 space-y-2 rounded-lg border p-4 text-sm">
             <div className="flex justify-between">
               <span className="text-ink-muted">
                 Rent ({quote.nights} night{quote.nights === 1 ? '' : 's'})

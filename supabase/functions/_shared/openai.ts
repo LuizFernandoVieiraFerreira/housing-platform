@@ -84,7 +84,9 @@ function getOpenAiChatModel(): string {
   return Deno.env.get('OPENAI_CHAT_MODEL')?.trim() || OPENAI_CHAT_MODEL;
 }
 
-export async function extractSearchIntentUsingLlm(query: string): Promise<LlmExtractedSearchIntent> {
+export async function extractSearchIntentUsingLlm(
+  query: string,
+): Promise<LlmExtractedSearchIntent> {
   const apiKey = getOpenAiApiKey();
 
   if (!apiKey) {

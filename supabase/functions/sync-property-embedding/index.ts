@@ -49,8 +49,7 @@ async function updatePropertyEmbeddingSyncStatus(
     .update({
       embedding_sync_status: patch.status,
       embedding_sync_error: patch.error ?? null,
-      embedding_synced_at:
-        patch.status === 'synced' ? new Date().toISOString() : undefined,
+      embedding_synced_at: patch.status === 'synced' ? new Date().toISOString() : undefined,
       embedding_sync_attempts: attempts,
     })
     .eq('id', propertyId);

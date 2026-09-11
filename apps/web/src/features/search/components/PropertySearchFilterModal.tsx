@@ -42,9 +42,7 @@ export function PropertySearchFilterModal({
         <DialogHeader>
           <div>
             <DialogTitle>Search filters</DialogTitle>
-            <DialogDescription>
-              Update location, dates, guests, price, and sort.
-            </DialogDescription>
+            <DialogDescription>Update location, dates, guests, price, and sort.</DialogDescription>
           </div>
           <Button type="button" variant="ghost" size="sm" onClick={onClose} aria-label="Close">
             Close

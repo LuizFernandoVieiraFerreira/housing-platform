@@ -1,10 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  createServiceClient,
-  HONGDAE_PROPERTY_ID,
-  isSupabaseReachable,
-} from './helpers/supabase';
+import { createServiceClient, HONGDAE_PROPERTY_ID, isSupabaseReachable } from './helpers/supabase';
 
 const integrationEnabled = await isSupabaseReachable();
 

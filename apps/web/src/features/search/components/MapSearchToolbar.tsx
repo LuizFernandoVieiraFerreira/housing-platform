@@ -74,9 +74,7 @@ export function MapSearchToolbar({
 
       <div className="text-ink-muted flex items-center justify-between gap-3 px-4 pb-3 text-sm">
         <p>
-          {isLoading
-            ? 'Searching...'
-            : `${totalCount} accommodation${totalCount === 1 ? '' : 's'}`}
+          {isLoading ? 'Searching...' : `${totalCount} accommodation${totalCount === 1 ? '' : 's'}`}
         </p>
         <p className="text-ink font-medium">{sortLabel}</p>
       </div>

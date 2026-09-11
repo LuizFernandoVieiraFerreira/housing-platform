@@ -1,9 +1,4 @@
-import {
-  CURRENCY_CONFIG,
-  KRW_PER_USD,
-  type CurrencyCode,
-  type LanguageCode,
-} from '@/i18n/config';
+import { CURRENCY_CONFIG, KRW_PER_USD, type CurrencyCode, type LanguageCode } from '@/i18n/config';
 
 function convertKrwToCurrency(amountKrw: number, currency: CurrencyCode): number {
   if (currency === 'KRW') {

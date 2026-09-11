@@ -92,7 +92,11 @@ serve(async (req) => {
     });
 
     if (finalizeError) {
-      return errorResponse('INTERNAL_ERROR', finalizeError.message ?? 'Unable to finalize payment', 500);
+      return errorResponse(
+        'INTERNAL_ERROR',
+        finalizeError.message ?? 'Unable to finalize payment',
+        500,
+      );
     }
 
     return jsonResponse({ ok: true, status: 'confirmed' });
