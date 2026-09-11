@@ -5,12 +5,15 @@ import { Link } from 'react-router-dom';
 
 import { buildSearchParams, SEOUL_CENTER } from '@/features/search/lib/search-params';
 
-// Spelled out rather than built from the slug so Tailwind's scanner keeps these rules.
+/*
+ * Spelled out rather than built from the slug so Tailwind's scanner sees every class.
+ * These are fixed marketing colours, not `brand.*`, so they survive role re-theming.
+ */
 const colorClasses: Record<AccommodationType, string> = {
-  'share-house': 'home-type-card--share-house',
-  studio: 'home-type-card--studio',
-  'micro-studio': 'home-type-card--micro-studio',
-  'multi-bedroom': 'home-type-card--multi-bedroom',
+  'share-house': 'bg-marketing-share-house hover:bg-marketing-share-house-hover',
+  studio: 'bg-marketing-studio hover:bg-marketing-studio-hover',
+  'micro-studio': 'bg-marketing-micro-studio hover:bg-marketing-micro-studio-hover',
+  'multi-bedroom': 'bg-marketing-multi-bedroom hover:bg-marketing-multi-bedroom-hover',
 };
 
 interface AccommodationTypeCardProps {
@@ -34,14 +37,25 @@ export function AccommodationTypeCard({
         pathname: '/map',
         search: buildSearchParams({ propertyType: slug, ...SEOUL_CENTER }).toString(),
       }}
-      className={cn('home-type-card', colorClasses[slug])}
+      className={cn(
+        'block p-4 text-white',
+        // Lift on hover only from `sm` up, where the cards stop being full-bleed pairs.
+        'sm:motion-safe:transition-transform sm:motion-safe:duration-300 sm:motion-safe:hover:-translate-y-[2%]',
+        // At `xl` the four cards flatten into one row and gain the top highlight rule.
+        'xl:max-w-[180px] xl:shrink-0 xl:basis-[15.3%] xl:border-t-[5px] xl:border-white/30',
+        colorClasses[slug],
+      )}
     >
-      <Icon className="home-type-card-icon" aria-hidden="true" />
-      <h3 className="home-type-card-name">
-        <span className="home-type-card-eyebrow">{eyebrow}</span>
+      <Icon
+        aria-hidden="true"
+        className="-mr-1.5 -mt-1.5 mb-1 ml-auto block h-7 w-7 opacity-60 xl:mb-[60px] xl:ml-0 xl:mr-0 xl:mt-0"
+      />
+      <h3 className="text-base font-bold">
+        <span className="block text-[80%] font-normal leading-none">{eyebrow}</span>
         {title}
       </h3>
-      <p className="home-type-card-description">{description}</p>
+      {/* Hidden on phones, where the two-up cards have no room for a strapline. */}
+      <p className="mt-1 hidden text-sm italic opacity-60 md:block">{description}</p>
     </Link>
   );
 }

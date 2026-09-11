@@ -55,23 +55,26 @@ export function ProfessionalPlatformPage({ platform }: ProfessionalPlatformPageP
         </PageContainer>
       </section>
 
-      <section className="platform-steps bg-marketing-steps px-4 py-16 text-white sm:px-6 lg:px-20">
+      <section className="bg-marketing-steps px-4 py-16 text-white sm:px-6 lg:px-20">
         <PageContainer className="max-w-3xl">
-          <h2 className="platform-steps-title text-center text-white">
+          <h2 className="mb-10 text-center text-2xl font-bold text-white md:text-[1.75rem]">
             {t(`${platform}.steps.title`)}
           </h2>
 
-          <div className="platform-stepper">
+          <div className="flex flex-col gap-6">
             {stepKeys.map((step, index) => (
-              <div key={step} className="platform-step">
-                <span className="platform-step-number text-brand-600 bg-white">
+              <div
+                key={step}
+                className="flex items-start gap-5 rounded-xl border border-white/10 bg-white/[0.08] p-5 sm:px-7 sm:py-6"
+              >
+                <span className="text-brand-600 flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-sm font-bold sm:h-[52px] sm:w-[52px] sm:text-base">
                   {String(index + 1).padStart(2, '0')}
                 </span>
-                <div className="platform-step-content">
-                  <h3 className="platform-step-title text-white">
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-base font-semibold text-white sm:text-lg">
                     {t(`${platform}.steps.${step}.title`)}
                   </h3>
-                  <p className="platform-step-description text-white/85">
+                  <p className="text-sm leading-normal text-white/85">
                     {t(`${platform}.steps.${step}.description`)}
                   </p>
                 </div>

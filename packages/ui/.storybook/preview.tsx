@@ -8,13 +8,7 @@ import {
 
 import '../src/styles.css';
 
-function RoleThemeWrapper({
-  role,
-  Story,
-}: {
-  role: RoleThemeKey;
-  Story: ComponentType;
-}) {
+function RoleThemeWrapper({ role, Story }: { role: RoleThemeKey; Story: ComponentType }) {
   useEffect(() => {
     applyRoleTheme(document.documentElement, role);
   }, [role]);

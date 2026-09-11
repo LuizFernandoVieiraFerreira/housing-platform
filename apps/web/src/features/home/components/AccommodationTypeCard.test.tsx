@@ -27,7 +27,7 @@ describe('AccommodationTypeCard', () => {
       );
 
       const link = screen.getByRole('link');
-      expect(link).toHaveClass(`home-type-card--${slug}`);
+      expect(link).toHaveClass(`bg-marketing-${slug}`);
 
       const { filters } = expectMapHrefContract(link.getAttribute('href'));
       expect(filters.propertyType).toBe(slug);

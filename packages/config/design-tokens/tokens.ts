@@ -119,6 +119,11 @@ export const tokens = {
     overlay: '0 20px 40px rgba(17, 24, 39, 0.12)',
   },
   breakpoints: {
+    /**
+     * Narrow-phone step below `sm`. Earns its place because the marketing role list
+     * flips from stacked to icon-beside-copy well before 640px would allow.
+     */
+    xs: '400px',
     sm: '640px',
     md: '768px',
     lg: '1024px',
@@ -128,6 +133,14 @@ export const tokens = {
   transitionDuration: {
     default: '150ms',
     interaction: '200ms',
+  },
+  /** Durations for the named keyframe animations exposed as `animate-*` utilities. */
+  animationDuration: {
+    heroLabel: '300ms',
+    cloudDrift: '4s',
+    cloudDriftSlow: '5s',
+    dronePatrol: '20s',
+    appBannerMarquee: '25s',
   },
 } as const;
 

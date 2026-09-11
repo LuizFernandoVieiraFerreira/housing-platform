@@ -49,18 +49,24 @@ export function HomePage() {
 
   return (
     <div>
-      <section className="home-background bg-surface-page min-h-marketing-hero md:min-h-marketing-hero-md xl:min-h-marketing-hero-xl 2xl:min-h-marketing-hero-2xl flex flex-col px-4 py-10 sm:px-6 lg:px-20">
+      <section className="home-hero-skyline bg-surface-page min-h-marketing-hero md:min-h-marketing-hero-md xl:min-h-marketing-hero-xl 2xl:min-h-marketing-hero-2xl relative flex flex-col px-4 py-10 sm:px-6 lg:px-20">
         <HomeAnimatedBackground />
 
-        <PageContainer className="relative z-[3] flex flex-1 flex-col gap-10">
-          <div className="home-headline">
+        <PageContainer className="relative z-10 flex flex-1 flex-col gap-10">
+          <div className="text-center">
             <HomeHeroHeadline />
-            <p className="home-headline-subtitle text-ink-muted">{t('heroSubtitle')}</p>
+            <p className="text-ink-muted mx-auto max-w-[34ch] text-lg font-light leading-[1.3] sm:text-xl lg:text-[1.625rem]">
+              {t('heroSubtitle')}
+            </p>
           </div>
 
           <HomeSearchBar />
 
-          <div className="home-type-list mt-auto">
+          {/*
+           * Two-up on phones, four across from `xl`. The gap does the spacing work that
+           * an `nth-child` margin rule used to, which is why the flex/grid swap is safe.
+           */}
+          <div className="mt-auto grid translate-y-8 grid-cols-2 pb-5 sm:gap-3.5 xl:flex xl:flex-nowrap xl:justify-center">
             {accommodationTypeConfigs.map((type) => (
               <AccommodationTypeCard
                 key={type.slug}

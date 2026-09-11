@@ -16,6 +16,47 @@ function mapStatusColors(status: (typeof tokens.colors.status)[keyof typeof toke
   };
 }
 
+/**
+ * Applied at `theme.screens` rather than `theme.extend.screens`: extending appends
+ * new keys after the defaults, so `xs` would emit its utilities *after* `2xl` and
+ * `xs:text-left` would beat `lg:text-center`. A full override keeps the media
+ * queries in ascending order, which is what the variant precedence relies on.
+ */
+export const screens = tokens.breakpoints;
+
+const keyframes = {
+  'hero-label-fade-in': {
+    from: { opacity: '0', transform: 'translateY(-0.25rem)' },
+    to: { opacity: '1', transform: 'translateY(0)' },
+  },
+  'app-banner-marquee': {
+    from: { transform: 'translateX(0)' },
+    to: { transform: 'translateX(-50%)' },
+  },
+  'cloud-drift': {
+    to: { transform: 'translate3d(-15%, 0, 0)' },
+  },
+  'drone-patrol': {
+    '0%, 10%, 100%': { transform: 'translate3d(0, 100%, 0)', opacity: '1' },
+    '25%, 35%': { transform: 'scale(0.8) translate3d(250%, 0%, 0)', opacity: '0.5' },
+    '50%, 60%': { transform: 'translate3d(100%, 150%, 0)', opacity: '1' },
+    '70%, 80%': { transform: 'scale(1.15) translate3d(200%, 300%, 0)' },
+  },
+};
+
+const animation = {
+  'hero-label-fade-in': `hero-label-fade-in ${tokens.animationDuration.heroLabel} ease-out`,
+  'app-banner-marquee': `app-banner-marquee ${tokens.animationDuration.appBannerMarquee} linear infinite`,
+  /*
+   * The three clouds share one keyframe but differ in tempo and easing, which is the
+   * only reason they don't visibly drift in lockstep. Keep all three.
+   */
+  'cloud-drift': `cloud-drift ${tokens.animationDuration.cloudDrift} linear infinite alternate`,
+  'cloud-drift-out': `cloud-drift ${tokens.animationDuration.cloudDrift} ease-out infinite alternate`,
+  'cloud-drift-in': `cloud-drift ${tokens.animationDuration.cloudDriftSlow} ease-in infinite alternate`,
+  'drone-patrol': `drone-patrol ${tokens.animationDuration.dronePatrol} linear infinite`,
+};
+
 export function createTailwindTheme() {
   return {
     colors: {
@@ -77,10 +118,11 @@ export function createTailwindTheme() {
       '2xl': tokens.radii['2xl'],
     },
     boxShadow: tokens.shadows,
-    screens: tokens.breakpoints,
     transitionDuration: {
       DEFAULT: tokens.transitionDuration.default,
       interaction: tokens.transitionDuration.interaction,
     },
+    keyframes,
+    animation,
   };
 }

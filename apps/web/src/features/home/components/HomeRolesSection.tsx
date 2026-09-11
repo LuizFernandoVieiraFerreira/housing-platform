@@ -23,39 +23,78 @@ const roleConfigs: RoleConfig[] = [
   ...professionalPlatforms.map(({ key, icon, landingPath }) => ({ key, icon, to: landingPath })),
 ];
 
+interface HomeRoleLinkProps {
+  icon: LucideIcon;
+  to: string;
+  name: string;
+  description: string;
+  cta: string;
+}
+
+function HomeRoleLink({ icon: Icon, to, name, description, cta }: HomeRoleLinkProps) {
+  return (
+    /*
+     * Layout progression matching the original Alura-inspired design:
+     * - Mobile (<400px): stacked, text centered, icon above
+     * - 400px+: horizontal flex, icon beside text, text left-aligned
+     * - 510px+: icon gets circular border and grows to 80×80
+     * - 1000px+: handled by parent (two-column layout)
+     */
+    <Link to={to} className="xs:flex xs:items-center xs:text-left group pb-9 min-[1000px]:pb-0">
+      {/*
+       * Icon container: 36×36 at mobile, 80×80 with circular border from 510px.
+       * The SVG fills the container on mobile but stays 40×40 once the container
+       * grows, centering it inside the circle.
+       */}
+      <span className="xs:mx-0 xs:mb-0 xs:mr-4 mx-auto mb-2 flex h-9 w-9 shrink-0 items-center justify-center min-[510px]:mr-7 min-[510px]:h-20 min-[510px]:w-20 min-[510px]:rounded-full min-[510px]:border-[3px] min-[510px]:border-white">
+        <Icon aria-hidden="true" className="h-full w-full min-[510px]:h-10 min-[510px]:w-10" />
+      </span>
+      <div>
+        <h3 className="mb-2.5 text-lg font-bold min-[1000px]:text-[21px]">{name}</h3>
+        <p className="text-base opacity-80 min-[1000px]:pr-5">{description}</p>
+        <span className="mt-2 inline-flex items-center gap-1.5 text-sm font-bold underline underline-offset-[3px]">
+          {cta}
+          <ArrowRight
+            aria-hidden="true"
+            className="h-4 w-4 motion-safe:transition-transform motion-safe:duration-200 motion-safe:group-hover:translate-x-[3px]"
+          />
+        </span>
+      </div>
+    </Link>
+  );
+}
+
 export function HomeRolesSection() {
   const { t } = useTranslation('home');
 
   return (
-    <section className="home-roles bg-marketing-roles px-4 text-white sm:px-6 lg:px-20">
-      <PageContainer className="home-roles-inner">
-        <div className="home-roles-video">
-          <h2 className="home-roles-title">{t('roles.title')}</h2>
-          <div className="home-roles-video-wrapper">
-            <div className="elastic-media-container">
-              <div className="elastic-media home-roles-video-placeholder">
-                <Play aria-hidden="true" />
-                <span>{t('roles.videoPlaceholder')}</span>
-              </div>
+    <section className="bg-marketing-roles px-4 pt-9 text-center text-white sm:px-6 min-[1000px]:px-20 min-[1000px]:pb-[60px] min-[1000px]:pt-[85px]">
+      <PageContainer className="min-[1000px]:flex min-[1000px]:justify-between">
+        {/* Video column */}
+        <div className="pb-6 min-[1000px]:w-[44%] min-[1000px]:pb-0 min-[1000px]:text-left">
+          <h2 className="pb-5 text-xl font-bold min-[900px]:text-[1.4em] min-[900px]:leading-[1.3]">
+            {t('roles.title')}
+          </h2>
+          <div className="mx-auto max-w-[480px] min-[1000px]:mx-0">
+            {/* aspect-video holds the 16:9 ratio natively */}
+            <div className="flex aspect-video flex-col items-center justify-center gap-2 border-[3px] border-white/40 bg-black/[0.12] text-sm">
+              <Play aria-hidden="true" className="h-10 w-10" />
+              <span>{t('roles.videoPlaceholder')}</span>
             </div>
           </div>
         </div>
 
-        <div className="home-roles-list">
-          {roleConfigs.map(({ key, icon: Icon, to }) => (
-            <Link key={key} to={to} className="home-roles-item">
-              <span className="home-roles-item-icon">
-                <Icon aria-hidden="true" />
-              </span>
-              <div>
-                <h3 className="home-roles-item-name">{t(`roles.items.${key}.name`)}</h3>
-                <p className="home-roles-item-description">{t(`roles.items.${key}.description`)}</p>
-                <span className="home-roles-item-cta">
-                  {t(`roles.items.${key}.cta`)}
-                  <ArrowRight aria-hidden="true" />
-                </span>
-              </div>
-            </Link>
+        {/* Roles list column */}
+        <div className="mx-auto max-w-[480px] min-[1000px]:mx-0 min-[1000px]:flex min-[1000px]:w-[49.5%] min-[1000px]:max-w-none min-[1000px]:flex-col min-[1000px]:justify-between min-[1000px]:gap-7">
+          {roleConfigs.map(({ key, icon, to }) => (
+            <HomeRoleLink
+              key={key}
+              icon={icon}
+              to={to}
+              name={t(`roles.items.${key}.name`)}
+              description={t(`roles.items.${key}.description`)}
+              cta={t(`roles.items.${key}.cta`)}
+            />
           ))}
         </div>
       </PageContainer>
