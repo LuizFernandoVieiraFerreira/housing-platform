@@ -1,12 +1,11 @@
-import { Suspense, lazy } from 'react';
+import { Suspense } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 
 import { PublicLayout } from '@/app/layouts/PublicLayout';
-import { AdminLayout } from '@/features/admin/layouts/AdminLayout';
 import { AppErrorBoundary } from '@/shared/components/AppErrorBoundary';
-import { isAdminProfile } from '@/features/admin/api/admin-api';
-import { useCurrentProfile } from '@/features/account/hooks/useProfile';
-import { useAuth } from '@/features/auth/hooks/useAuth';
+import { useCurrentProfile } from '@/features/account';
+import { isAdminProfile, AdminLayout } from '@/features/admin';
+import { useAuth } from '@/features/auth';
 
 /**
  * Layout wrapper for /admin/* routes.

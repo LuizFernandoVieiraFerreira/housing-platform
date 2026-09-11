@@ -3,10 +3,7 @@ import type { LucideIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
-import {
-  professionalPlatforms,
-  type ProfessionalPlatformKey,
-} from '@/features/platforms/lib/professional-platforms';
+import { professionalPlatforms, type ProfessionalPlatformKey } from '@/features/platforms';
 import { PageContainer } from '@/shared/components/PageContainer';
 
 type HomeRoleKey = 'guest' | ProfessionalPlatformKey;

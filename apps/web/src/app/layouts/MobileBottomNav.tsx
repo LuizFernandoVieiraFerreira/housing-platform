@@ -3,8 +3,8 @@ import { useTranslation } from 'react-i18next';
 
 import { getVisibleNavItems } from '@/app/layouts/nav-items';
 import { usePortalMode } from '@/app/providers/PortalModeProvider';
-import { useCurrentProfile } from '@/features/account/hooks/useProfile';
-import { useAuth } from '@/features/auth/hooks/useAuth';
+import { useCurrentProfile } from '@/features/account';
+import { useAuth } from '@/features/auth';
 
 export function MobileBottomNav() {
   const { t } = useTranslation('common');

@@ -1,13 +1,11 @@
-import { Suspense, lazy } from 'react';
+import { Suspense } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 
 import { PublicLayout } from '@/app/layouts/PublicLayout';
-import { HostLayout } from '@/features/host/layouts/HostLayout';
 import { AppErrorBoundary } from '@/shared/components/AppErrorBoundary';
-import { useCurrentHost } from '@/features/host/hooks/useHost';
-import { useAuth } from '@/features/auth/hooks/useAuth';
-import { isHostProfile } from '@/features/host/api/host-api';
-import { useCurrentProfile } from '@/features/account/hooks/useProfile';
+import { useCurrentProfile } from '@/features/account';
+import { useAuth } from '@/features/auth';
+import { useCurrentHost, isHostProfile, HostLayout } from '@/features/host';
 
 /**
  * Layout wrapper for /host/* routes.

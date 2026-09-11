@@ -6,8 +6,8 @@ import {
   formatKrw,
   getBookingErrorMessage,
   getBookingStatusLabel,
-} from '@/features/booking/lib/booking-utils';
-import { useMyBookings } from '@/features/booking/hooks/useBooking';
+  useMyBookings,
+} from '@/features/booking';
 
 export function BookingsPage() {
   const { data: bookings, isLoading, error } = useMyBookings();

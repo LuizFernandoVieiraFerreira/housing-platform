@@ -1,0 +1,53 @@
+---
+description: Enforce feature module import patterns
+globs: apps/web/src/**/*.{ts,tsx}
+---
+
+# Feature Import Rules
+
+When importing from `@/features/*`, use the barrel export (index.ts) instead of deep imports.
+
+## ✅ Correct
+
+```typescript
+import { useAuth, AuthProvider } from '@/features/auth';
+import { useCurrentProfile } from '@/features/account';
+import { useBookingQuote, formatKrw } from '@/features/booking';
+```
+
+## ❌ Incorrect
+
+```typescript
+import { useAuth } from '@/features/auth/hooks/useAuth';
+import { useCurrentProfile } from '@/features/account/hooks/useProfile';
+import { formatKrw } from '@/features/booking/lib/booking-utils';
+```
+
+## Exception: Internal Feature Imports
+
+Within the same feature, deep imports are allowed:
+
+```typescript
+// Inside @/features/auth/context/AuthProvider.tsx
+import { useAuth } from '../hooks/useAuth'; // ✅ OK within same feature
+```
+
+## Available Feature Exports
+
+| Feature | Key Exports |
+|---------|-------------|
+| `@/features/auth` | `useAuth`, `AuthProvider`, `GuestRoute`, `ProtectedRoute`, `MarketplaceRoute` |
+| `@/features/account` | `useCurrentProfile`, `AccountLayout` |
+| `@/features/admin` | `isAdminProfile`, `AdminRoute`, `AdminLayout` |
+| `@/features/booking` | `useBookingQuote`, `useMyBookings`, `BookingPanel`, `formatKrw` |
+| `@/features/host` | `useCurrentHost`, `isHostProfile`, `HostRoute`, `HostLayout` |
+| `@/features/search` | `usePropertySearch`, `buildSearchParams`, `SEOUL_CENTER` |
+| `@/features/platforms` | `professionalPlatforms`, `getProfessionalPlatform` |
+| `@/features/notifications` | `useNotifications`, `NotificationProvider` |
+
+## Why This Matters
+
+1. **Encapsulation**: Features can refactor internals without breaking consumers
+2. **Discoverability**: The index.ts shows the public API at a glance
+3. **Maintainability**: Prevents tight coupling between features
+4. **Consistency**: Same import pattern everywhere
