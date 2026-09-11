@@ -50,68 +50,151 @@
     display: none !important;
   }
 
-  /* Animated background - clouds and drone */
-  @keyframes cloud-float-left {
+  /*
+   * Animated city background.
+   *
+   * The silhouette SVG has no intrinsic size, only a viewBox (ratio 2.3325), so it
+   * letterboxes inside the painted area. Once the painted box is wider than that
+   * ratio the artwork shrinks to fit the height and the extra scenery on either
+   * side of the buildings becomes visible. The painted box is sized from the
+   * section's own height, so the min-heights below are what keep that crossover
+   * point where it belongs (~1512px viewport).
+   */
+  .home-background {
+    position: relative;
+  }
+
+  .home-background-container {
+    display: none;
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+
+  .home-background-inner-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+  }
+
+  .home-background-cloud,
+  .home-background-drone {
+    position: absolute;
+    z-index: 2;
+    background-repeat: no-repeat;
+    background-position: bottom center;
+  }
+
+  .home-background-cloud {
+    background-image: url('/images/background-city-cloud.svg');
+  }
+
+  .home-background-cloud.right {
+    padding-top: 2.75%;
+    width: 5.5%;
+    top: 22%;
+    right: 0;
+    animation: move-cloud 4s alternate infinite linear;
+  }
+
+  .home-background-cloud.left {
+    padding-top: 2.75%;
+    width: 5.5%;
+    top: 29%;
+    left: 4%;
+    z-index: 3;
+    animation: move-cloud 4s alternate infinite ease-out;
+  }
+
+  .home-background-cloud.left-large {
+    background-image: url('/images/background-city-cloud-large.svg');
+    padding-top: 5%;
+    width: 10%;
+    top: 24%;
+    left: 0;
+    animation: move-cloud 5s alternate infinite ease-in;
+  }
+
+  .home-background-drone {
+    background-image: url('/images/background-city-drone.svg');
+    padding-top: 2.5%;
+    width: 6%;
+    top: 44%;
+    left: 8%;
+    animation: move-drone 20s infinite linear;
+  }
+
+  @keyframes move-cloud {
+    to {
+      transform: translate3d(-15%, 0, 0);
+    }
+  }
+
+  @keyframes move-drone {
     0%,
+    10%,
     100% {
-      transform: translateX(0);
+      transform: translate3d(0, 100%, 0);
+      opacity: 1;
     }
-    50% {
-      transform: translateX(-20px);
+
+    25%,
+    35% {
+      transform: scale(0.8) translate3d(250%, 0%, 0);
+      opacity: 0.5;
+    }
+
+    50%,
+    60% {
+      transform: translate3d(100%, 150%, 0);
+      opacity: 1;
+    }
+
+    70%,
+    80% {
+      transform: scale(1.15) translate3d(200%, 300%, 0);
     }
   }
 
-  @keyframes cloud-float-right {
-    0%,
-    100% {
-      transform: translateX(0);
+  @media (min-width: 720px) {
+    .home-background {
+      background: url('/images/background-city-skyline.svg') no-repeat bottom center;
+      background-size: 100% calc(100% + 6em);
+      background-position: bottom -20px center;
+      min-height: 596px;
     }
-    50% {
-      transform: translateX(20px);
+
+    .home-background-container {
+      display: block;
     }
   }
 
-  @keyframes cloud-float-large {
-    0%,
-    100% {
-      transform: translateX(0) translateY(0);
-    }
-    50% {
-      transform: translateX(-30px) translateY(-10px);
+  @media (min-width: 1200px) {
+    .home-background {
+      background-size: 100% 110%;
+      background-position: bottom -70px center;
+      min-height: 639px;
     }
   }
 
-  @keyframes drone-fly {
-    0% {
-      transform: translateX(-100px) translateY(0);
+  @media (min-width: 1280px) {
+    .home-background {
+      min-height: 648px;
     }
-    25% {
-      transform: translateX(25vw) translateY(-15px);
-    }
-    50% {
-      transform: translateX(50vw) translateY(5px);
-    }
-    75% {
-      transform: translateX(75vw) translateY(-10px);
-    }
-    100% {
-      transform: translateX(calc(100vw + 100px)) translateY(0);
+
+    /* Clouds are laid out against the centred 1200px content column, not the viewport. */
+    .home-background-container {
+      width: 1200px;
+      margin-left: auto;
+      margin-right: auto;
     }
   }
 
-  .animate-cloud-float-left {
-    animation: cloud-float-left 8s ease-in-out infinite;
-  }
-
-  .animate-cloud-float-right {
-    animation: cloud-float-right 6s ease-in-out infinite;
-  }
-
-  .animate-cloud-float-large {
-    animation: cloud-float-large 10s ease-in-out infinite;
-  }
-
-  .animate-drone-fly {
-    animation: drone-fly 20s linear infinite;
+  @media (min-width: 1400px) {
+    .home-background {
+      background-size: 100% 100%;
+      background-position: bottom center;
+    }
   }
 }

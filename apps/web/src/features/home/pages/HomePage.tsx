@@ -48,10 +48,10 @@ export function HomePage() {
 
   return (
     <div>
-      <section className="bg-surface-page relative px-4 py-10 sm:px-6 lg:px-20">
-        {/* <HomeAnimatedBackground /> */}
+      <section className="home-background bg-surface-page px-4 py-10 sm:px-6 lg:px-20">
+        <HomeAnimatedBackground />
 
-        <PageContainer className="relative z-10 flex flex-col gap-10">
+        <PageContainer className="relative z-[3] flex flex-col gap-10">
           <div className="flex flex-col gap-4">
             <p className="text-brown-500 text-sm font-bold uppercase tracking-wide">
               {t('home.welcome')}
