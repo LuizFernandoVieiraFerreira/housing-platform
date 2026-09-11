@@ -1,4 +1,4 @@
-<img src="docs/screenshots/banner.png"/>
+<!-- <img src="docs/screenshots/banner.png"/> -->
 
 ## Overview
 
@@ -48,8 +48,8 @@ Copy the **anon key** from the CLI output into `apps/web/.env.local`. Dev accoun
 | Backend  | Supabase (PostgreSQL, Auth, RLS, Storage, Edge Functions)                |
 | Tooling  | pnpm workspaces, Turbo, ESLint, Prettier, Vitest, Testing Library        |
 
-<div style="display: flex; gap: 8px;">
+<!-- <div style="display: flex; gap: 8px;">
   <img src="docs/screenshots/home.png" width="256"/>
   <img src="docs/screenshots/map-search.png" width="256"/>
   <img src="docs/screenshots/property-detail.png" width="256"/>
-</div>
+</div> -->
