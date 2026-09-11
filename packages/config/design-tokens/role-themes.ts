@@ -48,10 +48,42 @@ const adminBrand = {
   950: '#052e16',
 } satisfies BrandScale;
 
+/** Soft violet, in the vein of Reflectly's purple mindfulness palette. */
+const photographerBrand = {
+  50: '#f5f3ff',
+  100: '#ede9fe',
+  200: '#ddd6fe',
+  300: '#c4b5fd',
+  400: '#a78bfa',
+  500: '#8b5cf6',
+  600: '#7c3aed',
+  700: '#6d28d9',
+  800: '#5b21b6',
+  900: '#4c1d95',
+  950: '#2e1065',
+} satisfies BrandScale;
+
+/** Honey-gold for agent-facing pages — softer than amber, closer to Alura's cozy yellow. */
+const agentBrand = {
+  50: '#fffdf5',
+  100: '#fef9e8',
+  200: '#fef0c3',
+  300: '#fde496',
+  400: '#fcd463',
+  500: '#fdc14a',
+  600: '#e0a832',
+  700: '#b88728',
+  800: '#946b20',
+  900: '#78571a',
+  950: '#45320f',
+} satisfies BrandScale;
+
 export const roleThemes = {
   customer: customerBrand,
   host: hostBrand,
   admin: adminBrand,
+  photographer: photographerBrand,
+  agent: agentBrand,
 } as const;
 
 export type RoleThemeKey = keyof typeof roleThemes;
@@ -100,23 +132,38 @@ export function resolveRoleThemeKey(
   return 'customer';
 }
 
+function isPathWithin(pathname: string, roots: string[]): boolean {
+  return roots.some((root) => pathname === root || pathname.startsWith(`${root}/`));
+}
+
+/**
+ * Theme demanded by the URL itself, or undefined for paths that belong to no single role.
+ * Those fall back to the signed-in portal mode.
+ */
+export function resolveExplicitPathThemeKey(pathname: string): RoleThemeKey | undefined {
+  if (isPathWithin(pathname, ['/for-hosts', '/host/login', '/host/signup'])) {
+    return 'host';
+  }
+
+  if (isPathWithin(pathname, ['/admin/login'])) {
+    return 'admin';
+  }
+
+  if (isPathWithin(pathname, ['/for-photographers'])) {
+    return 'photographer';
+  }
+
+  if (isPathWithin(pathname, ['/for-agents'])) {
+    return 'agent';
+  }
+
+  return undefined;
+}
+
 /**
  * Theme for unauthenticated pages.
  * Customer login/signup and public marketing pages use pink; host/admin entry points use their role colors.
  */
 export function resolvePathThemeKey(pathname: string): RoleThemeKey {
-  if (
-    pathname === '/host/login' ||
-    pathname === '/host/signup' ||
-    pathname.startsWith('/host/login/') ||
-    pathname.startsWith('/host/signup/')
-  ) {
-    return 'host';
-  }
-
-  if (pathname === '/admin/login' || pathname.startsWith('/admin/login/')) {
-    return 'admin';
-  }
-
-  return 'customer';
+  return resolveExplicitPathThemeKey(pathname) ?? 'customer';
 }

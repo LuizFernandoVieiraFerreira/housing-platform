@@ -17,26 +17,11 @@ export function SiteFooter() {
           <Link to="/refund" className="hover:text-ink hover:underline">
             {t('footer.refund')}
           </Link>
-          <Link to="/delete-account" className="hover:text-ink hover:underline">
-            {t('footer.deleteAccount')}
-          </Link>
-          <a
-            href="#"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-ink hover:underline"
-          >
-            {t('footer.blog')}
-          </a>
-          <Link to="/universities" className="hover:text-ink hover:underline">
-            {t('footer.universities')}
-          </Link>
-          <Link to="/host/login" className="hover:text-ink hover:underline">
-            {t('footer.hostLogin')}
-          </Link>
         </nav>
 
-        <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <hr className="border-surface-subtle my-8" />
+
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-ink text-sm font-semibold">{t('footer.appTitle')}</p>
             <p className="text-ink-muted mt-1 text-xs">{t('footer.appDescription')}</p>

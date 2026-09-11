@@ -22,9 +22,8 @@ export function HomeHeroHeadline() {
   const currentLabel = t(audienceKeys[labelIndex]!);
 
   return (
-    <h1 className="text-ink text-4xl font-bold leading-[1.2]">
-      <span>{t('home.heroPrefix')}</span>
-      <br />
+    <h1 className="home-headline-title text-ink">
+      {t('home.heroPrefix')}{' '}
       <span
         key={labelIndex}
         aria-live="polite"

@@ -3,6 +3,7 @@ import { Button } from '@housing-platform/ui';
 import { useTranslation } from 'react-i18next';
 
 import { PortalSwitchButton } from '@/app/layouts/PortalSwitchButton';
+import { ProfessionalPlatformsMenu } from '@/app/layouts/ProfessionalPlatformsMenu';
 import { UserAvatarMenu } from '@/app/layouts/UserAvatarMenu';
 import { getHomePathForRole, getVisibleNavItems } from '@/app/layouts/nav-items';
 import { usePortalMode } from '@/app/providers/PortalModeProvider';
@@ -79,11 +80,10 @@ export function SiteHeader() {
             </>
           ) : (
             <>
-              <Link to="/host/login">
-                <Button variant="ghost" size="sm">
-                  {t('header.hostLogin')}
-                </Button>
-              </Link>
+              {/* Hidden on small screens, where the home page role band and footer carry these links. */}
+              <div className="hidden md:block">
+                <ProfessionalPlatformsMenu />
+              </div>
               <Link to="/login">
                 <Button variant="ghost" size="sm">
                   {t('header.logIn')}

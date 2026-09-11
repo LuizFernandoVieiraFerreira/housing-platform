@@ -13,7 +13,6 @@
   "header": {
     "loading": "...",
     "logIn": "Log in",
-    "hostLogin": "Host login",
     "signUp": "Sign up",
     "switchToHost": "Switch to host",
     "switchToGuest": "Switch to guest",
@@ -27,10 +26,6 @@
     "terms": "Terms & Conditions",
     "privacy": "Privacy Policy",
     "refund": "Refund Policy",
-    "deleteAccount": "Delete Account",
-    "blog": "Blog",
-    "universities": "Universities",
-    "hostLogin": "Host login",
     "appTitle": "Download the Housing Platform app",
     "appDescription": "Get it on the App Store or Google Play",
     "getApp": "Get the app",

@@ -1,14 +1,14 @@
 {
   "home": {
-    "welcome": "Welcome to Housing Platform",
-    "accommodationType": "Accommodation type",
     "heroPrefix": "Stay for",
+    "heroSubtitle": "Verified monthly stays across Seoul, from share-houses to whole apartments.",
     "audiences": {
       "internationalStudents": "international students",
       "businessStay": "business stay",
       "monthlyTravelers": "monthly travelers"
     },
     "accommodationTypes": {
+      "eyebrow": "Stay in a",
       "share-house": {
         "title": "Share-house",
         "description": "Shared social spaces"
@@ -26,12 +26,36 @@
         "description": "Space for groups"
       }
     },
+    "roles": {
+      "title": "Stay, host and grow with Housing Platform!",
+      "videoTitle": "Housing Platform product tour",
+      "videoPlaceholder": "Product tour coming soon",
+      "items": {
+        "guest": {
+          "name": "For guests",
+          "description": "Browse verified monthly stays, compare neighbourhoods and book the room that fits your budget.",
+          "cta": "Browse stays"
+        },
+        "host": {
+          "name": "For hosts",
+          "description": "List a single room or a whole building, set your own terms and reach long-stay tenants from abroad.",
+          "cta": "See how hosting works"
+        },
+        "photographer": {
+          "name": "For photographers",
+          "description": "Get matched with nearby listings that need shooting and get paid for every set you deliver.",
+          "cta": "See photographer work"
+        },
+        "agent": {
+          "name": "For agents",
+          "description": "Manage every client property from one dashboard and keep pricing and availability in sync.",
+          "cta": "See how agents work"
+        }
+      }
+    },
     "search": {
-      "placeholder": "Describe what you're looking for in Seoul…",
+      "placeholder": "Try: quiet studio near Hongdae under ₩700,000",
       "queryLabel": "Smart property search",
-      "checkIn": "Check in",
-      "checkOut": "Check out",
-      "guests": "Guests",
       "submit": "Search"
     }
   },

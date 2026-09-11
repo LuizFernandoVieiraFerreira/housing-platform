@@ -31,9 +31,7 @@ describe('HomePage', () => {
     act(() => {
       vi.advanceTimersByTime(2000);
     });
-    expect(
-      screen.getByRole('heading', { name: /stay for business stay/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /stay for business stay/i })).toBeInTheDocument();
 
     act(() => {
       vi.advanceTimersByTime(2000);
@@ -43,12 +41,25 @@ describe('HomePage', () => {
     ).toBeInTheDocument();
   });
 
-  it('renders the featured stays section', () => {
+  it('renders a highlight for every role that uses the platform', () => {
     renderHomePage();
 
-    expect(screen.getByText(/Editor's picks/i)).toBeInTheDocument();
-    expect(
-      screen.getByRole('heading', { name: /Featured stays/i }),
-    ).toBeInTheDocument();
+    for (const role of [/For guests/i, /For hosts/i, /For photographers/i, /For agents/i]) {
+      expect(screen.getByRole('heading', { name: role })).toBeInTheDocument();
+    }
+  });
+
+  it('routes each role highlight to its own platform', () => {
+    renderHomePage();
+
+    const expectedPaths = ['/map', '/for-hosts', '/for-photographers', '/for-agents'];
+    const roleLinks = [
+      /browse stays/i,
+      /see how hosting works/i,
+      /see photographer work/i,
+      /see how agents work/i,
+    ].map((name) => screen.getByRole('link', { name }));
+
+    expect(roleLinks.map((link) => link.getAttribute('href'))).toEqual(expectedPaths);
   });
 });

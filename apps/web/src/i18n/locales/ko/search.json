@@ -1,14 +1,14 @@
 {
   "home": {
-    "welcome": "Housing Platform에 오신 것을 환영합니다",
-    "accommodationType": "숙소 유형",
     "heroPrefix": "이런 분들을 위한 숙소",
+    "heroSubtitle": "쉐어하우스부터 아파트 전체까지, 서울의 인증된 월세 숙소를 만나보세요.",
     "audiences": {
       "internationalStudents": "유학생",
       "businessStay": "출장/비즈니스",
       "monthlyTravelers": "장기 여행객"
     },
     "accommodationTypes": {
+      "eyebrow": "머물 곳",
       "share-house": {
         "title": "쉐어하우스",
         "description": "공용 공간이 있는 숙소"
@@ -26,12 +26,36 @@
         "description": "그룹을 위한 공간"
       }
     },
+    "roles": {
+      "title": "Housing Platform에서 머물고, 호스팅하고, 성장하세요!",
+      "videoTitle": "Housing Platform 서비스 소개 영상",
+      "videoPlaceholder": "서비스 소개 영상 준비 중",
+      "items": {
+        "guest": {
+          "name": "게스트를 위해",
+          "description": "인증된 월세 숙소를 살펴보고 동네를 비교한 뒤 예산에 맞는 방을 예약하세요.",
+          "cta": "숙소 보기"
+        },
+        "host": {
+          "name": "호스트를 위해",
+          "description": "방 하나부터 건물 전체까지 등록하고, 원하는 조건을 정해 장기 체류 세입자를 만나보세요.",
+          "cta": "호스팅 알아보기"
+        },
+        "photographer": {
+          "name": "포토그래퍼를 위해",
+          "description": "촬영이 필요한 근처 숙소와 연결되고, 납품한 촬영마다 보수를 받으세요.",
+          "cta": "촬영 일 알아보기"
+        },
+        "agent": {
+          "name": "중개사를 위해",
+          "description": "모든 고객 매물을 하나의 대시보드에서 관리하고 가격과 예약 가능 여부를 동기화하세요.",
+          "cta": "중개사 안내 보기"
+        }
+      }
+    },
     "search": {
-      "placeholder": "서울에서 찾고 있는 숙소를 설명해 주세요…",
+      "placeholder": "예: 홍대 근처 조용한 스튜디오, 70만원 이하",
       "queryLabel": "스마트 숙소 검색",
-      "checkIn": "체크인",
-      "checkOut": "체크아웃",
-      "guests": "인원",
       "submit": "검색"
     }
   },

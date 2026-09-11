@@ -27,6 +27,8 @@ import { SignUpPage } from '@/features/auth/pages/SignUpPage';
 import { VerifyEmailPage } from '@/features/auth/pages/VerifyEmailPage';
 import { HomePage } from '@/features/home/pages/HomePage';
 import { PropertyDetailPage } from '@/features/listings/pages/PropertyDetailPage';
+import { professionalPlatforms } from '@/features/platforms/lib/professional-platforms';
+import { ProfessionalPlatformPage } from '@/features/platforms/pages/ProfessionalPlatformPage';
 import { MapSearchPage } from '@/features/search/pages/MapSearchPage';
 import { MessagesPage } from '@/features/support/pages/MessagesPage';
 import { NotificationsPage } from '@/features/notifications/pages/NotificationsPage';
@@ -214,6 +216,14 @@ export function AppRouter() {
               />
             </Route>
           </Route>
+
+          {professionalPlatforms.map(({ key, landingPath }) => (
+            <Route
+              key={key}
+              path={landingPath}
+              element={<ProfessionalPlatformPage platform={key} />}
+            />
+          ))}
 
           <Route element={<ProtectedRoute />}>
             <Route path="messages" element={<MessagesPage />} />

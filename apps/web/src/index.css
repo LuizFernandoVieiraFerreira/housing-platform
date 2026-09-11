@@ -197,4 +197,513 @@
       background-position: bottom center;
     }
   }
+
+  /*
+   * Marketing cards for the accommodation types, modelled on Alura's category
+   * cards: solid colour blocks flush against each other, icon in the corner and
+   * an italic strapline. They stack two-up until 1200px, where they flatten into
+   * a single row and gain the top highlight rule.
+   */
+  .home-type-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    padding-bottom: 20px;
+    transform: translateY(32px);
+  }
+
+  .home-type-card {
+    display: block;
+    width: 50%;
+    padding: 15px;
+    color: #fff;
+    text-decoration: none;
+  }
+
+  .home-type-card-icon {
+    display: block;
+    height: 28px;
+    width: 28px;
+    margin: -6px -6px 4px auto;
+    opacity: 0.6;
+  }
+
+  .home-type-card-name {
+    font-size: 1em;
+    font-weight: bold;
+  }
+
+  .home-type-card-eyebrow {
+    display: block;
+    font-size: 80%;
+    font-weight: normal;
+    line-height: 1;
+  }
+
+  .home-type-card-description {
+    margin-top: 4px;
+    font-size: 14px;
+    font-style: italic;
+    opacity: 0.6;
+  }
+
+  .home-type-card--share-house {
+    background-color: #00c86f;
+  }
+
+  .home-type-card--share-house:hover {
+    background-color: #08cc75;
+  }
+
+  .home-type-card--studio {
+    background-color: #009bdd;
+  }
+
+  .home-type-card--studio:hover {
+    background-color: #08a0e1;
+  }
+
+  .home-type-card--micro-studio {
+    background-color: #f1634b;
+  }
+
+  .home-type-card--micro-studio:hover {
+    background-color: #f26d56;
+  }
+
+  .home-type-card--multi-bedroom {
+    background-color: #fdc14a;
+  }
+
+  .home-type-card--multi-bedroom:hover {
+    background-color: #fdc84a;
+  }
+
+  @media not all and (min-width: 720px) {
+    .home-type-card-description {
+      display: none;
+    }
+  }
+
+  @media (min-width: 600px) {
+    .home-type-card {
+      width: calc((100% - 14px) / 2);
+      transition: transform 0.3s;
+    }
+
+    .home-type-card:hover {
+      transform: translateY(-2%);
+    }
+
+    .home-type-card:nth-child(-n + 2) {
+      margin-bottom: 14px;
+    }
+  }
+
+  @media (min-width: 1200px) {
+    .home-type-list {
+      flex-wrap: nowrap;
+      justify-content: center;
+      gap: 14px;
+    }
+
+    /* Same footprint as four Alura cards (15.3% each, max 180px), not six. */
+    .home-type-card {
+      width: 15.3%;
+      max-width: 180px;
+      flex: 0 0 15.3%;
+      border-top: 5px solid rgb(255 255 255 / 0.3);
+    }
+
+    .home-type-card:nth-child(-n + 2) {
+      margin-bottom: 0;
+    }
+
+    .home-type-card-icon {
+      margin: 0 0 60px 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .home-type-card {
+      transition: none;
+    }
+
+    .home-type-card:hover {
+      transform: none;
+    }
+  }
+
+  /* Centred hero copy, following Alura's titulo/subtitulo-destaque scale. */
+  .home-headline {
+    text-align: center;
+  }
+
+  .home-headline-title {
+    margin: 25px auto 15px;
+    font-size: 1.6em;
+    font-weight: 800;
+    letter-spacing: -1.2px;
+    line-height: 1.17;
+  }
+
+  .home-headline-subtitle {
+    max-width: 34ch;
+    margin: 0 auto;
+    font-size: 1.125em;
+    font-weight: 300;
+    line-height: 1.3;
+  }
+
+  @media (min-width: 360px) {
+    .home-headline-title {
+      font-size: 1.85em;
+    }
+  }
+
+  @media (min-width: 600px) {
+    .home-headline-title {
+      margin-bottom: 13px;
+      font-size: 2em;
+    }
+
+    .home-headline-subtitle {
+      font-size: 1.25em;
+    }
+  }
+
+  @media (min-width: 1000px) {
+    .home-headline-title {
+      font-size: 2.8em;
+      font-weight: 900;
+      letter-spacing: -2.1px;
+    }
+
+    .home-headline-subtitle {
+      font-size: 1.625em;
+    }
+  }
+
+  @media (min-width: 1200px) {
+    .home-headline-title {
+      font-size: 3.3em;
+    }
+  }
+
+  /* Responsive 16:9 embed, after Alura's elasticMedia. */
+  .elastic-media-container {
+    position: relative;
+    height: 0;
+    padding-top: 56.25%;
+  }
+
+  .elastic-media {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  /*
+   * Role highlights, after Alura's "diferenciais" band: video on one side, a
+   * stack of icon + copy on the other. The green is sampled from the skyline
+   * SVG's ground fill so this section continues it without a seam.
+   */
+  .home-roles {
+    background-color: #4bb97a;
+    color: #fff;
+    padding-top: 35px;
+    text-align: center;
+  }
+
+  .home-roles-title {
+    padding-bottom: 20px;
+    font-size: 1.25em;
+    font-weight: bold;
+  }
+
+  .home-roles-video {
+    padding-bottom: 25px;
+  }
+
+  .home-roles-video-wrapper {
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  .home-roles-video-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 3px solid rgb(255 255 255 / 0.4);
+    background-color: rgb(0 0 0 / 0.12);
+    font-size: 0.875em;
+  }
+
+  .home-roles-video-placeholder svg {
+    width: 40px;
+    height: 40px;
+  }
+
+  .home-roles-list {
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  .home-roles-item {
+    padding-bottom: 35px;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .home-roles-item-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    margin: 0 auto;
+  }
+
+  .home-roles-item-icon svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .home-roles-item-name {
+    margin-bottom: 10px;
+    font-size: 1.125em;
+    font-weight: bold;
+  }
+
+  .home-roles-item-description {
+    font-size: 1em;
+    opacity: 0.8;
+  }
+
+  .home-roles-item-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    font-size: 0.875em;
+    font-weight: bold;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .home-roles-item-cta svg {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.2s;
+  }
+
+  .home-roles-item:hover .home-roles-item-cta svg {
+    transform: translateX(3px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .home-roles-item-cta svg {
+      transition: none;
+    }
+
+    .home-roles-item:hover .home-roles-item-cta svg {
+      transform: none;
+    }
+  }
+
+  @media (min-width: 400px) {
+    .home-roles-item {
+      display: flex;
+      align-items: center;
+      text-align: left;
+    }
+
+    .home-roles-item-icon {
+      flex-shrink: 0;
+      margin: 0 16px 0 0;
+    }
+  }
+
+  @media (min-width: 510px) {
+    .home-roles-item-icon {
+      width: 80px;
+      height: 80px;
+      margin-right: 28px;
+      border: 3px solid #fff;
+      border-radius: 9999px;
+    }
+
+    .home-roles-item-icon svg {
+      width: 40px;
+      height: 40px;
+    }
+  }
+
+  @media (min-width: 900px) {
+    .home-roles-title {
+      font-size: 1.4em;
+      line-height: 1.3;
+    }
+  }
+
+  @media (min-width: 1000px) {
+    .home-roles {
+      padding-top: 85px;
+      padding-bottom: 60px;
+    }
+
+    .home-roles-inner {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .home-roles-video {
+      width: 44%;
+      padding-bottom: 0;
+      text-align: left;
+    }
+
+    .home-roles-video-wrapper {
+      margin: 0;
+    }
+
+    /* gap keeps the four roles apart once the list is the taller column. */
+    .home-roles-list {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 28px;
+      width: 49.5%;
+      max-width: none;
+      margin: 0;
+    }
+
+    .home-roles-item {
+      padding-bottom: 0;
+    }
+
+    .home-roles-item-name {
+      font-size: 21px;
+    }
+
+    .home-roles-item-description {
+      padding-right: 20px;
+    }
+  }
+
+  /* -------------------------------------------------------------------------
+   * Professional platform pages (/for-hosts, /for-photographers, /for-agents)
+   * ------------------------------------------------------------------------- */
+
+  /* Hero section — same min-heights as the home page for visual consistency. */
+  .platform-hero {
+    min-height: 400px;
+  }
+
+  @media (min-width: 720px) {
+    .platform-hero {
+      min-height: 596px;
+    }
+  }
+
+  @media (min-width: 1200px) {
+    .platform-hero {
+      min-height: 639px;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .platform-hero {
+      min-height: 648px;
+    }
+  }
+
+  /* Steps section — Alura aprenda / painelPlanos-footer (#324c64). */
+  .platform-steps {
+    background-color: #324c64;
+    color: #fff;
+  }
+
+  .platform-steps-title {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-bottom: 40px;
+    color: #fff;
+  }
+
+  @media (min-width: 720px) {
+    .platform-steps-title {
+      font-size: 1.75em;
+    }
+  }
+
+  /* Stepper — inspired by homesinkor.com/guide */
+  .platform-stepper {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .platform-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    background: rgb(255 255 255 / 0.08);
+    border: 1px solid rgb(255 255 255 / 0.12);
+    border-radius: 12px;
+    padding: 20px;
+  }
+
+  .platform-step-number {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 9999px;
+    background-color: #fff;
+    color: rgb(var(--brand-600));
+    font-size: 0.875em;
+    font-weight: bold;
+  }
+
+  .platform-step-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .platform-step-title {
+    font-size: 1em;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+
+  .platform-step-description {
+    font-size: 0.875em;
+    color: rgb(255 255 255 / 0.85);
+    line-height: 1.5;
+  }
+
+  @media (min-width: 600px) {
+    .platform-step {
+      padding: 24px 28px;
+    }
+
+    .platform-step-number {
+      width: 52px;
+      height: 52px;
+      font-size: 1em;
+    }
+
+    .platform-step-title {
+      font-size: 1.125em;
+    }
+  }
 }

@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 
 import { PortalModeProvider } from '@/app/providers/PortalModeProvider';
 import { PortalThemeSync } from '@/app/providers/PortalThemeSync';
+import { ScrollToTop } from '@/app/providers/ScrollToTop';
 import { AuthProvider } from '@/features/auth/context/AuthProvider';
 import { NotificationProvider } from '@/features/notifications/components/NotificationProvider';
 import { ChannelWidget } from '@/features/support/components/ChannelWidget';
@@ -25,6 +26,7 @@ export function AppProviders({ children }: { children: ReactNode }) {
         <AuthProvider>
           <BrowserRouter>
             <PortalModeProvider>
+              <ScrollToTop />
               <PortalThemeSync />
               <NotificationProvider>
                 {children}

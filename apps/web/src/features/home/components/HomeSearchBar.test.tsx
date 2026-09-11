@@ -18,29 +18,44 @@ function SearchResultsPage() {
 }
 
 describe('HomeSearchBar', () => {
-  it('navigates to map search with AI query and filter params', async () => {
-    const user = userEvent.setup();
-
+  function renderSearchBar() {
     renderWithProviders(
       <Routes>
         <Route path="/" element={<HomeSearchBar />} />
         <Route path="/map" element={<SearchResultsPage />} />
       </Routes>,
     );
+  }
+
+  it('navigates to map search with the AI query and Seoul centre', async () => {
+    const user = userEvent.setup();
+
+    renderSearchBar();
 
     await user.type(screen.getByLabelText('Smart property search'), 'quiet studio near Hongdae');
-    await user.type(screen.getByLabelText('Check in'), '2026-09-01');
-    await user.type(screen.getByLabelText('Check out'), '2026-10-01');
-    await user.clear(screen.getByLabelText('Guests'));
-    await user.type(screen.getByLabelText('Guests'), '2');
     await user.click(screen.getByRole('button', { name: 'Search' }));
 
     expect(screen.getByText(/Search at \/map\?/)).toBeInTheDocument();
     expect(screen.getByText(/aiq=quiet\+studio\+near\+Hongdae/)).toBeInTheDocument();
-    expect(screen.getByText(/checkIn=2026-09-01/)).toBeInTheDocument();
-    expect(screen.getByText(/checkOut=2026-10-01/)).toBeInTheDocument();
-    expect(screen.getByText(/guests=2/)).toBeInTheDocument();
     expect(screen.getByText(/centerLat=37\.5665/)).toBeInTheDocument();
     expect(screen.getByText(/centerLng=126\.978/)).toBeInTheDocument();
+  });
+
+  it('only asks for the query, leaving dates and guests to the map filters', () => {
+    renderSearchBar();
+
+    expect(screen.queryByLabelText('Check in')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Check out')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Guests')).not.toBeInTheDocument();
+  });
+
+  it('still reaches the map when submitted empty', async () => {
+    const user = userEvent.setup();
+
+    renderSearchBar();
+
+    await user.click(screen.getByRole('button', { name: 'Search' }));
+
+    expect(screen.getByText(/Search at \/map\?/)).toBeInTheDocument();
   });
 });

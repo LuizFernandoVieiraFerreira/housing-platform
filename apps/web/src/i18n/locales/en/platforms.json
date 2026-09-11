@@ -1,0 +1,88 @@
+{
+  "menu": {
+    "label": "For professionals",
+    "description": "Work with us on Housing Platform"
+  },
+  "cta": {
+    "getStarted": "Get started",
+    "logIn": "Log in",
+    "comingSoon": "Coming soon"
+  },
+  "host": {
+    "menuLabel": "For hosts",
+    "tagline": "Host platform",
+    "title": "List your place and fill it with long-stay guests",
+    "subtitle": "Publish a room, studio or whole apartment, set your own terms, and let us handle the enquiries, contracts and payouts.",
+    "steps": {
+      "title": "How to register your property",
+      "first": {
+        "title": "Enter basic information",
+        "description": "Share your contact details and tell us about yourself as a host."
+      },
+      "second": {
+        "title": "Upload property details",
+        "description": "Add photos, pricing, amenities and house rules for your listing."
+      },
+      "third": {
+        "title": "Review and activation",
+        "description": "Our team reviews your listing and makes it visible to guests searching for stays."
+      },
+      "fourth": {
+        "title": "Start receiving enquiries",
+        "description": "Guests can now find and book your property. You're ready to host!"
+      }
+    }
+  },
+  "photographer": {
+    "menuLabel": "For photographers",
+    "tagline": "Photographer platform",
+    "title": "Shoot the homes that guests book from across the world",
+    "subtitle": "Pick up paid shoots near you, deliver through the platform, and get paid without chasing anyone.",
+    "comingSoonNote": "We are still building the photographer platform. Reach out and we will tell you the moment it opens.",
+    "steps": {
+      "title": "How it works for photographers",
+      "first": {
+        "title": "Create your profile",
+        "description": "Share your portfolio, equipment and the areas you can cover."
+      },
+      "second": {
+        "title": "Get matched with jobs",
+        "description": "Accept shoots near you with clear briefs and agreed deadlines."
+      },
+      "third": {
+        "title": "Shoot and deliver",
+        "description": "Complete the shoot and upload the edited photos through the platform."
+      },
+      "fourth": {
+        "title": "Get paid",
+        "description": "Payment is processed automatically once the photos are approved."
+      }
+    }
+  },
+  "agent": {
+    "menuLabel": "For agents",
+    "tagline": "Agent platform",
+    "title": "Bring your listings to tenants who arrive ready to sign",
+    "subtitle": "Put the units you already manage in front of foreign tenants, and work with them in English without leaving your desk.",
+    "comingSoonNote": "We are still building the agent platform. Reach out and we will tell you the moment it opens.",
+    "steps": {
+      "title": "How it works for agents",
+      "first": {
+        "title": "Register your agency",
+        "description": "Set up your business profile with license and contact information."
+      },
+      "second": {
+        "title": "Add your listings",
+        "description": "Import or add properties you represent with pricing and availability."
+      },
+      "third": {
+        "title": "Connect with tenants",
+        "description": "Receive enquiries from foreign renters searching months before they arrive."
+      },
+      "fourth": {
+        "title": "Close deals",
+        "description": "Handle viewings, contracts and deposits through the platform in both languages."
+      }
+    }
+  }
+}

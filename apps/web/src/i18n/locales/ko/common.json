@@ -13,7 +13,6 @@
   "header": {
     "loading": "...",
     "logIn": "로그인",
-    "hostLogin": "호스트 로그인",
     "signUp": "회원가입",
     "switchToHost": "호스트로 전환",
     "switchToGuest": "게스트로 전환",
@@ -27,10 +26,6 @@
     "terms": "이용약관",
     "privacy": "개인정보 처리방침",
     "refund": "환불 정책",
-    "deleteAccount": "계정 삭제",
-    "blog": "블로그",
-    "universities": "대학교",
-    "hostLogin": "호스트 로그인",
     "appTitle": "Housing Platform 앱 다운로드",
     "appDescription": "App Store 또는 Google Play에서 받으세요",
     "getApp": "앱 받기",

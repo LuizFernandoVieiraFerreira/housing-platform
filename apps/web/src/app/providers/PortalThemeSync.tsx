@@ -1,9 +1,10 @@
 import {
   applyRoleTheme,
-  resolvePathThemeKey,
+  resolveExplicitPathThemeKey,
   type RoleThemeKey,
 } from '@housing-platform/config/design-tokens/role-themes';
 import { useLayoutEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 
 import { usePortalMode } from '@/app/providers/PortalModeProvider';
 import { useCurrentProfile } from '@/features/account/hooks/useProfile';
@@ -11,7 +12,7 @@ import { useAuth } from '@/features/auth/hooks/useAuth';
 
 function themeForPortal(mode: 'guest' | 'host', role: string | undefined): RoleThemeKey {
   if (!role) {
-    return resolvePathThemeKey(window.location.pathname);
+    return 'customer';
   }
 
   if (role === 'admin') {
@@ -25,8 +26,9 @@ function themeForPortal(mode: 'guest' | 'host', role: string | undefined): RoleT
   return 'customer';
 }
 
-/** Keeps brand colors aligned with guest/host portal mode for dual-mode hosts. */
+/** Keeps brand colors aligned with the role a page belongs to, then with portal mode. */
 export function PortalThemeSync() {
+  const { pathname } = useLocation();
   const { user, isAuthenticated, isLoading } = useAuth();
   const { data: profile } = useCurrentProfile(user?.id);
   const { mode } = usePortalMode();
@@ -36,13 +38,14 @@ export function PortalThemeSync() {
       return;
     }
 
-    if (!isAuthenticated) {
-      applyRoleTheme(document.documentElement, resolvePathThemeKey(window.location.pathname));
-      return;
-    }
+    // A role-specific URL wins, so /for-hosts stays blue however the visitor arrived.
+    const pathTheme = resolveExplicitPathThemeKey(pathname);
 
-    applyRoleTheme(document.documentElement, themeForPortal(mode, profile?.role));
-  }, [isAuthenticated, isLoading, mode, profile?.role]);
+    applyRoleTheme(
+      document.documentElement,
+      pathTheme ?? (isAuthenticated ? themeForPortal(mode, profile?.role) : 'customer'),
+    );
+  }, [isAuthenticated, isLoading, mode, pathname, profile?.role]);
 
   return null;
 }

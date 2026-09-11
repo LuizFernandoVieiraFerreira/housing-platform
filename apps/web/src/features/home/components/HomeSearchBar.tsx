@@ -1,4 +1,5 @@
 import { Button, Input } from '@housing-platform/ui';
+import { Search } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -7,30 +8,21 @@ import { buildAiSearchParams, SEOUL_CENTER } from '@/features/search/lib/search-
 
 interface HomeSearchFormValues {
   query: string;
-  checkIn: string;
-  checkOut: string;
-  guests: string;
 }
 
 export function HomeSearchBar() {
   const { t } = useTranslation('search');
   const navigate = useNavigate();
   const { register, handleSubmit } = useForm<HomeSearchFormValues>({
-    defaultValues: {
-      query: '',
-      checkIn: '',
-      checkOut: '',
-      guests: '1',
-    },
+    defaultValues: { query: '' },
   });
 
+  // Dates, guests and price live in the filter modal on /map, where there are
+  // listings to react to. The hero only needs to capture the initial intent.
   const onSubmit = handleSubmit((values) => {
     const params = buildAiSearchParams({
       aiQuery: values.query.trim() || undefined,
       filters: {
-        checkIn: values.checkIn || undefined,
-        checkOut: values.checkOut || undefined,
-        guests: Number(values.guests) || 1,
         sort: 'recommended',
         ...SEOUL_CENTER,
       },
@@ -40,26 +32,17 @@ export function HomeSearchBar() {
   });
 
   return (
-    <form onSubmit={onSubmit}>
-      <div className="grid gap-3 md:grid-cols-[1fr_1fr_auto_auto]">
+    <form onSubmit={onSubmit} className="mx-auto w-full max-w-[560px]">
+      <div className="border-surface-subtle shadow-panel focus-within:ring-brand-400 flex items-center gap-2 rounded-full border bg-white py-1.5 pl-5 pr-1.5 focus-within:ring-2">
+        <Search className="text-ink-subtle h-5 w-5 shrink-0" aria-hidden="true" />
         <Input
           type="text"
           placeholder={t('home.search.placeholder')}
           aria-label={t('home.search.queryLabel')}
+          className="flex-1 rounded-none border-0 bg-transparent px-0 focus-visible:ring-0 focus-visible:ring-offset-0"
           {...register('query')}
         />
-        <div className="grid gap-3 sm:grid-cols-2 md:col-span-1 md:grid-cols-2">
-          <Input type="date" aria-label={t('home.search.checkIn')} {...register('checkIn')} />
-          <Input type="date" aria-label={t('home.search.checkOut')} {...register('checkOut')} />
-        </div>
-        <Input
-          type="number"
-          min={1}
-          aria-label={t('home.search.guests')}
-          className="md:w-24"
-          {...register('guests')}
-        />
-        <Button type="submit" size="lg" className="w-full md:w-auto">
+        <Button type="submit" className="shrink-0 rounded-full px-6">
           {t('home.search.submit')}
         </Button>
       </div>

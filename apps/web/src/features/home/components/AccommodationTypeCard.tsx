@@ -1,31 +1,38 @@
+import type { AccommodationType } from '@housing-platform/types';
 import type { LucideIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+// Spelled out rather than built from the slug so Tailwind's scanner keeps these rules.
+const colorClasses: Record<AccommodationType, string> = {
+  'share-house': 'home-type-card--share-house',
+  studio: 'home-type-card--studio',
+  'micro-studio': 'home-type-card--micro-studio',
+  'multi-bedroom': 'home-type-card--multi-bedroom',
+};
+
 interface AccommodationTypeCardProps {
+  eyebrow: string;
   title: string;
   description: string;
   icon: LucideIcon;
-  slug: string;
+  slug: AccommodationType;
 }
 
 export function AccommodationTypeCard({
+  eyebrow,
   title,
   description,
   icon: Icon,
   slug,
 }: AccommodationTypeCardProps) {
   return (
-    <Link
-      to={`/map?propertyType=${slug}`}
-      className="h-accommodation-card shadow-panel duration-interaction hover:scale-card-hover active:scale-card-active relative flex flex-col items-center justify-center gap-3 rounded-lg bg-white px-4 text-center transition-transform motion-reduce:transform-none motion-reduce:transition-none"
-    >
-      <div className="bg-brand-50 text-brand-600 flex h-12 w-12 items-center justify-center rounded-full">
-        <Icon size={24} aria-hidden="true" />
-      </div>
-      <div className="flex flex-col items-center gap-1">
-        <h3 className="text-ink text-sm font-bold">{title}</h3>
-        <p className="text-ink-muted text-xs">{description}</p>
-      </div>
+    <Link to={`/map?propertyType=${slug}`} className={`home-type-card ${colorClasses[slug]}`}>
+      <Icon className="home-type-card-icon" aria-hidden="true" />
+      <h3 className="home-type-card-name">
+        <span className="home-type-card-eyebrow">{eyebrow}</span>
+        {title}
+      </h3>
+      <p className="home-type-card-description">{description}</p>
     </Link>
   );
 }
