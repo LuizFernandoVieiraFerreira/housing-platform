@@ -1,8 +1,10 @@
 import { act, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import type { AccommodationType } from '@housing-platform/types';
+
 import { HomePage } from '@/features/home/pages/HomePage';
-import { parseSearchParams } from '@/features/search/lib/search-params';
+import { expectMapLinkForPropertyType } from '@/test/map-link-contract';
 import { renderWithProviders } from '@/test/render';
 
 function renderHomePage() {
@@ -51,13 +53,24 @@ describe('HomePage', () => {
     expect(screen.getByText('monthly travelers')).toBeInTheDocument();
   });
 
-  it('links each accommodation type to a map filter the map actually parses', () => {
+  it.each([
+    'share-house',
+    'studio',
+    'micro-studio',
+    'multi-bedroom',
+  ] as const satisfies readonly AccommodationType[])(
+    'links the %s card through canonical map search params',
+    (slug) => {
+      renderHomePage();
+      expectMapLinkForPropertyType(slug);
+    },
+  );
+
+  it('routes guest highlights to /map without hand-rolled query params', () => {
     renderHomePage();
 
-    const shareHouseLink = screen.getByRole('link', { name: /share-house/i });
-    const search = new URLSearchParams(shareHouseLink.getAttribute('href')?.split('?')[1] ?? '');
-
-    expect(parseSearchParams(search).propertyType).toBe('share-house');
+    const guestLink = screen.getByRole('link', { name: /browse stays/i });
+    expect(guestLink.getAttribute('href')).toBe('/map');
   });
 
   it('renders a highlight for every role that uses the platform', () => {

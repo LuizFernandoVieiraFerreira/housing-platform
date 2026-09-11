@@ -4,6 +4,7 @@ import { Route, Routes, useLocation } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
 
 import { HomeSearchBar } from '@/features/home/components/HomeSearchBar';
+import { expectMapHrefContract } from '@/test/map-link-contract';
 import { renderWithProviders } from '@/test/render';
 
 function SearchResultsPage() {
@@ -35,10 +36,13 @@ describe('HomeSearchBar', () => {
     await user.type(screen.getByLabelText('Smart property search'), 'quiet studio near Hongdae');
     await user.click(screen.getByRole('button', { name: 'Search' }));
 
-    expect(screen.getByText(/Search at \/map\?/)).toBeInTheDocument();
-    expect(screen.getByText(/aiq=quiet\+studio\+near\+Hongdae/)).toBeInTheDocument();
-    expect(screen.getByText(/centerLat=37\.5665/)).toBeInTheDocument();
-    expect(screen.getByText(/centerLng=126\.978/)).toBeInTheDocument();
+    const searchSummary = screen.getByText(/Search at \/map\?/);
+    const href = searchSummary.textContent?.replace('Search at ', '') ?? '';
+    const { ai, filters } = expectMapHrefContract(href);
+
+    expect(ai.aiQuery).toBe('quiet studio near Hongdae');
+    expect(filters.centerLat).toBe(37.5665);
+    expect(filters.centerLng).toBe(126.978);
   });
 
   it('only asks for the query, leaving dates and guests to the map filters', () => {
@@ -56,6 +60,8 @@ describe('HomeSearchBar', () => {
 
     await user.click(screen.getByRole('button', { name: 'Search' }));
 
-    expect(screen.getByText(/Search at \/map\?/)).toBeInTheDocument();
+    const searchSummary = screen.getByText(/Search at \/map\?/);
+    const href = searchSummary.textContent?.replace('Search at ', '') ?? '';
+    expectMapHrefContract(href);
   });
 });
