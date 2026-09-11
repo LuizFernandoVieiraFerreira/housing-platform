@@ -22,6 +22,25 @@
     "languageSection": "Language",
     "currencySection": "Currency"
   },
+  "legal": {
+    "contactPrefix": "Questions? Email",
+    "backToHome": "Back to home",
+    "terms": {
+      "title": "Terms & Conditions",
+      "summary": "Rules for using Housing Platform to search, book, and manage monthly stays.",
+      "placeholder": "The full terms of service are being prepared for this demo. Until they are published here, bookings and payments follow the checkout summary shown at the time of purchase."
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "summary": "How we collect, use, and protect personal information on Housing Platform.",
+      "placeholder": "The full privacy policy is being prepared for this demo. We only use account and booking data needed to operate the marketplace and will publish detailed retention and rights information on this page."
+    },
+    "refund": {
+      "title": "Refund Policy",
+      "summary": "How cancellations, refunds, and payment disputes are handled.",
+      "placeholder": "The full refund policy is being prepared for this demo. Refund eligibility depends on the booking status and host terms shown before checkout. Contact support if you need help with a specific booking."
+    }
+  },
   "footer": {
     "terms": "Terms & Conditions",
     "privacy": "Privacy Policy",

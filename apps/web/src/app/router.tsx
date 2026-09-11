@@ -33,6 +33,7 @@ import { MapSearchPage } from '@/features/search/pages/MapSearchPage';
 import { MessagesPage } from '@/features/support/pages/MessagesPage';
 import { NotificationsPage } from '@/features/notifications/pages/NotificationsPage';
 import { LazyRoute } from '@/shared/components/LazyRoute';
+import { LegalPage } from '@/shared/pages/LegalPage';
 import { NotFoundPage } from '@/shared/pages/NotFoundPage';
 
 const CheckoutPage = lazy(() =>
@@ -224,6 +225,10 @@ export function AppRouter() {
             element={<ProfessionalPlatformPage platform={key} />}
           />
         ))}
+
+        <Route path="terms" element={<LegalPage page="terms" />} />
+        <Route path="privacy" element={<LegalPage page="privacy" />} />
+        <Route path="refund" element={<LegalPage page="refund" />} />
 
         <Route element={<ProtectedRoute />}>
           <Route path="messages" element={<MessagesPage />} />

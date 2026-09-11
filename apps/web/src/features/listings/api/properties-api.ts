@@ -80,30 +80,6 @@ export async function fetchFeaturedProperties(): Promise<FeaturedPropertyCard[]>
     .filter((property): property is FeaturedPropertyCard => property !== null);
 }
 
-export async function publishProperty(propertyId: string) {
-  const { data, error } = await supabase.rpc('publish_property', {
-    p_property_id: propertyId,
-  });
-
-  if (error) {
-    throw error;
-  }
-
-  return data;
-}
-
-export async function rejectPropertyReview(propertyId: string) {
-  const { data, error } = await supabase.rpc('reject_property_review', {
-    p_property_id: propertyId,
-  });
-
-  if (error) {
-    throw error;
-  }
-
-  return data;
-}
-
 export async function submitPropertyForReview(propertyId: string) {
   const { data, error } = await supabase.rpc('submit_property_for_review', {
     p_property_id: propertyId,
