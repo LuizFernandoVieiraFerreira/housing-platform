@@ -1,0 +1,18 @@
+{
+  "status": {
+    "requested": "호스트 승인 대기",
+    "pending_payment": "결제 대기",
+    "expired": "예약 만료",
+    "confirmed": "확정됨",
+    "payment_failed": "결제 실패",
+    "active": "숙박 중",
+    "completed": "완료",
+    "cancelled": "취소됨",
+    "rejected": "거절됨"
+  },
+  "errors": {
+    "datesUnavailable": "해당 날짜는 더 이상 이용할 수 없습니다. 다른 날짜를 선택해 주세요."
+  },
+  "perMonth": "/30일",
+  "perMonthShort": "+/30일"
+}

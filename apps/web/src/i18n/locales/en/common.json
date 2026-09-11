@@ -1,0 +1,57 @@
+{
+  "nav": {
+    "home": "Home",
+    "map": "Map",
+    "booking": "Booking",
+    "chat": "Chat",
+    "my": "My",
+    "dashboard": "Dashboard",
+    "properties": "Properties",
+    "hostBookings": "Bookings",
+    "adminHome": "Admin"
+  },
+  "header": {
+    "loading": "...",
+    "logIn": "Log in",
+    "hostLogin": "Host login",
+    "signUp": "Sign up",
+    "switchToHost": "Switch to host",
+    "switchToGuest": "Switch to guest",
+    "changeLanguage": "Change language",
+    "changeCurrency": "Change currency",
+    "localeSettings": "Language and currency",
+    "languageSection": "Language",
+    "currencySection": "Currency"
+  },
+  "footer": {
+    "terms": "Terms & Conditions",
+    "privacy": "Privacy Policy",
+    "refund": "Refund Policy",
+    "deleteAccount": "Delete Account",
+    "blog": "Blog",
+    "universities": "Universities",
+    "hostLogin": "Host login",
+    "appTitle": "Download the Housing Platform app",
+    "appDescription": "Get it on the App Store or Google Play",
+    "getApp": "Get the app",
+    "copyright": "© {{year}} Housing Platform",
+    "contact": "Contact",
+    "businessInfo": "Business information",
+    "company": "Company : Housing Platform",
+    "ceo": "CEO : Demo Project",
+    "address": "Address : Demo purposes only",
+    "brn": "B.R.N : N/A",
+    "mailOrder": "Mail-order business no. : N/A"
+  },
+  "propertyCard": {
+    "photoSoon": "Photo soon",
+    "photoComingSoon": "Photo coming soon",
+    "perMonthSuffix": "+/30 days"
+  },
+  "propertyTypes": {
+    "share-house": "Share-house",
+    "studio": "Studio",
+    "micro-studio": "Micro Studio",
+    "multi-bedroom": "Multi-bedroom"
+  }
+}

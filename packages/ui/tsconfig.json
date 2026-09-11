@@ -1,0 +1,11 @@
+{
+  "extends": "@housing-platform/config/typescript/react",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "declaration": true,
+    "declarationMap": true
+  },
+  "include": ["src"],
+  "exclude": ["src/**/*.stories.tsx", "src/**/*.test.tsx"]
+}

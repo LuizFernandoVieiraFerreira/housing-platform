@@ -1,0 +1,117 @@
+@import '@housing-platform/config/design-tokens/role-theme-vars.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-surface text-ink antialiased;
+  }
+
+  #root {
+    @apply min-h-screen;
+  }
+}
+
+@layer utilities {
+  @keyframes hero-label-fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(-0.25rem);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-hero-label-fade-in {
+    animation: hero-label-fade-in 300ms ease-out;
+  }
+
+  @keyframes app-banner-marquee {
+    from {
+      transform: translateX(0);
+    }
+
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  .animate-app-banner-marquee {
+    animation: app-banner-marquee 25s linear infinite;
+  }
+
+  #ch-plugin-launcher,
+  .ch-desk-launcher {
+    display: none !important;
+  }
+
+  /* Animated background - clouds and drone */
+  @keyframes cloud-float-left {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    50% {
+      transform: translateX(-20px);
+    }
+  }
+
+  @keyframes cloud-float-right {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    50% {
+      transform: translateX(20px);
+    }
+  }
+
+  @keyframes cloud-float-large {
+    0%,
+    100% {
+      transform: translateX(0) translateY(0);
+    }
+    50% {
+      transform: translateX(-30px) translateY(-10px);
+    }
+  }
+
+  @keyframes drone-fly {
+    0% {
+      transform: translateX(-100px) translateY(0);
+    }
+    25% {
+      transform: translateX(25vw) translateY(-15px);
+    }
+    50% {
+      transform: translateX(50vw) translateY(5px);
+    }
+    75% {
+      transform: translateX(75vw) translateY(-10px);
+    }
+    100% {
+      transform: translateX(calc(100vw + 100px)) translateY(0);
+    }
+  }
+
+  .animate-cloud-float-left {
+    animation: cloud-float-left 8s ease-in-out infinite;
+  }
+
+  .animate-cloud-float-right {
+    animation: cloud-float-right 6s ease-in-out infinite;
+  }
+
+  .animate-cloud-float-large {
+    animation: cloud-float-large 10s ease-in-out infinite;
+  }
+
+  .animate-drone-fly {
+    animation: drone-fly 20s linear infinite;
+  }
+}

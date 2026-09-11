@@ -1,0 +1,45 @@
+{
+  "home": {
+    "welcome": "Housing Platform에 오신 것을 환영합니다",
+    "accommodationType": "숙소 유형",
+    "heroPrefix": "이런 분들을 위한 숙소",
+    "audiences": {
+      "internationalStudents": "유학생",
+      "businessStay": "출장/비즈니스",
+      "monthlyTravelers": "장기 여행객"
+    },
+    "accommodationTypes": {
+      "share-house": {
+        "title": "쉐어하우스",
+        "description": "공용 공간이 있는 숙소"
+      },
+      "studio": {
+        "title": "스튜디오",
+        "description": "개인실 임대"
+      },
+      "micro-studio": {
+        "title": "마이크로 스튜디오",
+        "description": "컴팩트한 개인 공간"
+      },
+      "multi-bedroom": {
+        "title": "멀티베드룸",
+        "description": "그룹을 위한 공간"
+      }
+    },
+    "search": {
+      "placeholder": "서울에서 찾고 있는 숙소를 설명해 주세요…",
+      "queryLabel": "스마트 숙소 검색",
+      "checkIn": "체크인",
+      "checkOut": "체크아웃",
+      "guests": "인원",
+      "submit": "검색"
+    }
+  },
+  "map": {
+    "searchResults": "검색 결과",
+    "map": "지도",
+    "loadError": "검색 결과를 불러올 수 없습니다. Supabase가 실행 중이고 마이그레이션이 적용되었는지 확인하세요.",
+    "viewMap": "지도 보기",
+    "viewList": "목록 보기"
+  }
+}

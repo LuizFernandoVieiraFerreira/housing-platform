@@ -1,0 +1,32 @@
+{
+  "profile": {
+    "loading": "Loading profile...",
+    "loadError": "Unable to load profile.",
+    "updateError": "Unable to update profile.",
+    "success": "Profile updated successfully.",
+    "fullName": "Full name",
+    "phone": "Phone",
+    "preferredLanguage": "Preferred language",
+    "avatarUrl": "Avatar URL",
+    "marketingConsent": "Send me marketing updates from Housing Platform.",
+    "save": "Save changes",
+    "saving": "Saving...",
+    "languages": {
+      "en": "English",
+      "ko": "한국어"
+    }
+  },
+  "listing": {
+    "notFoundTitle": "Listing not found",
+    "notFoundDescription": "This property may be unpublished or the link is incorrect.",
+    "browseStays": "Browse stays",
+    "photosComingSoon": "Photos coming soon",
+    "minWalk": "{{minutes}} min walk",
+    "findSimilar": "Find similar, cheaper stays",
+    "rooms": "Rooms",
+    "guest": "guest",
+    "guests": "guests",
+    "amenities": "Amenities",
+    "location": "Location"
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "nav": {
+    "home": "홈",
+    "map": "지도",
+    "booking": "예약",
+    "chat": "채팅",
+    "my": "마이",
+    "dashboard": "대시보드",
+    "properties": "숙소",
+    "hostBookings": "예약",
+    "adminHome": "관리자"
+  },
+  "header": {
+    "loading": "...",
+    "logIn": "로그인",
+    "hostLogin": "호스트 로그인",
+    "signUp": "회원가입",
+    "switchToHost": "호스트로 전환",
+    "switchToGuest": "게스트로 전환",
+    "changeLanguage": "언어 변경",
+    "changeCurrency": "통화 변경",
+    "localeSettings": "언어 및 통화",
+    "languageSection": "언어",
+    "currencySection": "통화"
+  },
+  "footer": {
+    "terms": "이용약관",
+    "privacy": "개인정보 처리방침",
+    "refund": "환불 정책",
+    "deleteAccount": "계정 삭제",
+    "blog": "블로그",
+    "universities": "대학교",
+    "hostLogin": "호스트 로그인",
+    "appTitle": "Housing Platform 앱 다운로드",
+    "appDescription": "App Store 또는 Google Play에서 받으세요",
+    "getApp": "앱 받기",
+    "copyright": "© {{year}} Housing Platform",
+    "contact": "문의",
+    "businessInfo": "사업자 정보",
+    "company": "회사명 : Housing Platform",
+    "ceo": "대표 : Demo Project",
+    "address": "주소 : Demo purposes only",
+    "brn": "사업자등록번호 : N/A",
+    "mailOrder": "통신판매업 신고번호 : N/A"
+  },
+  "propertyCard": {
+    "photoSoon": "사진 준비 중",
+    "photoComingSoon": "사진 곧 업로드",
+    "perMonthSuffix": "+/30일"
+  },
+  "propertyTypes": {
+    "share-house": "쉐어하우스",
+    "studio": "스튜디오",
+    "micro-studio": "마이크로 스튜디오",
+    "multi-bedroom": "멀티베드룸"
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "home": {
+    "welcome": "Welcome to Housing Platform",
+    "accommodationType": "Accommodation type",
+    "heroPrefix": "Stay for",
+    "audiences": {
+      "internationalStudents": "international students",
+      "businessStay": "business stay",
+      "monthlyTravelers": "monthly travelers"
+    },
+    "accommodationTypes": {
+      "share-house": {
+        "title": "Share-house",
+        "description": "Shared social spaces"
+      },
+      "studio": {
+        "title": "Studio",
+        "description": "A private room for rent"
+      },
+      "micro-studio": {
+        "title": "Micro Studio",
+        "description": "Compact private living"
+      },
+      "multi-bedroom": {
+        "title": "Multi-bedroom",
+        "description": "Space for groups"
+      }
+    },
+    "search": {
+      "placeholder": "Describe what you're looking for in Seoul…",
+      "queryLabel": "Smart property search",
+      "checkIn": "Check in",
+      "checkOut": "Check out",
+      "guests": "Guests",
+      "submit": "Search"
+    }
+  },
+  "map": {
+    "searchResults": "Search results",
+    "map": "Map",
+    "loadError": "We could not load search results. Check that Supabase is running and migrations are applied.",
+    "viewMap": "View map",
+    "viewList": "View list"
+  }
+}

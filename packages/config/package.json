@@ -1,0 +1,26 @@
+{
+  "name": "@housing-platform/config",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./design-tokens": "./design-tokens/tokens.ts",
+    "./design-tokens/role-themes": "./design-tokens/role-themes.ts",
+    "./design-tokens/favicon-svg": "./design-tokens/favicon-svg.ts",
+    "./design-tokens/role-theme-vars.css": "./design-tokens/role-theme-vars.css",
+    "./eslint": "./eslint/index.js",
+    "./eslint/react": "./eslint/react.js",
+    "./typescript/base": "./typescript/base.json",
+    "./typescript/react": "./typescript/react.json",
+    "./tailwind": "./tailwind/preset.js"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.22.0",
+    "eslint": "^9.22.0",
+    "eslint-config-prettier": "^10.1.1",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "globals": "^16.0.0",
+    "typescript-eslint": "^8.26.1"
+  }
+}

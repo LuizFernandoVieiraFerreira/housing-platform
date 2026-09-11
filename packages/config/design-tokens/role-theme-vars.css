@@ -1,0 +1,19 @@
+/*
+ * Customer brand fallback — applied before JS hydrates.
+ * Runtime role themes are set by PortalThemeSync via applyRoleTheme().
+ */
+@layer base {
+  :root {
+    --brand-50: 253 242 248;
+    --brand-100: 252 231 243;
+    --brand-200: 251 207 232;
+    --brand-300: 249 168 212;
+    --brand-400: 244 114 182;
+    --brand-500: 236 72 153;
+    --brand-600: 219 39 119;
+    --brand-700: 190 24 93;
+    --brand-800: 157 23 77;
+    --brand-900: 131 24 67;
+    --brand-950: 80 7 36;
+  }
+}

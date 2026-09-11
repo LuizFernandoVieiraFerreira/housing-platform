@@ -1,0 +1,18 @@
+{
+  "status": {
+    "requested": "Awaiting host approval",
+    "pending_payment": "Pending payment",
+    "expired": "Hold expired",
+    "confirmed": "Confirmed",
+    "payment_failed": "Payment failed",
+    "active": "Active stay",
+    "completed": "Completed",
+    "cancelled": "Cancelled",
+    "rejected": "Rejected"
+  },
+  "errors": {
+    "datesUnavailable": "Those dates are no longer available. Try different dates."
+  },
+  "perMonth": "/30 days",
+  "perMonthShort": "+/30 days"
+}

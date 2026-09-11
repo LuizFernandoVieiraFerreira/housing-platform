@@ -1,0 +1,66 @@
+/*
+ * Naver HTML markers live outside the React tree, so their styling cannot go
+ * through Tailwind classes that the compiler would have to discover in JSX.
+ */
+
+.map-price-marker {
+  cursor: pointer;
+  white-space: nowrap;
+  border: 1px solid #efeff1;
+  border-radius: 9999px;
+  background-color: #ffffff;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1f1c1c;
+  box-shadow: 0 2px 6px rgb(31 28 28 / 0.2);
+  transition:
+    background-color 120ms,
+    color 120ms,
+    border-color 120ms,
+    transform 120ms,
+    box-shadow 120ms;
+}
+
+.map-price-marker:hover,
+.map-price-marker.is-hovered {
+  border-color: rgb(var(--brand-500));
+  background-color: rgb(var(--brand-50));
+  color: rgb(var(--brand-500));
+  transform: scale(1.12);
+  box-shadow: 0 4px 10px rgb(31 28 28 / 0.28);
+}
+
+.map-price-marker.is-selected {
+  border-color: rgb(var(--brand-500));
+  background-color: rgb(var(--brand-500));
+  color: #ffffff;
+}
+
+.map-cluster-marker {
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border: 2px solid #ffffff;
+  border-radius: 9999px;
+  background-color: #1f1c1c;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  color: #ffffff;
+  box-shadow: 0 2px 5px rgb(31 28 28 / 0.3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .map-price-marker {
+    transition: none;
+  }
+
+  .map-price-marker:hover,
+  .map-price-marker.is-hovered {
+    transform: none;
+  }
+}

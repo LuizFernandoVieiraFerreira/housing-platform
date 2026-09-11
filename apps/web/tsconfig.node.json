@@ -1,0 +1,11 @@
+{
+  "extends": "@housing-platform/config/typescript/react",
+  "compilerOptions": {
+    "composite": true,
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
+    "moduleResolution": "bundler",
+    "types": ["node"],
+    "noEmit": true
+  },
+  "include": ["vite.config.ts", "vitest.config.ts"]
+}
