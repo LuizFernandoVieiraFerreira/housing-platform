@@ -3,13 +3,18 @@ import {
   resolvePathThemeKey,
 } from '@housing-platform/config/design-tokens/role-themes';
 import { Card } from '@housing-platform/ui';
+import type { ReactNode } from 'react';
 import { useLayoutEffect } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 
 import { MobileAppBanner } from '@/app/layouts/MobileAppBanner';
 import { Logo } from '@/shared/components/Logo';
 
-export function AuthLayout() {
+interface AuthLayoutProps {
+  children?: ReactNode;
+}
+
+export function AuthLayout({ children }: AuthLayoutProps) {
   const { pathname } = useLocation();
   const theme = resolvePathThemeKey(pathname);
   const isWide = theme === 'host';
@@ -35,7 +40,7 @@ export function AuthLayout() {
           padding="lg"
           className={isWide ? 'w-full max-w-lg' : 'w-full max-w-md'}
         >
-          <Outlet />
+          {children ?? <Outlet />}
         </Card>
       </main>
     </div>

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { Card, CardDescription, CardHeader, CardTitle } from '@housing-platform/ui';
 import { NavLink, Outlet } from 'react-router-dom';
 
@@ -11,7 +12,11 @@ const adminLinks = [
   { label: 'Audit logs', to: '/admin/audit-logs' },
 ];
 
-export function AdminLayout() {
+interface AdminLayoutProps {
+  children?: ReactNode;
+}
+
+export function AdminLayout({ children }: AdminLayoutProps) {
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-10 sm:px-6 lg:flex-row">
       <aside className="lg:w-64">
@@ -43,9 +48,7 @@ export function AdminLayout() {
         </Card>
       </aside>
 
-      <section className="flex-1">
-        <Outlet />
-      </section>
+      <section className="flex-1">{children ?? <Outlet />}</section>
     </div>
   );
 }

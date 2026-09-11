@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from '@housing-platform/ui';
 import { NavLink, Outlet } from 'react-router-dom';
 
@@ -10,7 +11,11 @@ const accountLinks = [
   { label: 'Bookings', to: '/bookings' },
 ];
 
-export function AccountLayout() {
+interface AccountLayoutProps {
+  children?: ReactNode;
+}
+
+export function AccountLayout({ children }: AccountLayoutProps) {
   const { user, signOut } = useAuth();
   const { data: profile } = useCurrentProfile(user?.id);
 
@@ -56,7 +61,7 @@ export function AccountLayout() {
       </aside>
 
       <section className="flex-1">
-        <Outlet />
+        {children ?? <Outlet />}
       </section>
     </div>
   );

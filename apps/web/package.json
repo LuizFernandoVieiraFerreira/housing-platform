@@ -12,11 +12,11 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@hookform/resolvers": "^4.1.3",
     "@housing-platform/types": "workspace:*",
     "@housing-platform/ui": "workspace:*",
     "@housing-platform/utils": "workspace:*",
     "@housing-platform/validation": "workspace:*",
-    "@hookform/resolvers": "^4.1.3",
     "@sentry/react": "^10.70.0",
     "@supabase/supabase-js": "^2.49.4",
     "@tanstack/react-query": "^5.69.0",
@@ -47,6 +47,7 @@
     "tailwindcss": "^3.4.17",
     "typescript": "^5.8.2",
     "vite": "^6.2.2",
+    "vite-plugin-pages": "^0.33.3",
     "vitest": "^3.0.9"
   }
 }

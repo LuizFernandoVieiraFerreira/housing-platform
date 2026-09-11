@@ -1,14 +1,19 @@
+import type { ReactNode } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 
 import { usePortalMode } from '@/app/providers/PortalModeProvider';
 import { useCurrentProfile } from '@/features/account/hooks/useProfile';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 
+interface MarketplaceRouteProps {
+  children?: ReactNode;
+}
+
 /**
  * Guest marketplace pages (home, map, listings, customer bookings/checkout).
  * Admins stay in the admin console. Hosts may browse when portal mode is guest.
  */
-export function MarketplaceRoute() {
+export function MarketplaceRoute({ children }: MarketplaceRouteProps) {
   const { user, isAuthenticated, isLoading } = useAuth();
   const { data: profile, isLoading: isProfileLoading } = useCurrentProfile(user?.id);
   const { mode } = usePortalMode();
@@ -30,5 +35,5 @@ export function MarketplaceRoute() {
     return <Navigate to="/host" replace />;
   }
 
-  return <Outlet />;
+  return children ?? <Outlet />;
 }

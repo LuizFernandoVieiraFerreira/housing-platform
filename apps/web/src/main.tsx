@@ -1,8 +1,8 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 
+import { App } from '@/App';
 import { AppProviders } from '@/app/providers/AppProviders';
-import { AppRouter } from '@/app/router';
 import { AppErrorBoundary } from '@/shared/components/AppErrorBoundary';
 import { initSentry } from '@/shared/observability/sentry';
 
@@ -15,7 +15,7 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <AppErrorBoundary>
       <AppProviders>
-        <AppRouter />
+        <App />
       </AppProviders>
     </AppErrorBoundary>
   </StrictMode>,
