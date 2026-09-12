@@ -7,6 +7,16 @@ import { useCurrentProfile } from '@/features/account';
 import { useAuth } from '@/features/auth';
 import { useCurrentHost, isHostProfile, HostLayout } from '@/features/host';
 
+const HOST_GUEST_PATHS = new Set(['/host/login', '/host/signup']);
+
+function HostGuestOutlet() {
+  return (
+    <Suspense fallback={<p className="text-ink-muted px-4 py-16 text-sm">Loading...</p>}>
+      <Outlet />
+    </Suspense>
+  );
+}
+
 /**
  * Layout wrapper for /host/* routes.
  * Handles host authentication and renders nested routes via Outlet.
@@ -16,6 +26,11 @@ export default function HostLayoutPage() {
   const { user, isAuthenticated, isEmailVerified, isLoading } = useAuth();
   const { data: profile, isLoading: isProfileLoading } = useCurrentProfile(user?.id);
   const { data: host, isLoading: isHostLoading } = useCurrentHost();
+
+  // Login/signup are nested under /host/* but must stay public.
+  if (HOST_GUEST_PATHS.has(location.pathname)) {
+    return <HostGuestOutlet />;
+  }
 
   const loading = isLoading || isProfileLoading || isHostLoading;
 
@@ -38,11 +53,13 @@ export default function HostLayoutPage() {
     return <Navigate to="/signup/verify-email" replace state={{ email: user?.email }} />;
   }
 
-  // If user is authenticated but not a host, redirect to registration
+  // Registration requires auth but not an existing host profile.
+  if (location.pathname === '/host/register') {
+    return <HostGuestOutlet />;
+  }
+
   if (!isHostProfile(profile?.role) || !host) {
-    if (location.pathname !== '/host/register') {
-      return <Navigate to="/host/register" replace />;
-    }
+    return <Navigate to="/host/register" replace />;
   }
 
   return (

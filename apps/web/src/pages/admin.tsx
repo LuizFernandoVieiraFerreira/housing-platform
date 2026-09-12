@@ -7,6 +7,16 @@ import { useCurrentProfile } from '@/features/account';
 import { isAdminProfile, AdminLayout } from '@/features/admin';
 import { useAuth } from '@/features/auth';
 
+const ADMIN_GUEST_PATHS = new Set(['/admin/login']);
+
+function AdminGuestOutlet() {
+  return (
+    <Suspense fallback={<p className="text-ink-muted px-4 py-16 text-sm">Loading...</p>}>
+      <Outlet />
+    </Suspense>
+  );
+}
+
 /**
  * Layout wrapper for /admin/* routes.
  * Handles admin authentication and renders nested routes via Outlet.
@@ -15,6 +25,10 @@ export default function AdminLayoutPage() {
   const location = useLocation();
   const { user, isAuthenticated, isEmailVerified, isLoading } = useAuth();
   const { data: profile, isLoading: isProfileLoading } = useCurrentProfile(user?.id);
+
+  if (ADMIN_GUEST_PATHS.has(location.pathname)) {
+    return <AdminGuestOutlet />;
+  }
 
   const loading = isLoading || isProfileLoading;
 
@@ -47,7 +61,9 @@ export default function AdminLayoutPage() {
         title="Unable to load admin console"
         description="Something went wrong while loading the admin console. Try again or return home."
       >
-        <Suspense fallback={<p className="text-ink-muted px-4 py-16 text-sm">Loading admin console...</p>}>
+        <Suspense
+          fallback={<p className="text-ink-muted px-4 py-16 text-sm">Loading admin console...</p>}
+        >
           <AdminLayout>
             <Outlet />
           </AdminLayout>
