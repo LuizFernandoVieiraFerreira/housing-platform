@@ -5,7 +5,10 @@ import type {
 } from '@housing-platform/types';
 
 import { supabase } from '@/shared/api/supabase';
+import { logger, createTimer } from '@/shared/lib/logger';
 import { AppError, Result, unwrap, type ErrorCode } from '@/shared/lib/result';
+
+const log = logger.child('payment-api');
 
 // ============================================================================
 // Error Parsing Helpers
@@ -79,6 +82,9 @@ function extractInlineError(data: unknown): string | null {
 export async function createPaymentOrderSafe(
   bookingId: string,
 ): Promise<Result<CreatePaymentOrderResult>> {
+  const timer = createTimer();
+  log.info('Creating payment order', { action: 'createPaymentOrder', data: { bookingId } });
+
   try {
     const { data, error } = await supabase.functions.invoke('create-payment', {
       body: { bookingId },
@@ -86,16 +92,37 @@ export async function createPaymentOrderSafe(
 
     if (error) {
       const appError = await parseFunctionError(error, 'PAYMENT_FAILED', 'Unable to start checkout.');
+      log.error('Payment order creation failed', {
+        action: 'createPaymentOrder',
+        error: appError,
+        data: { bookingId, durationMs: timer() },
+      });
       return Result.err(appError);
     }
 
     const inlineError = extractInlineError(data);
     if (inlineError) {
-      return Result.err(new AppError('PAYMENT_FAILED', inlineError));
+      const appError = new AppError('PAYMENT_FAILED', inlineError);
+      log.error('Payment order creation failed (inline error)', {
+        action: 'createPaymentOrder',
+        error: appError,
+        data: { bookingId, durationMs: timer() },
+      });
+      return Result.err(appError);
     }
 
-    return Result.ok(data as CreatePaymentOrderResult);
+    const result = data as CreatePaymentOrderResult;
+    log.info('Payment order created successfully', {
+      action: 'createPaymentOrder',
+      data: { bookingId, orderId: result.orderId, amountKrw: result.amountKrw, durationMs: timer() },
+    });
+    return Result.ok(result);
   } catch (error) {
+    log.error('Payment order creation threw exception', {
+      action: 'createPaymentOrder',
+      error,
+      data: { bookingId, durationMs: timer() },
+    });
     return Result.fromError(error, 'PAYMENT_FAILED');
   }
 }
@@ -116,6 +143,12 @@ export async function confirmPaymentSafe(input: {
   orderId: string;
   amount: number;
 }): Promise<Result<ConfirmPaymentResult>> {
+  const timer = createTimer();
+  log.info('Confirming payment', {
+    action: 'confirmPayment',
+    data: { orderId: input.orderId, amount: input.amount },
+  });
+
   try {
     const { data, error } = await supabase.functions.invoke('confirm-payment', {
       body: input,
@@ -123,16 +156,37 @@ export async function confirmPaymentSafe(input: {
 
     if (error) {
       const appError = await parseFunctionError(error, 'PAYMENT_FAILED', 'Unable to confirm payment.');
+      log.error('Payment confirmation failed', {
+        action: 'confirmPayment',
+        error: appError,
+        data: { orderId: input.orderId, durationMs: timer() },
+      });
       return Result.err(appError);
     }
 
     const inlineError = extractInlineError(data);
     if (inlineError) {
-      return Result.err(new AppError('PAYMENT_FAILED', inlineError));
+      const appError = new AppError('PAYMENT_FAILED', inlineError);
+      log.error('Payment confirmation failed (inline error)', {
+        action: 'confirmPayment',
+        error: appError,
+        data: { orderId: input.orderId, durationMs: timer() },
+      });
+      return Result.err(appError);
     }
 
-    return Result.ok(data as ConfirmPaymentResult);
+    const result = data as ConfirmPaymentResult;
+    log.info('Payment confirmed successfully', {
+      action: 'confirmPayment',
+      data: { orderId: input.orderId, bookingId: result.bookingId, durationMs: timer() },
+    });
+    return Result.ok(result);
   } catch (error) {
+    log.error('Payment confirmation threw exception', {
+      action: 'confirmPayment',
+      error,
+      data: { orderId: input.orderId, durationMs: timer() },
+    });
     return Result.fromError(error, 'PAYMENT_FAILED');
   }
 }

@@ -6,7 +6,10 @@ import type {
 } from '@housing-platform/types';
 
 import { supabase } from '@/shared/api/supabase';
+import { logger, createTimer } from '@/shared/lib/logger';
 import { AppError, Result, unwrap } from '@/shared/lib/result';
+
+const log = logger.child('booking-api');
 
 type QuoteRow = {
   room_id: string;
@@ -140,6 +143,12 @@ export async function createBookingHoldSafe(input: {
   guestCount: number;
   customerNotes?: string;
 }): Promise<Result<Booking>> {
+  const timer = createTimer();
+  log.info('Creating booking hold', {
+    action: 'createBookingHold',
+    data: { roomId: input.roomId, checkIn: input.checkIn, checkOut: input.checkOut },
+  });
+
   try {
     const { data, error } = await supabase.rpc('create_booking_hold', {
       p_room_id: input.roomId,
@@ -150,11 +159,27 @@ export async function createBookingHoldSafe(input: {
     });
 
     if (error) {
-      return Result.err(AppError.fromSupabase(error, 'Unable to create booking'));
+      const appError = AppError.fromSupabase(error, 'Unable to create booking');
+      log.error('Booking hold creation failed', {
+        action: 'createBookingHold',
+        error: appError,
+        data: { roomId: input.roomId, durationMs: timer() },
+      });
+      return Result.err(appError);
     }
 
-    return Result.ok(data as Booking);
+    const booking = data as Booking;
+    log.info('Booking hold created successfully', {
+      action: 'createBookingHold',
+      data: { bookingId: booking.id, roomId: input.roomId, durationMs: timer() },
+    });
+    return Result.ok(booking);
   } catch (error) {
+    log.error('Booking hold creation threw exception', {
+      action: 'createBookingHold',
+      error,
+      data: { roomId: input.roomId, durationMs: timer() },
+    });
     return Result.fromError(error, 'API_ERROR');
   }
 }
@@ -268,17 +293,35 @@ export async function fetchBookingDetailSafe(
  * Cancel a booking owned by the current user. Returns a Result.
  */
 export async function cancelOwnBookingSafe(bookingId: string): Promise<Result<Booking>> {
+  const timer = createTimer();
+  log.info('Cancelling booking', { action: 'cancelBooking', data: { bookingId } });
+
   try {
     const { data, error } = await supabase.rpc('cancel_own_booking', {
       p_booking_id: bookingId,
     });
 
     if (error) {
-      return Result.err(AppError.fromSupabase(error, 'Unable to cancel booking'));
+      const appError = AppError.fromSupabase(error, 'Unable to cancel booking');
+      log.error('Booking cancellation failed', {
+        action: 'cancelBooking',
+        error: appError,
+        data: { bookingId, durationMs: timer() },
+      });
+      return Result.err(appError);
     }
 
+    log.info('Booking cancelled successfully', {
+      action: 'cancelBooking',
+      data: { bookingId, durationMs: timer() },
+    });
     return Result.ok(data as Booking);
   } catch (error) {
+    log.error('Booking cancellation threw exception', {
+      action: 'cancelBooking',
+      error,
+      data: { bookingId, durationMs: timer() },
+    });
     return Result.fromError(error, 'API_ERROR');
   }
 }
