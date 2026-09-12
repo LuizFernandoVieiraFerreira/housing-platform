@@ -1,10 +1,26 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  getAuthErrorMessage,
   getAuthenticatedHomePath,
   getSafeReturnTo,
   resolvePostLoginPath,
 } from '@/features/auth/lib/auth-utils';
+
+describe('getAuthErrorMessage', () => {
+  it('returns Error message when available', () => {
+    expect(getAuthErrorMessage(new Error('Invalid credentials'))).toBe('Invalid credentials');
+  });
+
+  it('returns message from error-like objects', () => {
+    expect(getAuthErrorMessage({ message: 'Email not confirmed' })).toBe('Email not confirmed');
+  });
+
+  it('returns fallback for unknown error shapes', () => {
+    expect(getAuthErrorMessage(null)).toBe('Something went wrong.');
+    expect(getAuthErrorMessage(undefined, 'Login failed')).toBe('Login failed');
+  });
+});
 
 describe('getSafeReturnTo', () => {
   it('returns fallback for unsafe values', () => {

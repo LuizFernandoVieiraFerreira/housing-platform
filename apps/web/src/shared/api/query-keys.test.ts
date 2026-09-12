@@ -3,6 +3,8 @@ import { describe, expect, it } from 'vitest';
 import { accountKeys } from '@/features/account';
 import { searchKeys } from '@/features/search';
 import { bookingKeys } from '@/features/booking';
+import { checkoutKeys } from '@/features/checkout';
+import { listingsKeys } from '@/features/listings';
 import { hostKeys } from '@/features/host';
 import { adminKeys } from '@/features/admin';
 import { notificationKeys } from '@/features/notifications';
@@ -34,6 +36,15 @@ describe('colocated query keys', () => {
     it('builds property detail keys', () => {
       expect(searchKeys.detail('prop-123')).toEqual(['properties', 'detail', 'prop-123']);
     });
+
+    it('builds AI search keys from request payload', () => {
+      const request = { query: 'near subway', guests: 2 };
+      expect(searchKeys.aiSearch(request)).toEqual(['properties', 'ai-search', request]);
+    });
+
+    it('builds featured property key', () => {
+      expect(searchKeys.featured()).toEqual(['properties', 'featured']);
+    });
   });
 
   describe('bookingKeys', () => {
@@ -43,6 +54,23 @@ describe('colocated query keys', () => {
 
     it('builds detail query key', () => {
       expect(bookingKeys.detail('booking-456')).toEqual(['bookings', 'detail', 'booking-456']);
+    });
+
+    it('builds quote query key from input', () => {
+      const input = { roomId: 'room-1', checkIn: '2026-01-01' };
+      expect(bookingKeys.quote(input)).toEqual(['bookings', 'quote', input]);
+    });
+  });
+
+  describe('checkoutKeys', () => {
+    it('builds payment key scoped to booking id', () => {
+      expect(checkoutKeys.payment('booking-789')).toEqual(['checkout', 'payment', 'booking-789']);
+    });
+  });
+
+  describe('listingsKeys', () => {
+    it('builds featured listings key', () => {
+      expect(listingsKeys.featured()).toEqual(['listings', 'featured']);
     });
   });
 

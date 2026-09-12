@@ -3,9 +3,11 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { AdminRoute } from '@/features/admin/components/AdminRoute';
 import { GuestRoute } from '@/features/auth/components/GuestRoute';
 import { MarketplaceRoute } from '@/features/auth/components/MarketplaceRoute';
 import { ProtectedRoute } from '@/features/auth/components/ProtectedRoute';
+import { HostRoute } from '@/features/host/components/HostRoute';
 import type { AuthContextValue } from '@/features/auth/hooks/useAuth';
 import { AuthContext } from '@/features/auth/hooks/useAuth';
 
@@ -364,5 +366,244 @@ describe('MarketplaceRoute', () => {
 
     expect(screen.getByText('Admin console')).toBeInTheDocument();
     expect(screen.queryByText('Home page')).not.toBeInTheDocument();
+  });
+});
+
+describe('HostRoute', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockedUseCurrentProfile.mockReturnValue({
+      data: undefined,
+      isLoading: false,
+    } as ReturnType<typeof useCurrentProfile>);
+    mockedUseCurrentHost.mockReturnValue({
+      data: undefined,
+      isLoading: false,
+    } as ReturnType<typeof useCurrentHost>);
+  });
+
+  it('redirects unauthenticated users to host login with returnTo', () => {
+    renderWithAuth(
+      <Routes>
+        <Route element={<HostRoute />}>
+          <Route path="/host/bookings" element={<p>Host bookings</p>} />
+        </Route>
+        <Route
+          path="/host/login"
+          element={
+            <>
+              <p>Host login</p>
+              <LocationDisplay />
+            </>
+          }
+        />
+      </Routes>,
+      baseAuthValue,
+      ['/host/bookings?tab=upcoming'],
+    );
+
+    expect(screen.getByText('Host login')).toBeInTheDocument();
+    expect(
+      screen.getByText('Current route: /host/login?returnTo=%2Fhost%2Fbookings%3Ftab%3Dupcoming'),
+    ).toBeInTheDocument();
+  });
+
+  it('allows host registration without an existing host profile', () => {
+    mockedUseCurrentProfile.mockReturnValue({
+      data: { role: 'customer' },
+      isLoading: false,
+    } as ReturnType<typeof useCurrentProfile>);
+
+    renderWithAuth(
+      <Routes>
+        <Route element={<HostRoute />}>
+          <Route path="/host/register" element={<p>Host registration</p>} />
+        </Route>
+      </Routes>,
+      {
+        ...baseAuthValue,
+        isAuthenticated: true,
+        isEmailVerified: true,
+        user: { id: 'user-1' } as AuthContextValue['user'],
+      },
+      ['/host/register'],
+    );
+
+    expect(screen.getByText('Host registration')).toBeInTheDocument();
+  });
+
+  it('redirects non-host users to registration', () => {
+    mockedUseCurrentProfile.mockReturnValue({
+      data: { role: 'customer' },
+      isLoading: false,
+    } as ReturnType<typeof useCurrentProfile>);
+
+    renderWithAuth(
+      <Routes>
+        <Route element={<HostRoute />}>
+          <Route path="/host" element={<p>Host dashboard</p>} />
+        </Route>
+        <Route path="/host/register" element={<p>Host registration</p>} />
+      </Routes>,
+      {
+        ...baseAuthValue,
+        isAuthenticated: true,
+        isEmailVerified: true,
+        user: { id: 'user-1' } as AuthContextValue['user'],
+      },
+      ['/host'],
+    );
+
+    expect(screen.getByText('Host registration')).toBeInTheDocument();
+    expect(screen.queryByText('Host dashboard')).not.toBeInTheDocument();
+  });
+
+  it('renders host portal content for verified hosts', () => {
+    mockedUseCurrentProfile.mockReturnValue({
+      data: { role: 'host' },
+      isLoading: false,
+    } as ReturnType<typeof useCurrentProfile>);
+    mockedUseCurrentHost.mockReturnValue({
+      data: { id: 'host-1' },
+      isLoading: false,
+    } as ReturnType<typeof useCurrentHost>);
+
+    renderWithAuth(
+      <Routes>
+        <Route element={<HostRoute />}>
+          <Route path="/host" element={<p>Host dashboard</p>} />
+        </Route>
+      </Routes>,
+      {
+        ...baseAuthValue,
+        isAuthenticated: true,
+        isEmailVerified: true,
+        user: { id: 'user-1' } as AuthContextValue['user'],
+      },
+      ['/host'],
+    );
+
+    expect(screen.getByText('Host dashboard')).toBeInTheDocument();
+  });
+
+  it('shows retry UI when host profile fails to load', () => {
+    const refetchHost = vi.fn();
+
+    mockedUseCurrentProfile.mockReturnValue({
+      data: { role: 'host' },
+      isLoading: false,
+    } as ReturnType<typeof useCurrentProfile>);
+    mockedUseCurrentHost.mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: true,
+      error: new Error('Host profile unavailable'),
+      refetch: refetchHost,
+    } as ReturnType<typeof useCurrentHost>);
+
+    renderWithAuth(
+      <Routes>
+        <Route element={<HostRoute />}>
+          <Route path="/host" element={<p>Host dashboard</p>} />
+        </Route>
+      </Routes>,
+      {
+        ...baseAuthValue,
+        isAuthenticated: true,
+        isEmailVerified: true,
+        user: { id: 'user-1' } as AuthContextValue['user'],
+      },
+      ['/host'],
+    );
+
+    expect(screen.getByText('Unable to load your host profile.')).toBeInTheDocument();
+    expect(screen.getByText('Host profile unavailable')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Retry' })).toBeInTheDocument();
+  });
+});
+
+describe('AdminRoute', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockedUseCurrentProfile.mockReturnValue({
+      data: undefined,
+      isLoading: false,
+    } as ReturnType<typeof useCurrentProfile>);
+  });
+
+  it('redirects unauthenticated users to admin login with returnTo', () => {
+    renderWithAuth(
+      <Routes>
+        <Route element={<AdminRoute />}>
+          <Route path="/admin/bookings" element={<p>Admin bookings</p>} />
+        </Route>
+        <Route
+          path="/admin/login"
+          element={
+            <>
+              <p>Admin login</p>
+              <LocationDisplay />
+            </>
+          }
+        />
+      </Routes>,
+      baseAuthValue,
+      ['/admin/bookings'],
+    );
+
+    expect(screen.getByText('Admin login')).toBeInTheDocument();
+    expect(
+      screen.getByText('Current route: /admin/login?returnTo=%2Fadmin%2Fbookings'),
+    ).toBeInTheDocument();
+  });
+
+  it('redirects non-admin users to home', () => {
+    mockedUseCurrentProfile.mockReturnValue({
+      data: { role: 'customer' },
+      isLoading: false,
+    } as ReturnType<typeof useCurrentProfile>);
+
+    renderWithAuth(
+      <Routes>
+        <Route element={<AdminRoute />}>
+          <Route path="/admin" element={<p>Admin dashboard</p>} />
+        </Route>
+        <Route path="/" element={<p>Home page</p>} />
+      </Routes>,
+      {
+        ...baseAuthValue,
+        isAuthenticated: true,
+        isEmailVerified: true,
+        user: { id: 'user-1' } as AuthContextValue['user'],
+      },
+      ['/admin'],
+    );
+
+    expect(screen.getByText('Home page')).toBeInTheDocument();
+    expect(screen.queryByText('Admin dashboard')).not.toBeInTheDocument();
+  });
+
+  it('renders admin console for admin users', () => {
+    mockedUseCurrentProfile.mockReturnValue({
+      data: { role: 'admin' },
+      isLoading: false,
+    } as ReturnType<typeof useCurrentProfile>);
+
+    renderWithAuth(
+      <Routes>
+        <Route element={<AdminRoute />}>
+          <Route path="/admin" element={<p>Admin dashboard</p>} />
+        </Route>
+      </Routes>,
+      {
+        ...baseAuthValue,
+        isAuthenticated: true,
+        isEmailVerified: true,
+        user: { id: 'user-1' } as AuthContextValue['user'],
+      },
+      ['/admin'],
+    );
+
+    expect(screen.getByText('Admin dashboard')).toBeInTheDocument();
   });
 });
