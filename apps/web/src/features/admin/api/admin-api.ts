@@ -10,6 +10,7 @@ import type {
 } from '@housing-platform/types';
 
 import { supabase } from '@/shared/api/supabase';
+import { wrapSupabaseError } from '@/shared/lib/errors';
 
 function getRelation<T>(value: T | T[] | null | undefined): T | null {
   if (value == null) {
@@ -46,19 +47,19 @@ export async function fetchAdminDashboardStats(): Promise<AdminDashboardStats> {
   ]);
 
   if (propertiesResult.error) {
-    throw propertiesResult.error;
+    throw wrapSupabaseError(propertiesResult.error, 'Unable to load dashboard stats');
   }
 
   if (hostsResult.error) {
-    throw hostsResult.error;
+    throw wrapSupabaseError(hostsResult.error, 'Unable to load dashboard stats');
   }
 
   if (bookingsResult.error) {
-    throw bookingsResult.error;
+    throw wrapSupabaseError(bookingsResult.error, 'Unable to load dashboard stats');
   }
 
   if (housingRequestsResult.error) {
-    throw housingRequestsResult.error;
+    throw wrapSupabaseError(housingRequestsResult.error, 'Unable to load dashboard stats');
   }
 
   return {
@@ -91,7 +92,7 @@ export async function fetchAdminProperties(): Promise<AdminPropertyListItem[]> {
     .order('updated_at', { ascending: false });
 
   if (error) {
-    throw error;
+    throw wrapSupabaseError(error, 'Unable to load properties');
   }
 
   return ((data ?? []) as Array<Record<string, unknown>>).map((row) => {
@@ -121,7 +122,7 @@ export async function publishAdminProperty(propertyId: string) {
   });
 
   if (error) {
-    throw error;
+    throw wrapSupabaseError(error, 'Unable to publish property');
   }
 
   return data;
@@ -133,7 +134,7 @@ export async function rejectAdminProperty(propertyId: string) {
   });
 
   if (error) {
-    throw error;
+    throw wrapSupabaseError(error, 'Unable to reject property');
   }
 
   return data;
@@ -156,7 +157,7 @@ export async function fetchAdminHosts(): Promise<AdminHostListItem[]> {
     .order('created_at', { ascending: false });
 
   if (error) {
-    throw error;
+    throw wrapSupabaseError(error, 'Unable to load hosts');
   }
 
   return ((data ?? []) as Array<Record<string, unknown>>).map((row) => {
@@ -181,7 +182,7 @@ export async function approveAdminHost(hostId: string) {
   });
 
   if (error) {
-    throw error;
+    throw wrapSupabaseError(error, 'Unable to approve host');
   }
 
   return data;
@@ -224,7 +225,7 @@ export async function fetchAdminBookings(): Promise<HostBookingListItem[]> {
     .order('created_at', { ascending: false });
 
   if (error) {
-    throw error;
+    throw wrapSupabaseError(error, 'Unable to load bookings');
   }
 
   return ((data ?? []) as AdminBookingRow[])
@@ -260,7 +261,7 @@ export async function approveAdminBooking(bookingId: string) {
   });
 
   if (error) {
-    throw error;
+    throw wrapSupabaseError(error, 'Unable to approve booking');
   }
 
   return data;
@@ -272,7 +273,7 @@ export async function rejectAdminBooking(bookingId: string) {
   });
 
   if (error) {
-    throw error;
+    throw wrapSupabaseError(error, 'Unable to reject booking');
   }
 
   return data;
@@ -319,7 +320,7 @@ export async function fetchAdminPayments(): Promise<AdminPaymentListItem[]> {
     .order('created_at', { ascending: false });
 
   if (error) {
-    throw error;
+    throw wrapSupabaseError(error, 'Unable to load payments');
   }
 
   return ((data ?? []) as AdminPaymentRow[])
@@ -352,7 +353,7 @@ export async function fetchAdminHousingRequests(): Promise<HousingRequestListIte
     .order('created_at', { ascending: false });
 
   if (error) {
-    throw error;
+    throw wrapSupabaseError(error, 'Unable to load housing requests');
   }
 
   return ((data ?? []) as Array<Record<string, unknown>>).map((row) => ({
@@ -380,7 +381,7 @@ export async function updateAdminHousingRequestStatus(
   });
 
   if (error) {
-    throw error;
+    throw wrapSupabaseError(error, 'Unable to update request status');
   }
 
   return data;
@@ -414,7 +415,7 @@ export async function fetchAdminAuditLogs(): Promise<AuditLogListItem[]> {
     .limit(100);
 
   if (error) {
-    throw error;
+    throw wrapSupabaseError(error, 'Unable to load audit logs');
   }
 
   return ((data ?? []) as AuditLogRow[]).map((row) => {

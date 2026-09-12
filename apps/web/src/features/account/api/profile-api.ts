@@ -1,6 +1,7 @@
 import type { Database, Profile } from '@housing-platform/types';
 
 import { supabase } from '@/shared/api/supabase';
+import { wrapSupabaseError } from '@/shared/lib/errors';
 
 type ProfileUpdate = Database['public']['Tables']['profiles']['Update'];
 
@@ -12,7 +13,7 @@ export async function fetchCurrentProfile(userId: string): Promise<Profile | nul
     .maybeSingle();
 
   if (error) {
-    throw error;
+    throw wrapSupabaseError(error, 'Unable to load profile');
   }
 
   return data as Profile | null;
@@ -41,7 +42,7 @@ export async function updateCurrentProfile(
     .single();
 
   if (error) {
-    throw error;
+    throw wrapSupabaseError(error, 'Unable to update profile');
   }
 
   return data as Profile;

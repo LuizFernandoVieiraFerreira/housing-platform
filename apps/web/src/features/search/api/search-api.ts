@@ -12,6 +12,7 @@ import { resolvePropertyImageUrl } from '@/features/listings/lib/image-url';
 import { SEARCH_RESULTS_PAGE_SIZE } from '@/features/search/lib/search-config';
 import { filtersToRpcPayload } from '@/features/search/lib/search-params';
 import { supabase } from '@/shared/api/supabase';
+import { wrapSupabaseError } from '@/shared/lib/errors';
 
 type SearchPropertyRow = {
   id: string;
@@ -107,7 +108,7 @@ export async function searchProperties(
   });
 
   if (error) {
-    throw error;
+    throw wrapSupabaseError(error, 'Unable to search properties');
   }
 
   const rows = (data ?? []) as SearchPropertyRow[];
@@ -172,7 +173,7 @@ export async function fetchPropertyDetail(propertyId: string): Promise<PropertyD
     .maybeSingle();
 
   if (error) {
-    throw error;
+    throw wrapSupabaseError(error, 'Unable to load property details');
   }
 
   if (!data) {
@@ -193,7 +194,7 @@ export async function fetchPropertyDetail(propertyId: string): Promise<PropertyD
   );
 
   if (coordinatesError) {
-    throw coordinatesError;
+    throw wrapSupabaseError(coordinatesError, 'Unable to load property location');
   }
 
   const coordinateRow = coordinates?.[0] as { latitude: number; longitude: number } | undefined;

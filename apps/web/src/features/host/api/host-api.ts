@@ -1,6 +1,7 @@
 import type { HostRecord } from '@housing-platform/types';
 
 import { supabase } from '@/shared/api/supabase';
+import { wrapSupabaseError } from '@/shared/lib/errors';
 
 export async function registerAsHost(displayName: string): Promise<HostRecord> {
   const { data, error } = await supabase.rpc('register_as_host', {
@@ -8,7 +9,7 @@ export async function registerAsHost(displayName: string): Promise<HostRecord> {
   });
 
   if (error) {
-    throw error;
+    throw wrapSupabaseError(error, 'Unable to register as host');
   }
 
   return data as HostRecord;
@@ -21,7 +22,7 @@ export async function fetchCurrentHost(): Promise<HostRecord | null> {
   } = await supabase.auth.getUser();
 
   if (userError) {
-    throw userError;
+    throw wrapSupabaseError(userError, 'Unable to verify authentication');
   }
 
   if (!user) {
@@ -36,7 +37,7 @@ export async function fetchCurrentHost(): Promise<HostRecord | null> {
     .maybeSingle();
 
   if (error) {
-    throw error;
+    throw wrapSupabaseError(error, 'Unable to load host profile');
   }
 
   return (data as HostRecord | null) ?? null;

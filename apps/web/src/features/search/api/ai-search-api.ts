@@ -7,6 +7,7 @@ import type {
 
 import { mapSearchProperty } from '@/features/search/api/search-api';
 import { supabase } from '@/shared/api/supabase';
+import { AppError } from '@/shared/lib/errors';
 
 type AiSearchPropertyRow = {
   id: string;
@@ -33,7 +34,7 @@ type AiSearchFunctionResponse = {
   fallbackUsed?: boolean;
 };
 
-async function readFunctionError(error: unknown, fallback: string): Promise<Error> {
+async function parseFunctionError(error: unknown, fallbackMessage: string): Promise<AppError> {
   if (
     typeof error === 'object' &&
     error !== null &&
@@ -42,16 +43,15 @@ async function readFunctionError(error: unknown, fallback: string): Promise<Erro
   ) {
     try {
       const payload = (await error.context.json()) as ApiErrorResponse;
-
       if (payload.error?.message) {
-        return new Error(payload.error.message);
+        return new AppError('API_ERROR', payload.error.message, { cause: error });
       }
     } catch {
-      return error instanceof Error ? error : new Error(fallback);
+      return new AppError('API_ERROR', fallbackMessage, { cause: error });
     }
   }
 
-  return error instanceof Error ? error : new Error(fallback);
+  return AppError.from(error, 'API_ERROR');
 }
 
 function mapAiSearchItem(item: AiSearchPropertyRow): SearchPropertyCard {
@@ -99,7 +99,7 @@ export async function aiPropertySearch(
   });
 
   if (error) {
-    throw await readFunctionError(error, 'Unable to run smart search.');
+    throw await parseFunctionError(error, 'Unable to run smart search.');
   }
 
   if (
@@ -108,7 +108,7 @@ export async function aiPropertySearch(
     'error' in data &&
     typeof (data as ApiErrorResponse).error?.message === 'string'
   ) {
-    throw new Error((data as ApiErrorResponse).error.message);
+    throw new AppError('API_ERROR', (data as ApiErrorResponse).error.message);
   }
 
   const payload = data as AiSearchFunctionResponse;

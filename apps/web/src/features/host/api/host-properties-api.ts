@@ -10,6 +10,7 @@ import type { HostPropertyInput, HostRoomInput } from '@housing-platform/validat
 import { submitPropertyForReview } from '@/features/listings/api/properties-api';
 import { fetchCurrentHost } from '@/features/host/api/host-api';
 import { supabase } from '@/shared/api/supabase';
+import { AppError, wrapSupabaseError } from '@/shared/lib/errors';
 
 function createPropertySlug(title: string): string {
   const base = title
@@ -61,7 +62,7 @@ export async function fetchHostProperties(): Promise<HostPropertyListItem[]> {
     .order('updated_at', { ascending: false });
 
   if (error) {
-    throw error;
+    throw wrapSupabaseError(error, 'Unable to load your properties');
   }
 
   return ((data ?? []) as Array<Record<string, unknown>>).map((row) => ({
@@ -85,7 +86,7 @@ export async function fetchAmenities(): Promise<AmenityOption[]> {
     .order('sort_order', { ascending: true });
 
   if (error) {
-    throw error;
+    throw wrapSupabaseError(error, 'Unable to load amenities');
   }
 
   return (data ?? []) as AmenityOption[];
@@ -131,7 +132,7 @@ export async function fetchHostProperty(propertyId: string): Promise<HostPropert
     .maybeSingle();
 
   if (error) {
-    throw error;
+    throw wrapSupabaseError(error, 'Unable to load property details');
   }
 
   if (!data) {
@@ -190,7 +191,7 @@ export async function createHostProperty(input: HostPropertyInput): Promise<stri
   const host = await fetchCurrentHost();
 
   if (!host) {
-    throw new Error('Host profile is required before creating listings');
+    throw new AppError('FORBIDDEN', 'Host profile is required before creating listings');
   }
 
   const { data, error } = await supabase
@@ -220,7 +221,7 @@ export async function createHostProperty(input: HostPropertyInput): Promise<stri
     .single();
 
   if (error) {
-    throw error;
+    throw wrapSupabaseError(error, 'Unable to create listing');
   }
 
   const propertyId = data.id as string;
@@ -261,7 +262,7 @@ export async function updateHostProperty(
     .eq('id', propertyId);
 
   if (error) {
-    throw error;
+    throw wrapSupabaseError(error, 'Unable to update listing');
   }
 
   if (input.latitude != null && input.longitude != null) {
@@ -283,7 +284,7 @@ export async function setPropertyLocation(
   });
 
   if (error) {
-    throw error;
+    throw wrapSupabaseError(error, 'Unable to set property location');
   }
 }
 
@@ -294,7 +295,7 @@ async function syncPropertyAmenities(propertyId: string, amenityIds: string[]): 
     .eq('property_id', propertyId);
 
   if (deleteError) {
-    throw deleteError;
+    throw wrapSupabaseError(deleteError, 'Unable to update amenities');
   }
 
   if (amenityIds.length === 0) {
@@ -309,7 +310,7 @@ async function syncPropertyAmenities(propertyId: string, amenityIds: string[]): 
   );
 
   if (insertError) {
-    throw insertError;
+    throw wrapSupabaseError(insertError, 'Unable to update amenities');
   }
 }
 
@@ -335,7 +336,7 @@ export async function createHostRoom(
     .single();
 
   if (error) {
-    throw error;
+    throw wrapSupabaseError(error, 'Unable to create room');
   }
 
   return {
@@ -354,7 +355,7 @@ export async function deleteHostRoom(roomId: string): Promise<void> {
   const { error } = await supabase.from('rooms').delete().eq('id', roomId);
 
   if (error) {
-    throw error;
+    throw wrapSupabaseError(error, 'Unable to delete room');
   }
 }
 
@@ -397,7 +398,7 @@ export async function fetchHostBookings(): Promise<HostBookingListItem[]> {
     .order('created_at', { ascending: false });
 
   if (error) {
-    throw error;
+    throw wrapSupabaseError(error, 'Unable to load bookings');
   }
 
   return ((data ?? []) as HostBookingRow[])
@@ -433,7 +434,7 @@ export async function approveHostBooking(bookingId: string) {
   });
 
   if (error) {
-    throw error;
+    throw wrapSupabaseError(error, 'Unable to approve booking');
   }
 
   return data;
@@ -445,7 +446,7 @@ export async function rejectHostBooking(bookingId: string) {
   });
 
   if (error) {
-    throw error;
+    throw wrapSupabaseError(error, 'Unable to reject booking');
   }
 
   return data;

@@ -496,10 +496,12 @@ describe('HostRoute', () => {
     mockedUseCurrentHost.mockReturnValue({
       data: undefined,
       isLoading: false,
+      isPending: false,
       isError: true,
+      isSuccess: false,
       error: new Error('Host profile unavailable'),
       refetch: refetchHost,
-    } as ReturnType<typeof useCurrentHost>);
+    } as unknown as ReturnType<typeof useCurrentHost>);
 
     renderWithAuth(
       <Routes>

@@ -1,6 +1,7 @@
 import type { FeaturedPropertyCard } from '@housing-platform/types';
 
 import { supabase } from '@/shared/api/supabase';
+import { wrapSupabaseError } from '@/shared/lib/errors';
 
 import { resolvePropertyImageUrl } from '@/features/listings/lib/image-url';
 
@@ -72,7 +73,7 @@ export async function fetchFeaturedProperties(): Promise<FeaturedPropertyCard[]>
     .limit(8);
 
   if (error) {
-    throw error;
+    throw wrapSupabaseError(error, 'Unable to load featured properties');
   }
 
   return ((data ?? []) as FeaturedPropertyRow[])
@@ -86,7 +87,7 @@ export async function submitPropertyForReview(propertyId: string) {
   });
 
   if (error) {
-    throw error;
+    throw wrapSupabaseError(error, 'Unable to submit property for review');
   }
 
   return data;

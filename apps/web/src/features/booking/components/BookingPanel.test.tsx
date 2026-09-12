@@ -114,7 +114,7 @@ describe('BookingPanel', () => {
   describe('when no rooms are available', () => {
     it('shows no availability message', () => {
       const property = createPropertyDetail({
-        rooms: [createPropertyRoom({ status: 'occupied' })],
+        rooms: [createPropertyRoom({ status: 'unavailable' })],
       });
       const authValue = createAuthContext({
         isAuthenticated: true,
