@@ -2,8 +2,11 @@
  * Search feature public API
  *
  * Usage:
- *   import { usePropertySearch, buildSearchParams } from '@/features/search';
+ *   import { usePropertySearch, buildSearchParams, searchKeys } from '@/features/search';
  */
+
+// Query keys (colocated with feature)
+export { searchKeys } from './keys';
 
 // Hooks
 export { usePropertySearch } from './hooks/usePropertySearch';

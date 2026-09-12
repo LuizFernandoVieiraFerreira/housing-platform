@@ -2,8 +2,11 @@
  * Booking feature public API
  *
  * Usage:
- *   import { useBookingQuote, BookingPanel } from '@/features/booking';
+ *   import { useBookingQuote, BookingPanel, bookingKeys } from '@/features/booking';
  */
+
+// Query keys (colocated with feature)
+export { bookingKeys } from './keys';
 
 // Hooks
 export {

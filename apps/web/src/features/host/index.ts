@@ -2,8 +2,11 @@
  * Host feature public API
  *
  * Usage:
- *   import { useCurrentHost, HostRoute } from '@/features/host';
+ *   import { useCurrentHost, HostRoute, hostKeys } from '@/features/host';
  */
+
+// Query keys (colocated with feature)
+export { hostKeys } from './keys';
 
 // Hooks
 export { useCurrentHost } from './hooks/useHost';

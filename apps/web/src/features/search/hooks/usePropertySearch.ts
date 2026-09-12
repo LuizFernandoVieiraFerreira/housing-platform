@@ -1,12 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import type { PropertySearchFilters } from '@housing-platform/types';
 
-import { searchProperties } from '@/features/search/api/search-api';
-import { queryKeys } from '@/shared/api/query-keys';
+import { searchProperties } from '../api/search-api';
+import { searchKeys } from '../keys';
 
 export function usePropertySearch(filters: PropertySearchFilters) {
   return useQuery({
-    queryKey: queryKeys.properties.search(filtersToStableKey(filters)),
+    queryKey: searchKeys.search(filtersToStableKey(filters)),
     queryFn: () => searchProperties(filters),
     staleTime: 30_000,
   });

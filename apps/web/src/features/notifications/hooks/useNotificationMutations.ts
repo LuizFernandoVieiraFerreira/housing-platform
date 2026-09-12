@@ -3,9 +3,9 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   markAllNotificationsRead,
   markNotificationRead,
-} from '@/features/notifications/api/notifications-api';
-import { useAuth } from '@/features/auth/hooks/useAuth';
-import { queryKeys } from '@/shared/api/query-keys';
+} from '../api/notifications-api';
+import { useAuth } from '@/features/auth';
+import { notificationKeys } from '../keys';
 
 export function useNotificationMutations() {
   const queryClient = useQueryClient();
@@ -17,8 +17,8 @@ export function useNotificationMutations() {
       return;
     }
 
-    void queryClient.invalidateQueries({ queryKey: queryKeys.notifications.list(userId) });
-    void queryClient.invalidateQueries({ queryKey: queryKeys.notifications.unreadCount(userId) });
+    void queryClient.invalidateQueries({ queryKey: notificationKeys.list(userId) });
+    void queryClient.invalidateQueries({ queryKey: notificationKeys.unreadCount(userId) });
   }
 
   const markRead = useMutation({

@@ -2,8 +2,11 @@
  * Account feature public API
  *
  * Usage:
- *   import { useCurrentProfile } from '@/features/account';
+ *   import { useCurrentProfile, accountKeys } from '@/features/account';
  */
+
+// Query keys (colocated with feature)
+export { accountKeys } from './keys';
 
 // Hooks
 export { useCurrentProfile, useUpdateProfileMutation } from './hooks/useProfile';

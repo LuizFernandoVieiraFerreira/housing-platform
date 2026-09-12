@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { confirmPayment, createPaymentOrder } from '@/features/checkout/api/payment-api';
-import { queryKeys } from '@/shared/api/query-keys';
+import { confirmPayment, createPaymentOrder } from '../api/payment-api';
+import { bookingKeys } from '@/features/booking/keys';
 
 export function useCreatePaymentOrder() {
   return useMutation({
@@ -15,11 +15,11 @@ export function useConfirmPayment() {
   return useMutation({
     mutationFn: confirmPayment,
     onSuccess: (result) => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.bookings.mine });
+      void queryClient.invalidateQueries({ queryKey: bookingKeys.mine() });
 
       if (result.bookingId) {
         void queryClient.invalidateQueries({
-          queryKey: queryKeys.bookings.detail(result.bookingId),
+          queryKey: bookingKeys.detail(result.bookingId),
         });
       }
     },

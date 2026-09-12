@@ -1,11 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { fetchPropertyDetail } from '@/features/search/api/search-api';
-import { queryKeys } from '@/shared/api/query-keys';
+import { fetchPropertyDetail } from '../api/search-api';
+import { searchKeys } from '../keys';
 
 export function usePropertyDetail(propertyId: string | undefined) {
   return useQuery({
-    queryKey: queryKeys.properties.detail(propertyId ?? 'unknown'),
+    queryKey: searchKeys.detail(propertyId ?? 'unknown'),
     queryFn: () => {
       if (!propertyId) {
         throw new Error('Property ID is required');

@@ -1,12 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Profile } from '@housing-platform/types';
 
-import { fetchCurrentProfile, updateCurrentProfile } from '@/features/account/api/profile-api';
-import { queryKeys } from '@/shared/api/query-keys';
+import { fetchCurrentProfile, updateCurrentProfile } from '../api/profile-api';
+import { accountKeys } from '../keys';
 
 export function useCurrentProfile(userId: string | undefined) {
   return useQuery({
-    queryKey: queryKeys.profile.current(userId ?? 'anonymous'),
+    queryKey: accountKeys.profile.current(userId ?? 'anonymous'),
     queryFn: () => {
       if (!userId) {
         throw new Error('User ID is required');
@@ -36,7 +36,7 @@ export function useUpdateProfileMutation(userId: string | undefined) {
       return updateCurrentProfile(userId, input);
     },
     onSuccess: (profile) => {
-      queryClient.setQueryData(queryKeys.profile.current(userId ?? 'anonymous'), profile);
+      queryClient.setQueryData(accountKeys.profile.current(userId ?? 'anonymous'), profile);
     },
   });
 }

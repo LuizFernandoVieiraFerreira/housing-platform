@@ -15,12 +15,12 @@ import {
   rejectAdminBooking,
   rejectAdminProperty,
   updateAdminHousingRequestStatus,
-} from '@/features/admin/api/admin-api';
-import { queryKeys } from '@/shared/api/query-keys';
+} from '../api/admin-api';
+import { adminKeys } from '../keys';
 
 export function useAdminDashboardStats() {
   return useQuery({
-    queryKey: queryKeys.admin.dashboard,
+    queryKey: adminKeys.dashboard(),
     queryFn: fetchAdminDashboardStats,
     staleTime: 30_000,
   });
@@ -28,7 +28,7 @@ export function useAdminDashboardStats() {
 
 export function useAdminProperties() {
   return useQuery({
-    queryKey: queryKeys.admin.properties,
+    queryKey: adminKeys.properties(),
     queryFn: fetchAdminProperties,
     staleTime: 30_000,
   });
@@ -40,9 +40,9 @@ export function usePublishAdminProperty() {
   return useMutation({
     mutationFn: publishAdminProperty,
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.admin.properties });
-      void queryClient.invalidateQueries({ queryKey: queryKeys.admin.dashboard });
-      void queryClient.invalidateQueries({ queryKey: queryKeys.admin.auditLogs });
+      void queryClient.invalidateQueries({ queryKey: adminKeys.properties() });
+      void queryClient.invalidateQueries({ queryKey: adminKeys.dashboard() });
+      void queryClient.invalidateQueries({ queryKey: adminKeys.auditLogs() });
     },
   });
 }
@@ -53,16 +53,16 @@ export function useRejectAdminProperty() {
   return useMutation({
     mutationFn: rejectAdminProperty,
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.admin.properties });
-      void queryClient.invalidateQueries({ queryKey: queryKeys.admin.dashboard });
-      void queryClient.invalidateQueries({ queryKey: queryKeys.admin.auditLogs });
+      void queryClient.invalidateQueries({ queryKey: adminKeys.properties() });
+      void queryClient.invalidateQueries({ queryKey: adminKeys.dashboard() });
+      void queryClient.invalidateQueries({ queryKey: adminKeys.auditLogs() });
     },
   });
 }
 
 export function useAdminHosts() {
   return useQuery({
-    queryKey: queryKeys.admin.hosts,
+    queryKey: adminKeys.hosts(),
     queryFn: fetchAdminHosts,
     staleTime: 30_000,
   });
@@ -74,16 +74,16 @@ export function useApproveAdminHost() {
   return useMutation({
     mutationFn: approveAdminHost,
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.admin.hosts });
-      void queryClient.invalidateQueries({ queryKey: queryKeys.admin.dashboard });
-      void queryClient.invalidateQueries({ queryKey: queryKeys.admin.auditLogs });
+      void queryClient.invalidateQueries({ queryKey: adminKeys.hosts() });
+      void queryClient.invalidateQueries({ queryKey: adminKeys.dashboard() });
+      void queryClient.invalidateQueries({ queryKey: adminKeys.auditLogs() });
     },
   });
 }
 
 export function useAdminBookings() {
   return useQuery({
-    queryKey: queryKeys.admin.bookings,
+    queryKey: adminKeys.bookings(),
     queryFn: fetchAdminBookings,
     staleTime: 30_000,
   });
@@ -95,8 +95,8 @@ export function useApproveAdminBooking() {
   return useMutation({
     mutationFn: approveAdminBooking,
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.admin.bookings });
-      void queryClient.invalidateQueries({ queryKey: queryKeys.admin.dashboard });
+      void queryClient.invalidateQueries({ queryKey: adminKeys.bookings() });
+      void queryClient.invalidateQueries({ queryKey: adminKeys.dashboard() });
     },
   });
 }
@@ -107,15 +107,15 @@ export function useRejectAdminBooking() {
   return useMutation({
     mutationFn: rejectAdminBooking,
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.admin.bookings });
-      void queryClient.invalidateQueries({ queryKey: queryKeys.admin.dashboard });
+      void queryClient.invalidateQueries({ queryKey: adminKeys.bookings() });
+      void queryClient.invalidateQueries({ queryKey: adminKeys.dashboard() });
     },
   });
 }
 
 export function useAdminPayments() {
   return useQuery({
-    queryKey: queryKeys.admin.payments,
+    queryKey: adminKeys.payments(),
     queryFn: fetchAdminPayments,
     staleTime: 30_000,
   });
@@ -123,7 +123,7 @@ export function useAdminPayments() {
 
 export function useAdminHousingRequests() {
   return useQuery({
-    queryKey: queryKeys.admin.housingRequests,
+    queryKey: adminKeys.housingRequests(),
     queryFn: fetchAdminHousingRequests,
     staleTime: 30_000,
   });
@@ -136,16 +136,16 @@ export function useUpdateAdminHousingRequestStatus() {
     mutationFn: ({ requestId, status }: { requestId: string; status: HousingRequestStatus }) =>
       updateAdminHousingRequestStatus(requestId, status),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.admin.housingRequests });
-      void queryClient.invalidateQueries({ queryKey: queryKeys.admin.dashboard });
-      void queryClient.invalidateQueries({ queryKey: queryKeys.admin.auditLogs });
+      void queryClient.invalidateQueries({ queryKey: adminKeys.housingRequests() });
+      void queryClient.invalidateQueries({ queryKey: adminKeys.dashboard() });
+      void queryClient.invalidateQueries({ queryKey: adminKeys.auditLogs() });
     },
   });
 }
 
 export function useAdminAuditLogs() {
   return useQuery({
-    queryKey: queryKeys.admin.auditLogs,
+    queryKey: adminKeys.auditLogs(),
     queryFn: fetchAdminAuditLogs,
     staleTime: 30_000,
   });

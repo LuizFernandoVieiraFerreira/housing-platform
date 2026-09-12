@@ -7,12 +7,12 @@ import {
   fetchBookingDetail,
   fetchMyBookings,
   quoteBooking,
-} from '@/features/booking/api/booking-api';
-import { queryKeys } from '@/shared/api/query-keys';
+} from '../api/booking-api';
+import { bookingKeys } from '../keys';
 
 export function useBookingQuote(input: QuoteBookingInput | null) {
   return useQuery({
-    queryKey: queryKeys.bookings.quote(input),
+    queryKey: bookingKeys.quote(input),
     queryFn: () => {
       if (!input) {
         throw new Error('Quote input is required');
@@ -27,7 +27,7 @@ export function useBookingQuote(input: QuoteBookingInput | null) {
 
 export function useMyBookings() {
   return useQuery({
-    queryKey: queryKeys.bookings.mine,
+    queryKey: bookingKeys.mine(),
     queryFn: fetchMyBookings,
     staleTime: 30_000,
   });
@@ -35,7 +35,7 @@ export function useMyBookings() {
 
 export function useBookingDetail(bookingId: string | undefined) {
   return useQuery({
-    queryKey: queryKeys.bookings.detail(bookingId ?? 'unknown'),
+    queryKey: bookingKeys.detail(bookingId ?? 'unknown'),
     queryFn: () => {
       if (!bookingId) {
         throw new Error('Booking ID is required');
@@ -61,7 +61,7 @@ export function useCreateBookingHold() {
         customerNotes: input.customerNotes || undefined,
       }),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.bookings.mine });
+      void queryClient.invalidateQueries({ queryKey: bookingKeys.mine() });
     },
   });
 }
@@ -72,8 +72,8 @@ export function useCancelBooking() {
   return useMutation({
     mutationFn: cancelOwnBooking,
     onSuccess: (_data, bookingId) => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.bookings.mine });
-      void queryClient.invalidateQueries({ queryKey: queryKeys.bookings.detail(bookingId) });
+      void queryClient.invalidateQueries({ queryKey: bookingKeys.mine() });
+      void queryClient.invalidateQueries({ queryKey: bookingKeys.detail(bookingId) });
     },
   });
 }

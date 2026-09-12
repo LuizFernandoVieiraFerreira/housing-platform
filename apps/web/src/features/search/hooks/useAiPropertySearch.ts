@@ -1,15 +1,15 @@
 import type { AiPropertySearchRequest } from '@housing-platform/types';
 import { useQuery } from '@tanstack/react-query';
 
-import { aiPropertySearch } from '@/features/search/api/ai-search-api';
-import { SEARCH_RESULTS_PAGE_SIZE } from '@/features/search/lib/search-config';
-import { queryKeys } from '@/shared/api/query-keys';
+import { aiPropertySearch } from '../api/ai-search-api';
+import { SEARCH_RESULTS_PAGE_SIZE } from '../lib/search-config';
+import { searchKeys } from '../keys';
 
 export function useAiPropertySearch(request: AiPropertySearchRequest | null) {
   const enabled = Boolean(request?.query?.trim() || request?.referencePropertyId);
 
   return useQuery({
-    queryKey: queryKeys.properties.aiSearch(
+    queryKey: searchKeys.aiSearch(
       request
         ? {
             query: request.query ?? '',

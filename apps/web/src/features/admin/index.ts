@@ -2,8 +2,11 @@
  * Admin feature public API
  *
  * Usage:
- *   import { useAdminDashboardStats, isAdminProfile } from '@/features/admin';
+ *   import { useAdminDashboardStats, isAdminProfile, adminKeys } from '@/features/admin';
  */
+
+// Query keys (colocated with feature)
+export { adminKeys } from './keys';
 
 // API utilities
 export { isAdminProfile } from './api/admin-api';

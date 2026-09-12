@@ -1,7 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import type { HostPropertyInput, HostRoomInput } from '@housing-platform/validation';
 
-import { useAuth } from '@/features/auth/hooks/useAuth';
-import { fetchCurrentHost, registerAsHost } from '@/features/host/api/host-api';
+import { useAuth } from '@/features/auth';
+import { fetchCurrentHost, registerAsHost } from '../api/host-api';
 import {
   approveHostBooking,
   createHostProperty,
@@ -14,15 +15,15 @@ import {
   rejectHostBooking,
   submitHostPropertyForReview,
   updateHostProperty,
-} from '@/features/host/api/host-properties-api';
-import { queryKeys } from '@/shared/api/query-keys';
-import type { HostPropertyInput, HostRoomInput } from '@housing-platform/validation';
+} from '../api/host-properties-api';
+import { hostKeys } from '../keys';
+import { accountKeys } from '@/features/account/keys';
 
 export function useCurrentHost() {
   const { user, isAuthenticated } = useAuth();
 
   return useQuery({
-    queryKey: queryKeys.host.current,
+    queryKey: hostKeys.current(),
     queryFn: fetchCurrentHost,
     enabled: isAuthenticated && Boolean(user?.id),
     staleTime: 60_000,
@@ -35,15 +36,15 @@ export function useRegisterHost() {
   return useMutation({
     mutationFn: registerAsHost,
     onSuccess: (host) => {
-      queryClient.setQueryData(queryKeys.host.current, host);
-      void queryClient.invalidateQueries({ queryKey: ['profile', 'current'] });
+      queryClient.setQueryData(hostKeys.current(), host);
+      void queryClient.invalidateQueries({ queryKey: accountKeys.profile.all });
     },
   });
 }
 
 export function useHostProperties() {
   return useQuery({
-    queryKey: queryKeys.host.properties,
+    queryKey: hostKeys.properties.all(),
     queryFn: fetchHostProperties,
     staleTime: 30_000,
   });
@@ -51,7 +52,7 @@ export function useHostProperties() {
 
 export function useHostProperty(propertyId: string | undefined) {
   return useQuery({
-    queryKey: queryKeys.host.property(propertyId ?? 'unknown'),
+    queryKey: hostKeys.properties.detail(propertyId ?? 'unknown'),
     queryFn: () => {
       if (!propertyId) {
         throw new Error('Property ID is required');
@@ -66,7 +67,7 @@ export function useHostProperty(propertyId: string | undefined) {
 
 export function useAmenities() {
   return useQuery({
-    queryKey: queryKeys.host.amenities,
+    queryKey: hostKeys.amenities(),
     queryFn: fetchAmenities,
     staleTime: 300_000,
   });
@@ -78,7 +79,7 @@ export function useCreateHostProperty() {
   return useMutation({
     mutationFn: createHostProperty,
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.host.properties });
+      void queryClient.invalidateQueries({ queryKey: hostKeys.properties.all() });
     },
   });
 }
@@ -89,8 +90,8 @@ export function useUpdateHostProperty(propertyId: string) {
   return useMutation({
     mutationFn: (input: HostPropertyInput) => updateHostProperty(propertyId, input),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.host.properties });
-      void queryClient.invalidateQueries({ queryKey: queryKeys.host.property(propertyId) });
+      void queryClient.invalidateQueries({ queryKey: hostKeys.properties.all() });
+      void queryClient.invalidateQueries({ queryKey: hostKeys.properties.detail(propertyId) });
     },
   });
 }
@@ -101,8 +102,8 @@ export function useCreateHostRoom(propertyId: string) {
   return useMutation({
     mutationFn: (input: HostRoomInput) => createHostRoom(propertyId, input),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.host.property(propertyId) });
-      void queryClient.invalidateQueries({ queryKey: queryKeys.host.properties });
+      void queryClient.invalidateQueries({ queryKey: hostKeys.properties.detail(propertyId) });
+      void queryClient.invalidateQueries({ queryKey: hostKeys.properties.all() });
     },
   });
 }
@@ -113,8 +114,8 @@ export function useDeleteHostRoom(propertyId: string) {
   return useMutation({
     mutationFn: deleteHostRoom,
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.host.property(propertyId) });
-      void queryClient.invalidateQueries({ queryKey: queryKeys.host.properties });
+      void queryClient.invalidateQueries({ queryKey: hostKeys.properties.detail(propertyId) });
+      void queryClient.invalidateQueries({ queryKey: hostKeys.properties.all() });
     },
   });
 }
@@ -125,15 +126,15 @@ export function useSubmitHostProperty(propertyId: string) {
   return useMutation({
     mutationFn: () => submitHostPropertyForReview(propertyId),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.host.properties });
-      void queryClient.invalidateQueries({ queryKey: queryKeys.host.property(propertyId) });
+      void queryClient.invalidateQueries({ queryKey: hostKeys.properties.all() });
+      void queryClient.invalidateQueries({ queryKey: hostKeys.properties.detail(propertyId) });
     },
   });
 }
 
 export function useHostBookings() {
   return useQuery({
-    queryKey: queryKeys.host.bookings,
+    queryKey: hostKeys.bookings(),
     queryFn: fetchHostBookings,
     staleTime: 30_000,
   });
@@ -145,7 +146,7 @@ export function useApproveHostBooking() {
   return useMutation({
     mutationFn: approveHostBooking,
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.host.bookings });
+      void queryClient.invalidateQueries({ queryKey: hostKeys.bookings() });
     },
   });
 }
@@ -156,7 +157,7 @@ export function useRejectHostBooking() {
   return useMutation({
     mutationFn: rejectHostBooking,
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.host.bookings });
+      void queryClient.invalidateQueries({ queryKey: hostKeys.bookings() });
     },
   });
 }

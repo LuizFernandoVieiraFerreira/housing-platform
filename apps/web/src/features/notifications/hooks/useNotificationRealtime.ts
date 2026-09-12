@@ -1,8 +1,8 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 
-import { useAuth } from '@/features/auth/hooks/useAuth';
-import { queryKeys } from '@/shared/api/query-keys';
+import { useAuth } from '@/features/auth';
+import { notificationKeys } from '../keys';
 import { supabase } from '@/shared/api/supabase';
 
 export function useNotificationRealtime() {
@@ -18,9 +18,9 @@ export function useNotificationRealtime() {
     const activeUserId = userId;
 
     function invalidateNotifications() {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.notifications.list(activeUserId) });
+      void queryClient.invalidateQueries({ queryKey: notificationKeys.list(activeUserId) });
       void queryClient.invalidateQueries({
-        queryKey: queryKeys.notifications.unreadCount(activeUserId),
+        queryKey: notificationKeys.unreadCount(activeUserId),
       });
     }
 
