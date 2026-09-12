@@ -2,6 +2,7 @@ import {
   applyRoleTheme,
   resolvePathThemeKey,
 } from '@housing-platform/config/design-tokens/role-themes';
+import type { Session } from '@supabase/supabase-js';
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 
 import { ProfileSync } from '@/features/auth/components/ProfileSync';
@@ -12,39 +13,39 @@ function applyLoggedOutTheme() {
   applyRoleTheme(document.documentElement, resolvePathThemeKey(window.location.pathname));
 }
 
+function syncAuthSession(
+  nextSession: Session | null,
+  signal: AbortSignal,
+  setSession: (session: Session | null) => void,
+  setIsLoading: (isLoading: boolean) => void,
+) {
+  if (signal.aborted) {
+    return;
+  }
+
+  setSession(nextSession);
+  setIsLoading(false);
+
+  if (!nextSession?.user) {
+    applyLoggedOutTheme();
+  }
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<AuthContextValue['session']>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    let isMounted = true;
-
-    supabase.auth.getSession().then(({ data }) => {
-      if (!isMounted) {
-        return;
-      }
-
-      setSession(data.session);
-      setIsLoading(false);
-
-      if (!data.session?.user) {
-        applyLoggedOutTheme();
-      }
-    });
+    const abortController = new AbortController();
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      setSession(nextSession);
-      setIsLoading(false);
-
-      if (!nextSession?.user) {
-        applyLoggedOutTheme();
-      }
+      syncAuthSession(nextSession, abortController.signal, setSession, setIsLoading);
     });
 
     return () => {
-      isMounted = false;
+      abortController.abort();
       subscription.unsubscribe();
     };
   }, []);
