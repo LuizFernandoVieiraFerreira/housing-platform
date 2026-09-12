@@ -11,7 +11,9 @@
     "rejected": "Rejected"
   },
   "errors": {
-    "datesUnavailable": "Those dates are no longer available. Try different dates."
+    "datesUnavailable": "Those dates are no longer available. Try different dates.",
+    "holdExpired": "Your booking hold has expired. Please start a new booking.",
+    "paymentFailed": "Payment could not be processed. Please try again."
   },
   "perMonth": "/30 days",
   "perMonthShort": "+/30 days"

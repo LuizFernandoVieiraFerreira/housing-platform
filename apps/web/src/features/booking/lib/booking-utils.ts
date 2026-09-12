@@ -5,6 +5,7 @@ import { getCurrentLanguage } from '@/i18n/index';
 import type { CurrencyCode, LanguageCode } from '@/i18n/config';
 import { getStoredCurrency } from '@/i18n/storage';
 import i18n from '@/i18n/index';
+import { AppError, getUserErrorMessage } from '@/shared/lib/result';
 
 export function formatKrw(amount: number, currency: CurrencyCode = getStoredCurrency()): string {
   return formatPrice(amount, currency);
@@ -37,15 +38,37 @@ export function isHoldExpired(holdExpiresAt: string | null): boolean {
   return new Date(holdExpiresAt).getTime() <= Date.now();
 }
 
+/**
+ * Extract a user-friendly error message from a booking error.
+ *
+ * Uses the Result pattern's AppError for consistent error handling,
+ * with special handling for booking-specific error codes.
+ */
 export function getBookingErrorMessage(error: unknown, fallback: string): string {
+  // Handle AppError with booking-specific codes
+  if (error instanceof AppError) {
+    // Map booking-specific error codes to translated messages
+    if (error.is('BOOKING_UNAVAILABLE')) {
+      return i18n.t('errors.datesUnavailable', { ns: 'booking' });
+    }
+    if (error.is('HOLD_EXPIRED')) {
+      return i18n.t('errors.holdExpired', { ns: 'booking' });
+    }
+    if (error.is('PAYMENT_FAILED')) {
+      return i18n.t('errors.paymentFailed', { ns: 'booking' });
+    }
+    return getUserErrorMessage(error, fallback);
+  }
+
+  // Handle legacy Error objects
   if (error instanceof Error) {
     if (error.message.includes('conflict')) {
       return i18n.t('errors.datesUnavailable', { ns: 'booking' });
     }
-
     return error.message;
   }
 
+  // Handle plain objects with message property
   if (
     typeof error === 'object' &&
     error !== null &&

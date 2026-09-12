@@ -1,18 +1,24 @@
+import { AppError, getUserErrorMessage } from '@/shared/lib/result';
+
+/**
+ * Extract a user-friendly error message from an auth error.
+ *
+ * Uses the Result pattern's AppError for consistent error handling.
+ */
 export function getAuthErrorMessage(error: unknown, fallback = 'Something went wrong.'): string {
-  if (error instanceof Error) {
-    return error.message;
+  // Handle null/undefined explicitly
+  if (error == null) {
+    return fallback;
   }
 
-  if (
-    typeof error === 'object' &&
-    error !== null &&
-    'message' in error &&
-    typeof error.message === 'string'
-  ) {
-    return error.message;
+  // If it's already an AppError, use the standardized message extraction
+  if (error instanceof AppError) {
+    return getUserErrorMessage(error, fallback);
   }
 
-  return fallback;
+  // Convert to AppError and extract message
+  const appError = AppError.from(error, 'AUTH_REQUIRED');
+  return getUserErrorMessage(appError, fallback);
 }
 
 export function getSafeReturnTo(value: string | null, fallback = '/account'): string {

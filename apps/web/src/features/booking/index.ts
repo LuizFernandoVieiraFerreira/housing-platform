@@ -30,3 +30,12 @@ export {
   isHoldExpired,
   getBookingErrorMessage,
 } from './lib/booking-utils';
+
+// API (Result-returning for explicit error handling)
+export {
+  quoteBookingSafe,
+  createBookingHoldSafe,
+  fetchMyBookingsSafe,
+  fetchBookingDetailSafe,
+  cancelOwnBookingSafe,
+} from './api/booking-api';
