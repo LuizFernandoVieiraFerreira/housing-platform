@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
 import { buildAiSearchParams, SEOUL_CENTER } from '@/features/search/lib/search-params';
+import { searchBarContainer } from '@/shared/lib/variants';
 
 interface HomeSearchFormValues {
   query: string;
@@ -33,7 +34,7 @@ export function HomeSearchBar() {
 
   return (
     <form onSubmit={onSubmit} className="mx-auto w-full max-w-[560px]">
-      <div className="border-surface-subtle shadow-panel focus-within:ring-brand-400 flex items-center gap-2 rounded-full border bg-white py-1.5 pl-5 pr-1.5 focus-within:ring-2">
+      <div className={searchBarContainer()}>
         <Search className="text-ink-subtle h-5 w-5 shrink-0" aria-hidden="true" />
         <Input
           type="text"

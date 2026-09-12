@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { useAuth } from '@/features/auth/hooks/useAuth';
+import { useAuth } from '@/features/auth';
+import { fab } from '@/shared/lib/variants';
 import { fetchChannelBoot, getChannelPluginKey } from '@/features/support/api/channel-api';
 import {
   bootChannel,
@@ -116,7 +117,7 @@ export function ChannelWidget() {
       aria-label="Open chat support"
       disabled={!isChannelReady}
       onClick={() => showChannelMessenger()}
-      className="fixed bottom-20 right-4 z-40 h-14 w-14 overflow-hidden rounded-full shadow-lg transition-transform hover:scale-105 active:scale-95 disabled:opacity-70 md:bottom-6"
+      className={fab()}
     >
       <img src="/favicon.svg" alt="" className="h-full w-full object-cover" />
     </button>

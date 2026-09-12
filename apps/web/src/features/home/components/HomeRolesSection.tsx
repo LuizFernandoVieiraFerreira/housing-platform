@@ -5,6 +5,12 @@ import { Link } from 'react-router-dom';
 
 import { professionalPlatforms, type ProfessionalPlatformKey } from '@/features/platforms';
 import { PageContainer } from '@/shared/components/PageContainer';
+import {
+  responsiveIcon,
+  responsiveIconContainer,
+  roleLink,
+  rolesColumn,
+} from '@/shared/lib/variants';
 
 type HomeRoleKey = 'guest' | ProfessionalPlatformKey;
 
@@ -37,14 +43,14 @@ function HomeRoleLink({ icon: Icon, to, name, description, cta }: HomeRoleLinkPr
      * - 510px+: icon gets circular border and grows to 80×80
      * - 1000px+: handled by parent (two-column layout)
      */
-    <Link to={to} className="xs:flex xs:items-center xs:text-left group pb-9 min-[1000px]:pb-0">
+    <Link to={to} className={roleLink()}>
       {/*
        * Icon container: 36×36 at mobile, 80×80 with circular border from 510px.
        * The SVG fills the container on mobile but stays 40×40 once the container
        * grows, centering it inside the circle.
        */}
-      <span className="xs:mx-0 xs:mb-0 xs:mr-4 mx-auto mb-2 flex h-9 w-9 shrink-0 items-center justify-center min-[510px]:mr-7 min-[510px]:h-20 min-[510px]:w-20 min-[510px]:rounded-full min-[510px]:border-[3px] min-[510px]:border-white">
-        <Icon aria-hidden="true" className="h-full w-full min-[510px]:h-10 min-[510px]:w-10" />
+      <span className={responsiveIconContainer()}>
+        <Icon aria-hidden="true" className={responsiveIcon()} />
       </span>
       <div>
         <h3 className="mb-2.5 text-lg font-bold min-[1000px]:text-[21px]">{name}</h3>
@@ -68,7 +74,7 @@ export function HomeRolesSection() {
     <section className="bg-marketing-roles px-4 pt-9 text-center text-white sm:px-6 min-[1000px]:px-20 min-[1000px]:pb-[60px] min-[1000px]:pt-[85px]">
       <PageContainer className="min-[1000px]:flex min-[1000px]:justify-between">
         {/* Video column */}
-        <div className="pb-6 min-[1000px]:w-[44%] min-[1000px]:pb-0 min-[1000px]:text-left">
+        <div className={rolesColumn({ side: 'video' })}>
           <h2 className="pb-5 text-xl font-bold min-[900px]:text-[1.4em] min-[900px]:leading-[1.3]">
             {t('roles.title')}
           </h2>
@@ -82,7 +88,7 @@ export function HomeRolesSection() {
         </div>
 
         {/* Roles list column */}
-        <div className="mx-auto max-w-[480px] min-[1000px]:mx-0 min-[1000px]:flex min-[1000px]:w-[49.5%] min-[1000px]:max-w-none min-[1000px]:flex-col min-[1000px]:justify-between min-[1000px]:gap-7">
+        <div className={rolesColumn({ side: 'links' })}>
           {roleConfigs.map(({ key, icon, to }) => (
             <HomeRoleLink
               key={key}

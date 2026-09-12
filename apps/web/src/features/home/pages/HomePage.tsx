@@ -3,12 +3,15 @@ import { Users, DoorOpen, Minimize2, LayoutGrid } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
+import { cn } from '@housing-platform/utils';
+
 import { AccommodationTypeCard } from '@/features/home/components/AccommodationTypeCard';
 import { HomeAnimatedBackground } from '@/features/home/components/HomeAnimatedBackground';
 import { HomeHeroHeadline } from '@/features/home/components/HomeHeroHeadline';
 import { HomeRolesSection } from '@/features/home/components/HomeRolesSection';
 import { HomeSearchBar } from '@/features/home/components/HomeSearchBar';
 import { PageContainer } from '@/shared/components/PageContainer';
+import { marketingHero } from '@/shared/lib/variants';
 
 interface AccommodationTypeConfig {
   titleKey: `accommodationTypes.${AccommodationType}.title`;
@@ -49,7 +52,7 @@ export function HomePage() {
 
   return (
     <div>
-      <section className="home-hero-skyline bg-surface-page min-h-marketing-hero md:min-h-marketing-hero-md xl:min-h-marketing-hero-xl 2xl:min-h-marketing-hero-2xl relative flex flex-col px-4 py-10 sm:px-6 lg:px-20">
+      <section className={cn(marketingHero({ background: 'skyline' }), 'relative py-10')}>
         <HomeAnimatedBackground />
 
         <PageContainer className="relative z-10 flex flex-1 flex-col gap-10">

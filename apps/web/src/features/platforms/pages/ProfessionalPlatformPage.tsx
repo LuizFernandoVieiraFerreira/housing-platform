@@ -8,6 +8,7 @@ import {
   type ProfessionalPlatformKey,
 } from '@/features/platforms/lib/professional-platforms';
 import { PageContainer } from '@/shared/components/PageContainer';
+import { marketingHero } from '@/shared/lib/variants';
 
 const stepKeys = ['first', 'second', 'third', 'fourth'] as const;
 
@@ -22,7 +23,7 @@ export function ProfessionalPlatformPage({ platform }: ProfessionalPlatformPageP
 
   return (
     <div>
-      <section className="min-h-marketing-hero bg-brand-50 md:min-h-marketing-hero-md xl:min-h-marketing-hero-xl 2xl:min-h-marketing-hero-2xl flex flex-col items-center justify-center px-4 sm:px-6 lg:px-20">
+      <section className={marketingHero({ align: 'center', background: 'brand' })}>
         <PageContainer className="max-w-2xl text-center">
           <span className="text-brand-600 mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-sm">
             <Icon size={28} aria-hidden />
