@@ -12,6 +12,9 @@
 import { resolvePropertyImageUrl } from '@/features/listings/lib/image-url';
 
 import type {
+  AiPropertySearchResponse,
+  AiSearchFunctionResponse,
+  AiSearchPropertyRow,
   PropertyCoordinatesRow,
   PropertyDetail,
   PropertyDetailAmenity,
@@ -137,6 +140,59 @@ export function mapPropertyAmenities(
  * Map property detail row to domain model.
  * Returns null if required data is missing.
  */
+export function extractCoordinateRow(
+  coordinates: PropertyCoordinatesRow[] | null | undefined,
+): PropertyCoordinatesRow | null {
+  return coordinates?.[0] ?? null;
+}
+
+export function mapAiSearchPropertyRow(item: AiSearchPropertyRow): SearchPropertyCard {
+  if (item.coverImageUrl) {
+    return {
+      id: item.id,
+      title: item.title,
+      slug: item.slug,
+      propertyType: item.propertyType,
+      district: item.district,
+      nearestStationName: item.nearestStationName,
+      monthlyPriceMin: item.monthlyPriceMin,
+      coverImageUrl: item.coverImageUrl,
+      coverImageAlt: item.coverImageAlt,
+      tags: item.tags ?? [],
+      latitude: item.latitude,
+      longitude: item.longitude,
+      distanceMeters: item.distanceMeters,
+    };
+  }
+
+  return mapSearchProperty({
+    id: item.id,
+    title: item.title,
+    slug: item.slug,
+    property_type: item.propertyType,
+    district: item.district,
+    nearest_station_name: item.nearestStationName,
+    monthly_price_min: item.monthlyPriceMin,
+    tags: item.tags,
+    cover_storage_path: item.coverImageStoragePath ?? null,
+    cover_alt_text: item.coverImageAlt,
+    latitude: item.latitude,
+    longitude: item.longitude,
+    distance_meters: item.distanceMeters,
+    total_count: 0,
+  });
+}
+
+export function mapAiSearchResponse(payload: AiSearchFunctionResponse): AiPropertySearchResponse {
+  return {
+    items: (payload.items ?? []).map(mapAiSearchPropertyRow),
+    totalCount: payload.totalCount ?? 0,
+    interpretedFilters: payload.interpretedFilters ?? {},
+    explanation: payload.explanation,
+    fallbackUsed: payload.fallbackUsed,
+  };
+}
+
 export function mapPropertyDetail(
   row: PropertyDetailRow,
   coordinates: PropertyCoordinatesRow | null,

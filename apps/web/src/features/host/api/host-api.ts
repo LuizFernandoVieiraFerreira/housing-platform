@@ -1,5 +1,6 @@
-import type { HostRecord } from '../model';
+import type { HostRecord, HostRow } from '../model';
 import { isHostProfile } from '../model';
+import { mapHostRow } from './mappers';
 
 import { supabase } from '@/shared/api/supabase';
 import { wrapSupabaseError } from '@/shared/lib/errors';
@@ -16,7 +17,7 @@ export async function registerAsHost(displayName: string): Promise<HostRecord> {
     throw wrapSupabaseError(error, 'Unable to register as host');
   }
 
-  return data as HostRecord;
+  return mapHostRow(data as HostRow);
 }
 
 export async function fetchCurrentHost(): Promise<HostRecord | null> {
@@ -44,5 +45,5 @@ export async function fetchCurrentHost(): Promise<HostRecord | null> {
     throw wrapSupabaseError(error, 'Unable to load host profile');
   }
 
-  return (data as HostRecord | null) ?? null;
+  return data ? mapHostRow(data as HostRow) : null;
 }

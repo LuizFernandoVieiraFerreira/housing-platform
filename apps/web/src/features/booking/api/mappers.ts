@@ -9,6 +9,8 @@
  * and maintenance.
  */
 
+import type { Booking } from '@housing-platform/types';
+
 import type {
   BookingDetail,
   BookingDetailRow,
@@ -27,6 +29,20 @@ import { calculateServiceFeePercent } from '../model';
 /**
  * Extract single item from Supabase relation (handles array vs object).
  */
+export function extractFirstQuoteRow(
+  data: BookingQuoteRow[] | null | undefined,
+): BookingQuoteRow | null {
+  return data?.[0] ?? null;
+}
+
+export function mapBookingRecord(data: unknown): Booking | null {
+  if (typeof data !== 'object' || data === null || !('id' in data)) {
+    return null;
+  }
+
+  return data as Booking;
+}
+
 export function getRelation<T>(value: T | T[] | null | undefined): T | null {
   if (value == null) {
     return null;

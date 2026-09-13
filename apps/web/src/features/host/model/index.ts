@@ -38,6 +38,8 @@ export type {
   HostRoomRow,
   HostBookingRow,
   CoordinatesRow,
+  HostRow,
+  AmenityOptionRow,
 } from './types';
 
 // Schemas

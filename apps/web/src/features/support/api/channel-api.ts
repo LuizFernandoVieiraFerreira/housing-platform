@@ -1,7 +1,8 @@
-import type { ChannelBootResult } from '@housing-platform/types';
-
 import { supabase } from '@/shared/api/supabase';
-import { wrapSupabaseError } from '@/shared/lib/errors';
+import { AppError, wrapSupabaseError } from '@/shared/lib/errors';
+
+import type { ChannelBootResult } from '../model';
+import { mapChannelBootResult } from './mappers';
 
 export function getChannelPluginKey(): string | null {
   const pluginKey = import.meta.env.VITE_CHANNEL_PLUGIN_KEY?.trim();
@@ -17,5 +18,11 @@ export async function fetchChannelBoot(): Promise<ChannelBootResult> {
     throw wrapSupabaseError(error, 'Unable to initialize chat support');
   }
 
-  return data as ChannelBootResult;
+  const bootResult = mapChannelBootResult(data);
+
+  if (!bootResult) {
+    throw new AppError('API_ERROR', 'Unable to initialize chat support');
+  }
+
+  return bootResult;
 }

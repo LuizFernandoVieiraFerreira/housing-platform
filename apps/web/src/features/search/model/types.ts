@@ -5,9 +5,12 @@
  * This is the single source of truth for search types within the feature.
  */
 
+import type { AiPropertySearchResponse, SearchPropertyCard } from '@housing-platform/types';
+
 // Re-export shared types from the types package
 export type {
   AccommodationType,
+  AiPropertySearchResponse,
   PropertyDetail,
   PropertyDetailAmenity,
   PropertyDetailImage,
@@ -99,4 +102,35 @@ export interface PropertyDetailRow {
 export interface PropertyCoordinatesRow {
   latitude: number;
   longitude: number;
+}
+
+/**
+ * Row type returned by the AI property search Edge Function.
+ */
+export interface AiSearchPropertyRow {
+  id: string;
+  title: string;
+  slug: string;
+  propertyType: SearchPropertyCard['propertyType'];
+  district: string;
+  nearestStationName: string | null;
+  monthlyPriceMin: number;
+  tags: string[] | null;
+  coverImageUrl: string | null;
+  coverImageStoragePath?: string | null;
+  coverImageAlt: string | null;
+  latitude: number;
+  longitude: number;
+  distanceMeters: number | null;
+}
+
+/**
+ * Response payload from the AI property search Edge Function.
+ */
+export interface AiSearchFunctionResponse {
+  items: AiSearchPropertyRow[];
+  totalCount: number;
+  interpretedFilters: AiPropertySearchResponse['interpretedFilters'];
+  explanation?: string;
+  fallbackUsed?: boolean;
 }

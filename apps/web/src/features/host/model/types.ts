@@ -116,3 +116,25 @@ export interface CoordinatesRow {
   latitude: number;
   longitude: number;
 }
+
+/**
+ * Row type returned by Supabase for host profile queries.
+ */
+export interface HostRow {
+  id: string;
+  profile_id: string;
+  display_name: string;
+  status: string;
+  verified_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+/**
+ * Row type returned by Supabase for amenity option queries.
+ */
+export interface AmenityOptionRow {
+  id: string;
+  slug: string;
+  name: string;
+}

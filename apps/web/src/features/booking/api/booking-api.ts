@@ -13,9 +13,10 @@ import type {
   BookingQuoteRow,
 } from '../model';
 import {
-  getRelation,
+  extractFirstQuoteRow,
   mapBookingDetailRow,
   mapBookingListRow,
+  mapBookingRecord,
   mapQuoteRow,
   toCreateBookingRequest,
   toQuoteRequest,
@@ -43,7 +44,7 @@ export async function quoteBookingSafe(input: {
       return Result.err(AppError.fromSupabase(error, 'Unable to quote this stay'));
     }
 
-    const row = (data as BookingQuoteRow[] | null)?.[0];
+    const row = extractFirstQuoteRow(data as BookingQuoteRow[] | null);
 
     if (!row) {
       return Result.err(new AppError('BOOKING_UNAVAILABLE', 'Unable to quote this stay'));
@@ -87,7 +88,18 @@ export async function createBookingHoldSafe(input: {
       return Result.err(appError);
     }
 
-    const booking = data as Booking;
+    const booking = mapBookingRecord(data);
+
+    if (!booking) {
+      const appError = new AppError('API_ERROR', 'Unable to create booking');
+      log.error('Booking hold creation returned invalid payload', {
+        action: 'createBookingHold',
+        error: appError,
+        data: { roomId: input.roomId, durationMs: timer() },
+      });
+      return Result.err(appError);
+    }
+
     log.info('Booking hold created successfully', {
       action: 'createBookingHold',
       data: { bookingId: booking.id, roomId: input.roomId, durationMs: timer() },
@@ -217,7 +229,19 @@ export async function cancelOwnBookingSafe(bookingId: string): Promise<Result<Bo
       action: 'cancelBooking',
       data: { bookingId, durationMs: timer() },
     });
-    return Result.ok(data as Booking);
+    const booking = mapBookingRecord(data);
+
+    if (!booking) {
+      const appError = new AppError('API_ERROR', 'Unable to cancel booking');
+      log.error('Booking cancellation returned invalid payload', {
+        action: 'cancelBooking',
+        error: appError,
+        data: { bookingId, durationMs: timer() },
+      });
+      return Result.err(appError);
+    }
+
+    return Result.ok(booking);
   } catch (error) {
     log.error('Booking cancellation threw exception', {
       action: 'cancelBooking',

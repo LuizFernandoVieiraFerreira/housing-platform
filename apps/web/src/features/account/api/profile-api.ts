@@ -1,9 +1,10 @@
-import type { Database, Profile } from '@housing-platform/types';
+import type { Profile } from '@housing-platform/types';
 
 import { supabase } from '@/shared/api/supabase';
 import { wrapSupabaseError } from '@/shared/lib/errors';
 
-type ProfileUpdate = Database['public']['Tables']['profiles']['Update'];
+import type { ProfileUpdateInput } from '../model';
+import { mapProfileRow, toProfileUpdatePayload } from './mappers';
 
 export async function fetchCurrentProfile(userId: string): Promise<Profile | null> {
   const { data, error } = await supabase
@@ -16,27 +17,16 @@ export async function fetchCurrentProfile(userId: string): Promise<Profile | nul
     throw wrapSupabaseError(error, 'Unable to load profile');
   }
 
-  return data as Profile | null;
+  return mapProfileRow(data as Profile | null);
 }
 
 export async function updateCurrentProfile(
   userId: string,
-  input: Pick<
-    Profile,
-    'full_name' | 'phone' | 'avatar_url' | 'preferred_language' | 'marketing_consent'
-  >,
+  input: ProfileUpdateInput,
 ): Promise<Profile> {
-  const payload: ProfileUpdate = {
-    full_name: input.full_name,
-    phone: input.phone,
-    avatar_url: input.avatar_url,
-    preferred_language: input.preferred_language,
-    marketing_consent: input.marketing_consent,
-  };
-
   const { data, error } = await supabase
     .from('profiles')
-    .update(payload)
+    .update(toProfileUpdatePayload(input))
     .eq('id', userId)
     .select('*')
     .single();
@@ -45,5 +35,11 @@ export async function updateCurrentProfile(
     throw wrapSupabaseError(error, 'Unable to update profile');
   }
 
-  return data as Profile;
+  const profile = mapProfileRow(data as Profile);
+
+  if (!profile) {
+    throw wrapSupabaseError(new Error('Profile update returned no data'), 'Unable to update profile');
+  }
+
+  return profile;
 }

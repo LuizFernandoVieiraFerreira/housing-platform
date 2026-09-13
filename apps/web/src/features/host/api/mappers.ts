@@ -6,17 +6,116 @@
  */
 
 import type {
-  HostPropertyListItem,
-  HostPropertyDetail,
-  HostRoomDetail,
+  AmenityOption,
+  AmenityOptionRow,
   HostBookingListItem,
+  HostPropertyDetail,
+  HostPropertyInput,
+  HostPropertyListItem,
+  HostRecord,
+  HostRoomDetail,
+  HostRoomInput,
+  HostRow,
   HostPropertyListRow,
   HostPropertyDetailRow,
   HostRoomRow,
   HostBookingRow,
   CoordinatesRow,
 } from '../model';
-import { getRelation } from '../model';
+import { getRelation, parseTags } from '../model';
+
+function toOptionalNumber(value: number | '' | null | undefined): number | null {
+  return value === '' || value == null ? null : Number(value);
+}
+
+// ============================================================================
+// Host Profile Mappers
+// ============================================================================
+
+export function mapHostRow(row: HostRow): HostRecord {
+  return {
+    id: row.id,
+    profile_id: row.profile_id,
+    display_name: row.display_name,
+    status: row.status as HostRecord['status'],
+    verified_at: row.verified_at,
+    created_at: row.created_at,
+    updated_at: row.updated_at,
+  };
+}
+
+export function mapAmenityOptionRow(row: AmenityOptionRow): AmenityOption {
+  return {
+    id: row.id,
+    slug: row.slug,
+    name: row.name,
+  };
+}
+
+export function mapAmenityOptionRows(rows: AmenityOptionRow[]): AmenityOption[] {
+  return rows.map(mapAmenityOptionRow);
+}
+
+export function extractCoordinateRow(
+  coordinates: CoordinatesRow[] | null | undefined,
+): CoordinatesRow | null {
+  return coordinates?.[0] ?? null;
+}
+
+// ============================================================================
+// Request Mappers
+// ============================================================================
+
+export function toHostPropertyPayload(input: HostPropertyInput) {
+  return {
+    title: input.title,
+    description: input.description,
+    property_type: input.propertyType,
+    address_line1: input.addressLine1,
+    address_line2: input.addressLine2 || null,
+    city: input.city,
+    postal_code: input.postalCode || null,
+    district: input.district,
+    nearest_station_name: input.nearestStationName || null,
+    nearest_station_walk_min: toOptionalNumber(input.nearestStationWalkMin),
+    booking_mode: input.bookingMode,
+    min_stay_nights: input.minStayNights,
+    tags: parseTags(input.tags),
+  };
+}
+
+export function toCreateHostPropertyPayload(
+  input: HostPropertyInput,
+  hostId: string,
+  slug: string,
+) {
+  return {
+    ...toHostPropertyPayload(input),
+    host_id: hostId,
+    slug,
+    status: 'draft' as const,
+  };
+}
+
+export function toHostRoomInsertPayload(propertyId: string, input: HostRoomInput) {
+  return {
+    property_id: propertyId,
+    name: input.name,
+    room_type: input.roomType || null,
+    size_sqm: toOptionalNumber(input.sizeSqm),
+    max_occupancy: input.maxOccupancy,
+    monthly_price_krw: input.monthlyPriceKrw,
+    available_from: input.availableFrom || null,
+    status: 'available' as const,
+  };
+}
+
+export function toPropertyAmenityRows(propertyId: string, amenityIds: string[]) {
+  return amenityIds.map((amenityId) => ({
+    property_id: propertyId,
+    amenity_id: amenityId,
+  }));
+}
 
 // ============================================================================
 // Property Mappers

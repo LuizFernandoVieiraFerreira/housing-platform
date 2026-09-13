@@ -17,6 +17,7 @@
 // Types
 export type {
   AccommodationType,
+  AiPropertySearchResponse,
   PropertyCoordinatesRow,
   PropertyDetail,
   PropertyDetailAmenity,
@@ -29,6 +30,8 @@ export type {
   RoomStatus,
   SearchPropertyCard,
   SearchPropertyRow,
+  AiSearchPropertyRow,
+  AiSearchFunctionResponse,
 } from './types';
 
 // Schemas

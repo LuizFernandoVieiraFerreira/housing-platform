@@ -6,18 +6,24 @@ import type {
   HostRoomDetail,
   HostPropertyInput,
   HostRoomInput,
+  AmenityOptionRow,
   HostPropertyListRow,
   HostPropertyDetailRow,
   HostRoomRow,
   HostBookingRow,
-  CoordinatesRow,
 } from '../model';
-import { createPropertySlug, parseTags } from '../model';
+import { createPropertySlug } from '../model';
 import {
-  mapPropertyListRows,
-  mapPropertyDetailRow,
-  mapRoomRow,
+  extractCoordinateRow,
+  mapAmenityOptionRows,
   mapBookingRows,
+  mapPropertyDetailRow,
+  mapPropertyListRows,
+  mapRoomRow,
+  toCreateHostPropertyPayload,
+  toHostPropertyPayload,
+  toHostRoomInsertPayload,
+  toPropertyAmenityRows,
 } from './mappers';
 
 import { submitPropertyForReview } from '@/features/listings/api/properties-api';
@@ -62,7 +68,7 @@ export async function fetchAmenities(): Promise<AmenityOption[]> {
     throw wrapSupabaseError(error, 'Unable to load amenities');
   }
 
-  return (data ?? []) as AmenityOption[];
+  return mapAmenityOptionRows((data ?? []) as AmenityOptionRow[]);
 }
 
 export async function fetchHostProperty(propertyId: string): Promise<HostPropertyDetail | null> {
@@ -116,9 +122,10 @@ export async function fetchHostProperty(propertyId: string): Promise<HostPropert
     p_property_id: propertyId,
   });
 
-  const coordinateRow = (coordinates as CoordinatesRow[] | null)?.[0] ?? null;
-
-  return mapPropertyDetailRow(data as HostPropertyDetailRow, coordinateRow);
+  return mapPropertyDetailRow(
+    data as HostPropertyDetailRow,
+    extractCoordinateRow(coordinates),
+  );
 }
 
 export async function createHostProperty(input: HostPropertyInput): Promise<string> {
@@ -131,27 +138,7 @@ export async function createHostProperty(input: HostPropertyInput): Promise<stri
 
   const { data, error } = await supabase
     .from('properties')
-    .insert({
-      host_id: host.id,
-      title: input.title,
-      slug,
-      description: input.description,
-      property_type: input.propertyType,
-      address_line1: input.addressLine1,
-      address_line2: input.addressLine2 || null,
-      city: input.city,
-      postal_code: input.postalCode || null,
-      district: input.district,
-      nearest_station_name: input.nearestStationName || null,
-      nearest_station_walk_min:
-        input.nearestStationWalkMin === '' || input.nearestStationWalkMin == null
-          ? null
-          : Number(input.nearestStationWalkMin),
-      booking_mode: input.bookingMode,
-      min_stay_nights: input.minStayNights,
-      tags: parseTags(input.tags),
-      status: 'draft',
-    })
+    .insert(toCreateHostPropertyPayload(input, host.id, slug))
     .select('id')
     .single();
 
@@ -176,24 +163,7 @@ export async function updateHostProperty(
 ): Promise<void> {
   const { error } = await supabase
     .from('properties')
-    .update({
-      title: input.title,
-      description: input.description,
-      property_type: input.propertyType,
-      address_line1: input.addressLine1,
-      address_line2: input.addressLine2 || null,
-      city: input.city,
-      postal_code: input.postalCode || null,
-      district: input.district,
-      nearest_station_name: input.nearestStationName || null,
-      nearest_station_walk_min:
-        input.nearestStationWalkMin === '' || input.nearestStationWalkMin == null
-          ? null
-          : Number(input.nearestStationWalkMin),
-      booking_mode: input.bookingMode,
-      min_stay_nights: input.minStayNights,
-      tags: parseTags(input.tags),
-    })
+    .update(toHostPropertyPayload(input))
     .eq('id', propertyId);
 
   if (error) {
@@ -237,12 +207,9 @@ async function syncPropertyAmenities(propertyId: string, amenityIds: string[]): 
     return;
   }
 
-  const { error: insertError } = await supabase.from('property_amenities').insert(
-    amenityIds.map((amenityId) => ({
-      property_id: propertyId,
-      amenity_id: amenityId,
-    })),
-  );
+  const { error: insertError } = await supabase
+    .from('property_amenities')
+    .insert(toPropertyAmenityRows(propertyId, amenityIds));
 
   if (insertError) {
     throw wrapSupabaseError(insertError, 'Unable to update amenities');
@@ -255,16 +222,7 @@ export async function createHostRoom(
 ): Promise<HostRoomDetail> {
   const { data, error } = await supabase
     .from('rooms')
-    .insert({
-      property_id: propertyId,
-      name: input.name,
-      room_type: input.roomType || null,
-      size_sqm: input.sizeSqm === '' || input.sizeSqm == null ? null : Number(input.sizeSqm),
-      max_occupancy: input.maxOccupancy,
-      monthly_price_krw: input.monthlyPriceKrw,
-      available_from: input.availableFrom || null,
-      status: 'available',
-    })
+    .insert(toHostRoomInsertPayload(propertyId, input))
     .select(
       'id, name, room_type, size_sqm, max_occupancy, monthly_price_krw, status, available_from',
     )

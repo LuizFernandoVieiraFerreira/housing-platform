@@ -7,16 +7,10 @@ import type {
 import { supabase } from '@/shared/api/supabase';
 import { wrapSupabaseError } from '@/shared/lib/errors';
 
-import type {
-  PropertyCoordinatesRow,
-  PropertyDetailRow,
-  SearchPropertyRow,
-} from '../model';
+import type { PropertyCoordinatesRow, PropertyDetailRow, SearchPropertyRow } from '../model';
 import { filtersToRpcPayload, SEARCH_RESULTS_PAGE_SIZE } from '../model';
 
-import { mapPropertyDetail, mapSearchProperty } from './mappers';
-
-export { mapSearchProperty };
+import { extractCoordinateRow, mapPropertyDetail, mapSearchProperty } from './mappers';
 
 export async function searchProperties(
   filters: PropertySearchFilters,
@@ -113,7 +107,8 @@ export async function fetchPropertyDetail(propertyId: string): Promise<PropertyD
     throw wrapSupabaseError(coordinatesError, 'Unable to load property location');
   }
 
-  const coordinateRow = (coordinates?.[0] as PropertyCoordinatesRow | undefined) ?? null;
-
-  return mapPropertyDetail(row, coordinateRow);
+  return mapPropertyDetail(
+    row,
+    extractCoordinateRow(coordinates as PropertyCoordinatesRow[] | null),
+  );
 }

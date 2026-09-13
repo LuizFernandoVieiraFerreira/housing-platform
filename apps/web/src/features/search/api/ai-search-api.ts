@@ -2,37 +2,13 @@ import type {
   AiPropertySearchRequest,
   AiPropertySearchResponse,
   ApiErrorResponse,
-  SearchPropertyCard,
 } from '@housing-platform/types';
 
-import { mapSearchProperty } from '@/features/search/api/search-api';
 import { supabase } from '@/shared/api/supabase';
 import { AppError } from '@/shared/lib/errors';
 
-type AiSearchPropertyRow = {
-  id: string;
-  title: string;
-  slug: string;
-  propertyType: SearchPropertyCard['propertyType'];
-  district: string;
-  nearestStationName: string | null;
-  monthlyPriceMin: number;
-  tags: string[] | null;
-  coverImageUrl: string | null;
-  coverImageStoragePath?: string | null;
-  coverImageAlt: string | null;
-  latitude: number;
-  longitude: number;
-  distanceMeters: number | null;
-};
-
-type AiSearchFunctionResponse = {
-  items: AiSearchPropertyRow[];
-  totalCount: number;
-  interpretedFilters: AiPropertySearchResponse['interpretedFilters'];
-  explanation?: string;
-  fallbackUsed?: boolean;
-};
+import type { AiSearchFunctionResponse } from '../model';
+import { mapAiSearchResponse } from './mappers';
 
 async function parseFunctionError(error: unknown, fallbackMessage: string): Promise<AppError> {
   if (
@@ -52,43 +28,6 @@ async function parseFunctionError(error: unknown, fallbackMessage: string): Prom
   }
 
   return AppError.from(error, 'API_ERROR');
-}
-
-function mapAiSearchItem(item: AiSearchPropertyRow): SearchPropertyCard {
-  if (item.coverImageUrl) {
-    return {
-      id: item.id,
-      title: item.title,
-      slug: item.slug,
-      propertyType: item.propertyType,
-      district: item.district,
-      nearestStationName: item.nearestStationName,
-      monthlyPriceMin: item.monthlyPriceMin,
-      coverImageUrl: item.coverImageUrl,
-      coverImageAlt: item.coverImageAlt,
-      tags: item.tags ?? [],
-      latitude: item.latitude,
-      longitude: item.longitude,
-      distanceMeters: item.distanceMeters,
-    };
-  }
-
-  return mapSearchProperty({
-    id: item.id,
-    title: item.title,
-    slug: item.slug,
-    property_type: item.propertyType,
-    district: item.district,
-    nearest_station_name: item.nearestStationName,
-    monthly_price_min: item.monthlyPriceMin,
-    tags: item.tags,
-    cover_storage_path: item.coverImageStoragePath ?? null,
-    cover_alt_text: item.coverImageAlt,
-    latitude: item.latitude,
-    longitude: item.longitude,
-    distance_meters: item.distanceMeters,
-    total_count: 0,
-  });
 }
 
 export async function aiPropertySearch(
@@ -111,13 +50,5 @@ export async function aiPropertySearch(
     throw new AppError('API_ERROR', (data as ApiErrorResponse).error.message);
   }
 
-  const payload = data as AiSearchFunctionResponse;
-
-  return {
-    items: (payload.items ?? []).map(mapAiSearchItem),
-    totalCount: payload.totalCount ?? 0,
-    interpretedFilters: payload.interpretedFilters ?? {},
-    explanation: payload.explanation,
-    fallbackUsed: payload.fallbackUsed,
-  };
+  return mapAiSearchResponse(data as AiSearchFunctionResponse);
 }

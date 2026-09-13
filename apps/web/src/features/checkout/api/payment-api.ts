@@ -6,6 +6,12 @@ import { AppError, Result, unwrap, type ErrorCode } from '@/shared/lib/result';
 
 import type { ConfirmPaymentResult, CreatePaymentOrderResult } from '../model';
 import { createDevMockPaymentKey, TOSS_FAIL_PATH, TOSS_SUCCESS_PATH } from '../model';
+import {
+  mapConfirmPaymentResult,
+  mapCreatePaymentOrderResult,
+  toConfirmPaymentBody,
+  toCreatePaymentOrderBody,
+} from './mappers';
 
 const log = logger.child('payment-api');
 
@@ -86,7 +92,7 @@ export async function createPaymentOrderSafe(
 
   try {
     const { data, error } = await supabase.functions.invoke('create-payment', {
-      body: { bookingId },
+      body: toCreatePaymentOrderBody(bookingId),
     });
 
     if (error) {
@@ -110,7 +116,18 @@ export async function createPaymentOrderSafe(
       return Result.err(appError);
     }
 
-    const result = data as CreatePaymentOrderResult;
+    const result = mapCreatePaymentOrderResult(data);
+
+    if (!result) {
+      const appError = new AppError('PAYMENT_FAILED', 'Unable to start checkout.');
+      log.error('Payment order creation returned invalid payload', {
+        action: 'createPaymentOrder',
+        error: appError,
+        data: { bookingId, durationMs: timer() },
+      });
+      return Result.err(appError);
+    }
+
     log.info('Payment order created successfully', {
       action: 'createPaymentOrder',
       data: { bookingId, orderId: result.orderId, amountKrw: result.amountKrw, durationMs: timer() },
@@ -150,7 +167,7 @@ export async function confirmPaymentSafe(input: {
 
   try {
     const { data, error } = await supabase.functions.invoke('confirm-payment', {
-      body: input,
+      body: toConfirmPaymentBody(input),
     });
 
     if (error) {
@@ -174,7 +191,18 @@ export async function confirmPaymentSafe(input: {
       return Result.err(appError);
     }
 
-    const result = data as ConfirmPaymentResult;
+    const result = mapConfirmPaymentResult(data);
+
+    if (!result) {
+      const appError = new AppError('PAYMENT_FAILED', 'Unable to confirm payment.');
+      log.error('Payment confirmation returned invalid payload', {
+        action: 'confirmPayment',
+        error: appError,
+        data: { orderId: input.orderId, durationMs: timer() },
+      });
+      return Result.err(appError);
+    }
+
     log.info('Payment confirmed successfully', {
       action: 'confirmPayment',
       data: { orderId: input.orderId, bookingId: result.bookingId, durationMs: timer() },
