@@ -93,11 +93,21 @@ export {
   useMyBookings,
 } from './hooks/useBooking';
 
+export { useBookingPanel, type BookingPanelState } from './hooks/useBookingPanel';
+
 // ============================================================================
 // Components
 // ============================================================================
 
 export { BookingPanel } from './components/BookingPanel';
+export { BookingForm } from './components/BookingForm';
+export { BookingQuoteSummary } from './components/BookingQuoteSummary';
+export { BookingPriceHeader } from './components/BookingPriceHeader';
+export {
+  BookingNoRooms,
+  BookingUnauthenticated,
+  BookingUnverified,
+} from './components/BookingAuthPrompts';
 
 // ============================================================================
 // Utilities (with i18n/formatting)
