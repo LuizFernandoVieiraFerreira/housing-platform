@@ -1,31 +1,8 @@
-import type { Notification, NotificationType } from '@housing-platform/types';
-
 import { supabase } from '@/shared/api/supabase';
 import { wrapSupabaseError } from '@/shared/lib/errors';
 
-type NotificationRow = {
-  id: string;
-  user_id: string;
-  type: NotificationType;
-  title: string;
-  body: string;
-  metadata: Record<string, unknown> | null;
-  read_at: string | null;
-  created_at: string;
-};
-
-function mapNotificationRow(row: NotificationRow): Notification {
-  return {
-    id: row.id,
-    userId: row.user_id,
-    type: row.type,
-    title: row.title,
-    body: row.body,
-    metadata: row.metadata ?? {},
-    readAt: row.read_at,
-    createdAt: row.created_at,
-  };
-}
+import type { Notification, NotificationRow } from '../model';
+import { mapNotificationRow } from './mappers';
 
 export async function fetchNotifications(): Promise<Notification[]> {
   const { data, error } = await supabase

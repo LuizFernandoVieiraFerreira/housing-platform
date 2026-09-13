@@ -1,4 +1,20 @@
+/**
+ * Auth utilities with error handling integration.
+ *
+ * This module re-exports pure utilities from model/utils.ts and adds
+ * utilities that require external dependencies (e.g., AppError).
+ *
+ * For pure domain logic, prefer importing directly from '@/features/auth/model'.
+ */
+
 import { AppError, getUserErrorMessage } from '@/shared/lib/result';
+
+// Re-export pure utilities from model layer
+export {
+  getAuthenticatedHomePath,
+  getSafeReturnTo,
+  resolvePostLoginPath,
+} from '@/features/auth/model';
 
 /**
  * Extract a user-friendly error message from an auth error.
@@ -19,40 +35,4 @@ export function getAuthErrorMessage(error: unknown, fallback = 'Something went w
   // Convert to AppError and extract message
   const appError = AppError.from(error, 'AUTH_REQUIRED');
   return getUserErrorMessage(appError, fallback);
-}
-
-export function getSafeReturnTo(value: string | null, fallback = '/account'): string {
-  if (!value || !value.startsWith('/') || value.startsWith('//')) {
-    return fallback;
-  }
-
-  return value;
-}
-
-/** Home path for an already-authenticated user based on their profile role. */
-export function getAuthenticatedHomePath(role: string | undefined, fallback = '/'): string {
-  if (role === 'admin') {
-    return '/admin';
-  }
-
-  if (role === 'host') {
-    return '/host';
-  }
-
-  return fallback;
-}
-
-/** Where to send the user after a successful login. Honors an explicit returnTo when present. */
-export function resolvePostLoginPath(options: {
-  returnToParam: string | null;
-  defaultRedirectTo: string;
-  role: string | undefined;
-}): string {
-  const { returnToParam, defaultRedirectTo, role } = options;
-
-  if (returnToParam && returnToParam.startsWith('/') && !returnToParam.startsWith('//')) {
-    return getSafeReturnTo(returnToParam, defaultRedirectTo);
-  }
-
-  return getAuthenticatedHomePath(role, defaultRedirectTo);
 }

@@ -1,12 +1,11 @@
-import type {
-  ApiErrorResponse,
-  ConfirmPaymentResult,
-  CreatePaymentOrderResult,
-} from '@housing-platform/types';
+import type { ApiErrorResponse } from '@housing-platform/types';
 
 import { supabase } from '@/shared/api/supabase';
 import { logger, createTimer } from '@/shared/lib/logger';
 import { AppError, Result, unwrap, type ErrorCode } from '@/shared/lib/result';
+
+import type { ConfirmPaymentResult, CreatePaymentOrderResult } from '../model';
+import { createDevMockPaymentKey, TOSS_FAIL_PATH, TOSS_SUCCESS_PATH } from '../model';
 
 const log = logger.child('payment-api');
 
@@ -229,14 +228,14 @@ export function getTossClientKey(): string | null {
 export function getTossSuccessUrl(): string {
   return (
     import.meta.env.VITE_TOSS_SUCCESS_URL?.trim() ||
-    `${import.meta.env.VITE_APP_URL ?? window.location.origin}/payment/success`
+    `${import.meta.env.VITE_APP_URL ?? window.location.origin}${TOSS_SUCCESS_PATH}`
   );
 }
 
 export function getTossFailUrl(): string {
   return (
     import.meta.env.VITE_TOSS_FAIL_URL?.trim() ||
-    `${import.meta.env.VITE_APP_URL ?? window.location.origin}/payment/fail`
+    `${import.meta.env.VITE_APP_URL ?? window.location.origin}${TOSS_FAIL_PATH}`
   );
 }
 
@@ -244,6 +243,5 @@ export function isPaymentDevMockEnabled(): boolean {
   return !getTossClientKey();
 }
 
-export function createDevMockPaymentKey(orderId: string): string {
-  return `devmock_${orderId}`;
-}
+// Re-export from model for backwards compatibility
+export { createDevMockPaymentKey };

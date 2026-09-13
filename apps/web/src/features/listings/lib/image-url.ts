@@ -1,10 +1,13 @@
 import { supabase } from '@/shared/api/supabase';
 
-const PROPERTY_IMAGES_BUCKET = 'property-images';
-const ROOM_IMAGES_BUCKET = 'room-images';
+import { isAbsoluteUrl, PROPERTY_IMAGES_BUCKET, ROOM_IMAGES_BUCKET } from '../model';
 
+/**
+ * Resolve a property image storage path to a public URL.
+ * Returns the path unchanged if it's already an absolute URL.
+ */
 export function resolvePropertyImageUrl(storagePath: string): string {
-  if (/^https?:\/\//i.test(storagePath)) {
+  if (isAbsoluteUrl(storagePath)) {
     return storagePath;
   }
 
@@ -12,8 +15,12 @@ export function resolvePropertyImageUrl(storagePath: string): string {
   return data.publicUrl;
 }
 
+/**
+ * Resolve a room image storage path to a public URL.
+ * Returns the path unchanged if it's already an absolute URL.
+ */
 export function resolveRoomImageUrl(storagePath: string): string {
-  if (/^https?:\/\//i.test(storagePath)) {
+  if (isAbsoluteUrl(storagePath)) {
     return storagePath;
   }
 

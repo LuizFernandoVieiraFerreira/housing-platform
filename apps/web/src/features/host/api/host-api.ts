@@ -1,7 +1,11 @@
-import type { HostRecord } from '@housing-platform/types';
+import type { HostRecord } from '../model';
+import { isHostProfile } from '../model';
 
 import { supabase } from '@/shared/api/supabase';
 import { wrapSupabaseError } from '@/shared/lib/errors';
+
+// Re-export for backwards compatibility
+export { isHostProfile };
 
 export async function registerAsHost(displayName: string): Promise<HostRecord> {
   const { data, error } = await supabase.rpc('register_as_host', {
@@ -41,8 +45,4 @@ export async function fetchCurrentHost(): Promise<HostRecord | null> {
   }
 
   return (data as HostRecord | null) ?? null;
-}
-
-export function isHostProfile(role: string | undefined): boolean {
-  return role === 'host' || role === 'admin';
 }

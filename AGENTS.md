@@ -55,22 +55,44 @@ housing-platform/
 
 ## Feature Module Structure
 
+Features use a **layered architecture** with clear dependency rules:
+
 ```
 features/<feature-name>/
-├── api/           # Supabase queries, API calls
-│   └── <name>-api.ts
-├── components/    # React components
+├── model/         # Layer 0: Pure domain (no React/i18n)
+│   ├── types.ts       # Types, interfaces
+│   ├── schemas.ts     # Zod validation
+│   ├── constants.ts   # Business rules, config
+│   └── utils.ts       # Pure utility functions
+├── api/           # Layer 1: Data access
+│   ├── <name>-api.ts  # Supabase queries
+│   └── mappers.ts     # Row → Model transformations
+├── state/         # Layer 2: Client state
+│   └── use-<name>-form.ts  # Form state hooks
+├── hooks/         # Layer 3: Composition
+│   └── use<Name>.ts   # React Query + state
+├── components/    # Layer 4: UI rendering
 │   └── <Name>.tsx
-├── hooks/         # React hooks (queries, mutations)
-│   └── use<Name>.ts
-├── lib/           # Utilities, helpers, constants
+├── lib/           # Utilities with i18n/formatting
 │   └── <name>-utils.ts
 ├── pages/         # Route-level pages
 │   └── <Name>Page.tsx
-├── context/       # React Context providers
-│   └── <Name>Provider.tsx
 └── index.ts       # Public API barrel export
 ```
+
+### Layer Dependency Rules
+
+```
+model/ ← api/ ← state/ ← hooks/ ← components/
+```
+
+| Layer | Can Import | Purpose |
+|-------|------------|---------|
+| `model/` | Nothing | Pure types, schemas, constants |
+| `api/` | `model/` | Data fetching, mappers |
+| `state/` | `model/` | Client state management |
+| `hooks/` | `model/`, `api/`, `state/` | Query + state composition |
+| `components/` | All layers | UI rendering |
 
 ### Import Rules
 

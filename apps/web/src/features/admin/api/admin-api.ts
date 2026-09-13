@@ -7,22 +7,29 @@ import type {
   HostBookingListItem,
   HousingRequestListItem,
   HousingRequestStatus,
-} from '@housing-platform/types';
+  AdminBookingRow,
+  AdminHostRow,
+  AdminPaymentRow,
+  AdminPropertyRow,
+  AuditLogRow,
+  HousingRequestRow,
+} from '../model';
+import { isAdminProfile } from '../model';
 
 import { supabase } from '@/shared/api/supabase';
 import { wrapSupabaseError } from '@/shared/lib/errors';
 
-function getRelation<T>(value: T | T[] | null | undefined): T | null {
-  if (value == null) {
-    return null;
-  }
+import {
+  mapAdminPropertyRow,
+  mapAdminHostRow,
+  mapAdminBookingRow,
+  mapAdminPaymentRow,
+  mapHousingRequestRow,
+  mapAuditLogRow,
+} from './mappers';
 
-  return Array.isArray(value) ? (value[0] ?? null) : value;
-}
-
-export function isAdminProfile(role: string | undefined): boolean {
-  return role === 'admin';
-}
+// Re-export isAdminProfile for backward compatibility
+export { isAdminProfile };
 
 export async function fetchAdminDashboardStats(): Promise<AdminDashboardStats> {
   const [propertiesResult, hostsResult, bookingsResult, housingRequestsResult] = await Promise.all([
@@ -95,25 +102,7 @@ export async function fetchAdminProperties(): Promise<AdminPropertyListItem[]> {
     throw wrapSupabaseError(error, 'Unable to load properties');
   }
 
-  return ((data ?? []) as Array<Record<string, unknown>>).map((row) => {
-    const host = getRelation(
-      row.hosts as { display_name: string } | { display_name: string }[] | null,
-    );
-
-    return {
-      id: String(row.id),
-      title: String(row.title),
-      slug: String(row.slug),
-      propertyType: row.property_type as AdminPropertyListItem['propertyType'],
-      district: String(row.district),
-      status: row.status as AdminPropertyListItem['status'],
-      bookingMode: row.booking_mode as AdminPropertyListItem['bookingMode'],
-      monthlyPriceMin: (row.monthly_price_min as number | null) ?? null,
-      roomCount: Array.isArray(row.rooms) ? row.rooms.length : 0,
-      updatedAt: String(row.updated_at),
-      hostDisplayName: host?.display_name ?? 'Unknown host',
-    };
-  });
+  return ((data ?? []) as AdminPropertyRow[]).map(mapAdminPropertyRow);
 }
 
 export async function publishAdminProperty(propertyId: string) {
@@ -160,20 +149,7 @@ export async function fetchAdminHosts(): Promise<AdminHostListItem[]> {
     throw wrapSupabaseError(error, 'Unable to load hosts');
   }
 
-  return ((data ?? []) as Array<Record<string, unknown>>).map((row) => {
-    const profile = getRelation(
-      row.profiles as { full_name: string } | { full_name: string }[] | null,
-    );
-
-    return {
-      id: String(row.id),
-      displayName: String(row.display_name),
-      status: row.status as AdminHostListItem['status'],
-      profileName: profile?.full_name ?? 'Unknown user',
-      verifiedAt: (row.verified_at as string | null) ?? null,
-      createdAt: String(row.created_at),
-    };
-  });
+  return ((data ?? []) as AdminHostRow[]).map(mapAdminHostRow);
 }
 
 export async function approveAdminHost(hostId: string) {
@@ -187,21 +163,6 @@ export async function approveAdminHost(hostId: string) {
 
   return data;
 }
-
-type AdminBookingRow = {
-  id: string;
-  status: HostBookingListItem['status'];
-  booking_type: HostBookingListItem['bookingType'];
-  check_in: string;
-  check_out: string;
-  guest_count: number;
-  customer_notes: string | null;
-  created_at: string;
-  properties: { title: string } | { title: string }[] | null;
-  rooms: { name: string } | { name: string }[] | null;
-  booking_price_snapshots: { total_krw: number } | { total_krw: number }[] | null;
-  profiles: { full_name: string } | { full_name: string }[] | null;
-};
 
 export async function fetchAdminBookings(): Promise<HostBookingListItem[]> {
   const { data, error } = await supabase
@@ -229,29 +190,7 @@ export async function fetchAdminBookings(): Promise<HostBookingListItem[]> {
   }
 
   return ((data ?? []) as AdminBookingRow[])
-    .map((row) => {
-      const property = getRelation(row.properties);
-      const room = getRelation(row.rooms);
-      const snapshot = getRelation(row.booking_price_snapshots);
-
-      if (!property || !room || !snapshot) {
-        return null;
-      }
-
-      return {
-        id: row.id,
-        status: row.status,
-        bookingType: row.booking_type,
-        checkIn: row.check_in,
-        checkOut: row.check_out,
-        guestCount: row.guest_count,
-        customerNotes: row.customer_notes,
-        propertyTitle: property.title,
-        roomName: room.name,
-        totalKrw: snapshot.total_krw,
-        createdAt: row.created_at,
-      };
-    })
+    .map(mapAdminBookingRow)
     .filter((booking): booking is HostBookingListItem => booking !== null);
 }
 
@@ -279,26 +218,6 @@ export async function rejectAdminBooking(bookingId: string) {
   return data;
 }
 
-type AdminPaymentRow = {
-  id: string;
-  order_id: string;
-  booking_id: string;
-  amount_krw: number;
-  status: AdminPaymentListItem['status'];
-  confirmed_at: string | null;
-  created_at: string;
-  bookings:
-    | {
-        properties: { title: string } | { title: string }[] | null;
-        profiles: { full_name: string } | { full_name: string }[] | null;
-      }
-    | Array<{
-        properties: { title: string } | { title: string }[] | null;
-        profiles: { full_name: string } | { full_name: string }[] | null;
-      }>
-    | null;
-};
-
 export async function fetchAdminPayments(): Promise<AdminPaymentListItem[]> {
   const { data, error } = await supabase
     .from('payments')
@@ -323,25 +242,7 @@ export async function fetchAdminPayments(): Promise<AdminPaymentListItem[]> {
     throw wrapSupabaseError(error, 'Unable to load payments');
   }
 
-  return ((data ?? []) as AdminPaymentRow[])
-    .map((row) => {
-      const booking = getRelation(row.bookings);
-      const property = booking ? getRelation(booking.properties) : null;
-      const profile = booking ? getRelation(booking.profiles) : null;
-
-      return {
-        id: row.id,
-        orderId: row.order_id,
-        bookingId: row.booking_id,
-        amountKrw: row.amount_krw,
-        status: row.status,
-        propertyTitle: property?.title ?? null,
-        customerName: profile?.full_name ?? null,
-        confirmedAt: row.confirmed_at,
-        createdAt: row.created_at,
-      };
-    })
-    .filter((payment): payment is AdminPaymentListItem => payment !== null);
+  return ((data ?? []) as AdminPaymentRow[]).map(mapAdminPaymentRow);
 }
 
 export async function fetchAdminHousingRequests(): Promise<HousingRequestListItem[]> {
@@ -356,19 +257,7 @@ export async function fetchAdminHousingRequests(): Promise<HousingRequestListIte
     throw wrapSupabaseError(error, 'Unable to load housing requests');
   }
 
-  return ((data ?? []) as Array<Record<string, unknown>>).map((row) => ({
-    id: String(row.id),
-    email: String(row.email),
-    desiredArea: String(row.desired_area),
-    checkIn: (row.check_in as string | null) ?? null,
-    checkOut: (row.check_out as string | null) ?? null,
-    budgetMax: (row.budget_max as number | null) ?? null,
-    accommodationType:
-      (row.accommodation_type as HousingRequestListItem['accommodationType']) ?? null,
-    notes: (row.notes as string | null) ?? null,
-    status: row.status as HousingRequestListItem['status'],
-    createdAt: String(row.created_at),
-  }));
+  return ((data ?? []) as HousingRequestRow[]).map(mapHousingRequestRow);
 }
 
 export async function updateAdminHousingRequestStatus(
@@ -386,16 +275,6 @@ export async function updateAdminHousingRequestStatus(
 
   return data;
 }
-
-type AuditLogRow = {
-  id: string;
-  action: string;
-  entity_type: string;
-  entity_id: string | null;
-  metadata: Record<string, unknown> | null;
-  created_at: string;
-  profiles: { full_name: string } | { full_name: string }[] | null;
-};
 
 export async function fetchAdminAuditLogs(): Promise<AuditLogListItem[]> {
   const { data, error } = await supabase
@@ -418,17 +297,5 @@ export async function fetchAdminAuditLogs(): Promise<AuditLogListItem[]> {
     throw wrapSupabaseError(error, 'Unable to load audit logs');
   }
 
-  return ((data ?? []) as AuditLogRow[]).map((row) => {
-    const profile = getRelation(row.profiles);
-
-    return {
-      id: row.id,
-      action: row.action,
-      entityType: row.entity_type,
-      entityId: row.entity_id,
-      actorName: profile?.full_name ?? 'Unknown admin',
-      metadata: row.metadata ?? {},
-      createdAt: row.created_at,
-    };
-  });
+  return ((data ?? []) as AuditLogRow[]).map(mapAuditLogRow);
 }

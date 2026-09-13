@@ -1,3 +1,10 @@
+/**
+ * Booking utilities with i18n and formatting support.
+ *
+ * This file contains utilities that depend on i18n or React context.
+ * Pure domain utilities live in model/utils.ts.
+ */
+
 import type { BookingStatus } from '@housing-platform/types';
 
 import { formatDate, formatPrice } from '@/i18n/formatters';
@@ -7,10 +14,19 @@ import { getStoredCurrency } from '@/i18n/storage';
 import i18n from '@/i18n/index';
 import { AppError, getUserErrorMessage } from '@/shared/lib/result';
 
+// Re-export pure utilities from model layer for backward compatibility
+export { canCancelBooking, canPayBooking, isHoldExpired } from '../model';
+
+/**
+ * Format currency amount for display.
+ */
 export function formatKrw(amount: number, currency: CurrencyCode = getStoredCurrency()): string {
   return formatPrice(amount, currency);
 }
 
+/**
+ * Format booking date for display.
+ */
 export function formatBookingDate(
   value: string,
   language: LanguageCode = getCurrentLanguage(),
@@ -18,24 +34,11 @@ export function formatBookingDate(
   return formatDate(value, language);
 }
 
+/**
+ * Get translated status label.
+ */
 export function getBookingStatusLabel(status: BookingStatus): string {
   return i18n.t(`status.${status}`, { ns: 'booking', defaultValue: status });
-}
-
-export function canCancelBooking(status: BookingStatus): boolean {
-  return status === 'requested' || status === 'pending_payment';
-}
-
-export function canPayBooking(status: BookingStatus): boolean {
-  return status === 'pending_payment' || status === 'payment_failed';
-}
-
-export function isHoldExpired(holdExpiresAt: string | null): boolean {
-  if (!holdExpiresAt) {
-    return false;
-  }
-
-  return new Date(holdExpiresAt).getTime() <= Date.now();
 }
 
 /**

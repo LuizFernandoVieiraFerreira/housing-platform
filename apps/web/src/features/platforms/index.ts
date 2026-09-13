@@ -5,12 +5,25 @@
  *   import { professionalPlatforms, getProfessionalPlatform } from '@/features/platforms';
  */
 
-// Library utilities
-export {
-  professionalPlatforms,
-  getProfessionalPlatform,
-  isPlatformOpen,
-  type ProfessionalPlatform,
-  type ProfessionalPlatformKey,
-  type OpenProfessionalPlatform,
-} from './lib/professional-platforms';
+// ============================================================================
+// Model Layer
+// ============================================================================
+
+// Types
+export type {
+  OpenProfessionalPlatform,
+  ProfessionalPlatform,
+  ProfessionalPlatformKey,
+} from './model';
+
+// Constants
+export { PLATFORMS_BY_KEY, PROFESSIONAL_PLATFORMS } from './model';
+
+// Utils
+export { getProfessionalPlatform, isPlatformOpen } from './model';
+
+// ============================================================================
+// Backward Compatibility (deprecated aliases)
+// ============================================================================
+
+export { PROFESSIONAL_PLATFORMS as professionalPlatforms } from './model';

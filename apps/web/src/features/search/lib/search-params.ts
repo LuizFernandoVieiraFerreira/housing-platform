@@ -1,10 +1,12 @@
 import type { PropertySearchFilters } from '@housing-platform/types';
-import { propertySearchFiltersSchema } from '@housing-platform/validation';
 
-const SEOUL_CENTER = {
-  centerLat: 37.5665,
-  centerLng: 126.978,
-};
+import {
+  DEFAULT_GUEST_COUNT,
+  DEFAULT_SORT,
+  filtersToRpcPayload,
+  propertySearchFiltersSchema,
+  SEOUL_CENTER,
+} from '../model';
 
 export function parseSearchParams(searchParams: URLSearchParams): PropertySearchFilters {
   const raw = {
@@ -28,15 +30,15 @@ export function parseSearchParams(searchParams: URLSearchParams): PropertySearch
 
   if (!parsed.success) {
     return {
-      guests: 1,
-      sort: 'recommended',
+      guests: DEFAULT_GUEST_COUNT,
+      sort: DEFAULT_SORT,
       ...SEOUL_CENTER,
     };
   }
 
   const filters: PropertySearchFilters = {
-    guests: parsed.data.guests ?? 1,
-    sort: parsed.data.sort ?? 'recommended',
+    guests: parsed.data.guests ?? DEFAULT_GUEST_COUNT,
+    sort: parsed.data.sort ?? DEFAULT_SORT,
     centerLat: parsed.data.centerLat ?? SEOUL_CENTER.centerLat,
     centerLng: parsed.data.centerLng ?? SEOUL_CENTER.centerLng,
   };
@@ -128,7 +130,7 @@ export function buildSearchParams(filters: PropertySearchFilters): URLSearchPara
     params.set('priceMax', String(filters.priceMax));
   }
 
-  if (filters.sort && filters.sort !== 'recommended') {
+  if (filters.sort && filters.sort !== DEFAULT_SORT) {
     params.set('sort', filters.sort);
   }
 
@@ -183,72 +185,4 @@ export function buildAiSearchParams(input: {
   return params;
 }
 
-export function filtersToRpcPayload(filters: PropertySearchFilters): Record<string, unknown> {
-  const payload: Record<string, unknown> = {
-    sort: filters.sort ?? 'recommended',
-  };
-
-  if (filters.query) {
-    payload.query = filters.query;
-  }
-
-  if (filters.propertyType) {
-    payload.property_type = filters.propertyType;
-  }
-
-  if (filters.checkIn) {
-    payload.check_in = filters.checkIn;
-  }
-
-  if (filters.checkOut) {
-    payload.check_out = filters.checkOut;
-  }
-
-  if (filters.guests != null) {
-    payload.guests = filters.guests;
-  }
-
-  if (filters.priceMin != null) {
-    payload.price_min = filters.priceMin;
-  }
-
-  if (filters.priceMax != null) {
-    payload.price_max = filters.priceMax;
-  }
-
-  if (filters.centerLat != null) {
-    payload.center_lat = filters.centerLat;
-  }
-
-  if (filters.centerLng != null) {
-    payload.center_lng = filters.centerLng;
-  }
-
-  if (
-    filters.north != null &&
-    filters.south != null &&
-    filters.east != null &&
-    filters.west != null
-  ) {
-    payload.north = filters.north;
-    payload.south = filters.south;
-    payload.east = filters.east;
-    payload.west = filters.west;
-  }
-
-  if (filters.amenitySlugs?.length) {
-    payload.amenity_slugs = filters.amenitySlugs;
-  }
-
-  if (filters.maxStationWalkMin != null) {
-    payload.max_station_walk_min = filters.maxStationWalkMin;
-  }
-
-  if (filters.excludePropertyIds?.length) {
-    payload.exclude_property_ids = filters.excludePropertyIds;
-  }
-
-  return payload;
-}
-
-export { SEOUL_CENTER };
+export { filtersToRpcPayload, SEOUL_CENTER };

@@ -1,41 +1,111 @@
 /**
  * Booking feature public API
  *
+ * Layer structure:
+ * - model/     Pure domain: types, schemas, constants, pure utils
+ * - api/       Data fetching, mappers
+ * - state/     Client-side state management
+ * - hooks/     React Query + state composition
+ * - components/ UI components
+ *
  * Usage:
  *   import { useBookingQuote, BookingPanel, bookingKeys } from '@/features/booking';
  */
 
-// Query keys (colocated with feature)
-export { bookingKeys } from './keys';
+// ============================================================================
+// Model Layer (Pure Domain)
+// ============================================================================
 
-// Hooks
+// Types
+export type {
+  Booking,
+  BookingDetail,
+  BookingListItem,
+  BookingQuote,
+  BookingStatus,
+  BookingType,
+  CreateBookingHoldInput,
+  QuoteBookingInput,
+} from './model';
+
+// Schemas
+export { createBookingHoldSchema, quoteBookingSchema } from './model';
+
+// Constants
 export {
-  useBookingQuote,
-  useMyBookings,
-  useBookingDetail,
-  useCreateBookingHold,
-  useCancelBooking,
-} from './hooks/useBooking';
+  ACTIVE_STATUSES,
+  BOOKING_TYPES,
+  CANCELLABLE_STATUSES,
+  DEFAULT_HOLD_DURATION_MINUTES,
+  MAX_GUEST_COUNT,
+  PAYABLE_STATUSES,
+  STATUS_CONFIG,
+  TERMINAL_STATUSES,
+} from './model';
 
-// Components
-export { BookingPanel } from './components/BookingPanel';
-
-// Utilities
+// Pure Utils
 export {
-  formatKrw,
-  formatBookingDate,
-  getBookingStatusLabel,
+  calculateNights,
   canCancelBooking,
   canPayBooking,
+  getDefaultCheckOut,
+  getHoldRemainingMs,
+  getStatusConfig,
+  isActiveBooking,
   isHoldExpired,
-  getBookingErrorMessage,
-} from './lib/booking-utils';
+  isTerminalBooking,
+  isValidDateRange,
+} from './model';
 
-// API (Result-returning for explicit error handling)
+// ============================================================================
+// API Layer
+// ============================================================================
+
+export { bookingKeys } from './keys';
+
+// Result-returning API functions
 export {
-  quoteBookingSafe,
-  createBookingHoldSafe,
-  fetchMyBookingsSafe,
-  fetchBookingDetailSafe,
   cancelOwnBookingSafe,
+  createBookingHoldSafe,
+  fetchBookingDetailSafe,
+  fetchMyBookingsSafe,
+  quoteBookingSafe,
 } from './api/booking-api';
+
+// Mappers (for advanced use cases)
+export { mapBookingDetailRow, mapBookingListRow, mapQuoteRow } from './api/mappers';
+
+// ============================================================================
+// State Layer
+// ============================================================================
+
+export { useBookingForm, type UseBookingFormOptions, type UseBookingFormReturn } from './state';
+
+// ============================================================================
+// Hooks Layer (Composition)
+// ============================================================================
+
+export {
+  useBookingDetail,
+  useBookingQuote,
+  useCancelBooking,
+  useCreateBookingHold,
+  useMyBookings,
+} from './hooks/useBooking';
+
+// ============================================================================
+// Components
+// ============================================================================
+
+export { BookingPanel } from './components/BookingPanel';
+
+// ============================================================================
+// Utilities (with i18n/formatting)
+// ============================================================================
+
+export {
+  formatBookingDate,
+  formatKrw,
+  getBookingErrorMessage,
+  getBookingStatusLabel,
+} from './lib/booking-utils';
