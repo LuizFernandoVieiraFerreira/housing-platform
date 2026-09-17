@@ -78,13 +78,26 @@ const buttonVariants = cva('px-4 py-2 rounded', {
 
 ## i18n
 
+Type-safe translations with autocomplete:
+
 ```typescript
-// Access translations
+// Standard hook (existing code)
 const { t } = useTranslation('booking');
-t('title'); // "Book your stay"
+t('status.confirmed'); // works
+
+// Typed hook (new - provides autocomplete)
+import { useTypedTranslation } from '@/i18n/hooks';
+
+const { t } = useTypedTranslation('auth');
+t('login.title');     // ✓ autocomplete
+t('login.invalid');   // ✗ compile error
 
 // Files
-locales/
-├── en/booking.json
-└── ko/booking.json
+i18n/
+├── types.ts          # Type definitions
+├── hooks.ts          # useTypedTranslation, useTranslation
+├── locales/
+│   ├── en/*.json
+│   └── ko/*.json
+└── i18next.d.ts      # i18next type augmentation
 ```
