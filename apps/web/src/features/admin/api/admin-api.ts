@@ -180,7 +180,7 @@ export async function fetchAdminBookings(): Promise<HostBookingListItem[]> {
         properties ( title ),
         rooms ( name ),
         booking_price_snapshots ( total_krw ),
-        profiles:customer_id ( full_name )
+        profiles!customer_id ( full_name )
       `,
     )
     .order('created_at', { ascending: false });
@@ -232,7 +232,7 @@ export async function fetchAdminPayments(): Promise<AdminPaymentListItem[]> {
         created_at,
         bookings (
           properties ( title ),
-          profiles:customer_id ( full_name )
+          profiles!customer_id ( full_name )
         )
       `,
     )
@@ -287,7 +287,7 @@ export async function fetchAdminAuditLogs(): Promise<AuditLogListItem[]> {
         entity_id,
         metadata,
         created_at,
-        profiles:actor_id ( full_name )
+        profiles ( full_name )
       `,
     )
     .order('created_at', { ascending: false })

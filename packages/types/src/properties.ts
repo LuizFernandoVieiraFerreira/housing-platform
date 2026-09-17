@@ -29,6 +29,8 @@ export interface Property {
   tags: string[];
   published_at: string | null;
   deleted_at: string | null;
+  /** PostGIS geometry column (opaque at the app layer). */
+  location?: unknown | null;
   created_at: string;
   updated_at: string;
 }
