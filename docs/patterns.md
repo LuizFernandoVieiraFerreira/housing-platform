@@ -135,3 +135,31 @@ import { logger } from '@/shared/lib/logger';
 const log = logger.child('booking-api');
 log.info('Creating booking', { roomId, checkIn });
 ```
+
+## Provider Composition
+
+Use `composeProviders` to flatten nested providers:
+
+```typescript
+import { composeProviders } from '@/app/providers/composeProviders';
+
+// Before (deeply nested)
+<QueryClientProvider client={client}>
+  <AuthProvider>
+    <ThemeProvider>
+      {children}
+    </ThemeProvider>
+  </AuthProvider>
+</QueryClientProvider>
+
+// After (flat and readable)
+const CoreProviders = composeProviders([
+  [QueryClientProvider, { client }],  // with props
+  AuthProvider,                        // no props
+  ThemeProvider,
+]);
+
+<CoreProviders>{children}</CoreProviders>
+```
+
+Provider order: first in list = outermost in tree.
