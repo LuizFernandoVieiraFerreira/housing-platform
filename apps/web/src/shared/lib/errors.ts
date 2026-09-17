@@ -2,7 +2,7 @@
  * Unified error handling utilities.
  *
  * This is the central module for error handling. Import from here
- * instead of from result.ts or query-errors.ts directly.
+ * instead of from result.ts directly.
  *
  * ## Error Handling Strategy
  *
@@ -24,7 +24,6 @@
  *
  * ### In hooks/mutations
  * - Use `handleError()` from `useErrorState` hook
- * - Global errors are logged automatically via QueryClient config
  *
  * ```ts
  * import { useErrorState } from '@/shared/hooks';
@@ -76,7 +75,7 @@ export {
 // Supabase Error Helpers
 // ============================================================================
 
-import { AppError, type ErrorCode } from './result';
+import { AppError } from './result';
 import { logger } from './logger';
 
 // Re-export logger for consumers
@@ -97,20 +96,6 @@ export function wrapSupabaseError(
 ): AppError {
   return AppError.fromSupabase(error, fallbackMessage);
 }
-
-/**
- * Standard error codes for common Supabase operations.
- */
-export const SupabaseErrorCodes = {
-  FETCH: 'API_ERROR',
-  CREATE: 'API_ERROR',
-  UPDATE: 'API_ERROR',
-  DELETE: 'API_ERROR',
-  AUTH: 'AUTH_REQUIRED',
-  PERMISSION: 'FORBIDDEN',
-  NOT_FOUND: 'NOT_FOUND',
-  CONFLICT: 'VALIDATION_ERROR',
-} as const satisfies Record<string, ErrorCode>;
 
 // ============================================================================
 // Component Error Helpers
@@ -187,33 +172,10 @@ function isTechnicalMessage(message: string): boolean {
 }
 
 // ============================================================================
-// Mutation Error Handler
+// Query client defaults (re-export)
 // ============================================================================
 
-/**
- * Standard error handler for TanStack Query mutations.
- *
- * @example
- * const mutation = useMutation({
- *   mutationFn: updateProfile,
- *   onError: (error) => {
- *     setError(handleMutationError(error, 'Unable to update profile'));
- *   },
- * });
- */
-export function handleMutationError(error: unknown, fallback: string): string {
-  return getErrorMessage(error, fallback);
-}
-
-// ============================================================================
-// Query Error Utilities (re-exports)
-// ============================================================================
-
-export {
-  createQueryClientOptions,
-  getQueryErrorMessage,
-  shouldRetryQuery,
-} from './query-errors';
+export { createQueryClientOptions, shouldRetryQuery } from './query-errors';
 
 // ============================================================================
 // Error Boundary Helpers

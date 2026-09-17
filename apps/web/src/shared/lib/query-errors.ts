@@ -1,33 +1,8 @@
 /**
- * Centralized error handling for TanStack Query.
- *
- * Provides global error handlers and utilities for queries and mutations.
+ * TanStack Query client defaults (retry policy, stale time).
  */
 
-import type { QueryClient } from '@tanstack/react-query';
-
-import { AppError, getErrorMessage, logError } from './errors';
-
-/**
- * Global error handler for queries.
- *
- * Called when a query fails. Logs the error for observability.
- * Individual queries can override this with their own onError.
- */
-export function handleQueryError(error: unknown): void {
-  logError(error, { component: 'TanStack Query', action: 'query' });
-}
-
-/**
- * Global error handler for mutations.
- *
- * Called when a mutation fails. Logs the error for observability.
- * Individual mutations should still handle errors in their onError
- * for UI feedback (toast, form error, etc.).
- */
-export function handleMutationError(error: unknown): void {
-  logError(error, { component: 'TanStack Query', action: 'mutation' });
-}
+import { AppError } from './result';
 
 /**
  * Check if an error should trigger a retry.
@@ -45,7 +20,6 @@ export function shouldRetryQuery(
   }
 
   if (error instanceof AppError) {
-    // Don't retry auth/validation errors
     if (
       error.isAny(
         'AUTH_REQUIRED',
@@ -58,32 +32,19 @@ export function shouldRetryQuery(
       return false;
     }
 
-    // Retry network errors
     if (error.isAny('NETWORK_ERROR', 'TIMEOUT', 'API_ERROR')) {
       return true;
     }
   }
 
-  // Default: retry once
   return true;
 }
 
 /**
- * Extract a user-friendly error message for display in UI.
+ * QueryClient default options.
  *
- * This is the primary function components should use.
- */
-export function getQueryErrorMessage(error: unknown, fallback?: string): string {
-  return getErrorMessage(error, fallback);
-}
-
-/**
- * Create QueryClient default options with centralized error handling.
- *
- * Usage in AppProviders:
- * ```ts
+ * @example
  * const queryClient = new QueryClient(createQueryClientOptions());
- * ```
  */
 export function createQueryClientOptions() {
   return {
@@ -92,29 +53,11 @@ export function createQueryClientOptions() {
         retry: (failureCount: number, error: unknown) =>
           shouldRetryQuery(failureCount, error),
         refetchOnWindowFocus: false,
-        staleTime: 30_000, // 30 seconds default
+        staleTime: 30_000,
       },
       mutations: {
-        // Mutations don't retry by default
         retry: false,
       },
     },
   };
-}
-
-/**
- * Configure a QueryClient with global error handlers.
- *
- * This should be called once when creating the QueryClient.
- */
-export function configureQueryClient(queryClient: QueryClient): void {
-  queryClient.setDefaultOptions({
-    queries: {
-      ...queryClient.getDefaultOptions().queries,
-      // Note: TanStack Query v5 uses throwOnError instead of onError
-    },
-    mutations: {
-      ...queryClient.getDefaultOptions().mutations,
-    },
-  });
 }
