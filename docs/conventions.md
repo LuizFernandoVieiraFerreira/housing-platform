@@ -57,6 +57,22 @@ Key rules:
 - Use `renderHook` for hook tests
 - Test behavior, not implementation
 
+## Storybook
+
+Two Storybook instances:
+
+```bash
+pnpm storybook           # UI components (packages/ui, port 6006)
+pnpm storybook:features  # Feature components (apps/web, port 6007)
+```
+
+Story file naming:
+```
+Component.stories.tsx    # Colocated with component
+```
+
+Feature stories include providers (QueryClient, i18n, Router) automatically.
+
 ## Styling
 
 - Tailwind for all styling
