@@ -9,15 +9,9 @@ import { AuthProvider } from '@/features/auth/context/AuthProvider';
 import { NotificationProvider } from '@/features/notifications/components/NotificationProvider';
 import { ChannelWidget } from '@/features/support/components/ChannelWidget';
 import { CurrencyProvider } from '@/i18n/CurrencyProvider';
+import { createQueryClientOptions } from '@/shared/lib/query-errors';
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      refetchOnWindowFocus: false,
-    },
-  },
-});
+const queryClient = new QueryClient(createQueryClientOptions());
 
 export function AppProviders({ children }: { children: ReactNode }) {
   return (

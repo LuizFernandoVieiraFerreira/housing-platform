@@ -2,30 +2,51 @@
 
 ## Error Handling
 
-Use `Result<T, E>` for explicit error handling:
+Central module: `@/shared/lib/errors`
 
+### In API layer
+
+**Throwing (for TanStack Query):**
 ```typescript
-// API layer
-async function fetchDataSafe(): Promise<Result<Data>> {
-  const { data, error } = await supabase.from('table').select();
-  if (error) return Result.err(AppError.fromSupabase(error, 'Failed'));
-  return Result.ok(data);
-}
+import { wrapSupabaseError } from '@/shared/lib/errors';
 
-// Consuming code
-const result = await fetchDataSafe();
-if (isOk(result)) {
-  console.log(result.data);
-} else {
-  console.error(result.error.message);
+if (error) {
+  throw wrapSupabaseError(error, 'Unable to load data');
 }
 ```
 
-For Supabase errors, use `wrapSupabaseError`:
+**Result pattern (explicit handling):**
+```typescript
+import { AppError, Result } from '@/shared/lib/errors';
+
+if (error) return Result.err(AppError.fromSupabase(error, 'Failed'));
+return Result.ok(data);
+```
+
+### In components
+
+Use `useErrorState` hook:
+```typescript
+import { useErrorState } from '@/shared/hooks';
+
+const { error, handleError, clearError } = useErrorState();
+
+const mutation = useMutation({
+  mutationFn: saveData,
+  onError: handleError('Unable to save'),
+});
+
+// In JSX
+{error && <Alert variant="error">{error}</Alert>}
+```
+
+### Extracting messages
 
 ```typescript
-if (error) {
-  throw wrapSupabaseError(error, 'User-friendly message');
+import { getErrorMessage } from '@/shared/lib/errors';
+
+catch (err) {
+  setError(getErrorMessage(err, 'Something went wrong'));
 }
 ```
 

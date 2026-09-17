@@ -1,15 +1,52 @@
 /**
  * Unified error handling utilities.
  *
- * This module provides consistent error handling patterns for the application.
- * Import from here instead of directly from result.ts for cleaner imports.
+ * This is the central module for error handling. Import from here
+ * instead of from result.ts or query-errors.ts directly.
  *
- * @example
- * // In API files
- * import { AppError, wrapSupabaseError } from '@/shared/lib/errors';
+ * ## Error Handling Strategy
  *
- * // In components
+ * ### In API files
+ * - Use `wrapSupabaseError()` for Supabase errors
+ * - Use `AppError.from()` for other errors
+ * - Return `Result<T>` for operations that can fail gracefully
+ * - Throw for fatal errors that should bubble up
+ *
+ * ```ts
+ * import { wrapSupabaseError, AppError, Result } from '@/shared/lib/errors';
+ *
+ * // Throwing pattern (for TanStack Query)
+ * if (error) throw wrapSupabaseError(error, 'Unable to load data');
+ *
+ * // Result pattern (for explicit handling)
+ * if (error) return Result.err(AppError.fromSupabase(error, 'Failed'));
+ * ```
+ *
+ * ### In hooks/mutations
+ * - Use `handleError()` from `useErrorState` hook
+ * - Global errors are logged automatically via QueryClient config
+ *
+ * ```ts
+ * import { useErrorState } from '@/shared/hooks';
+ *
+ * const { error, handleError, clearError } = useErrorState();
+ * const mutation = useMutation({
+ *   mutationFn: saveData,
+ *   onError: handleError('Unable to save'),
+ * });
+ * ```
+ *
+ * ### In components
+ * - Use `getErrorMessage()` to extract user-friendly messages
+ * - Use `useErrorState` hook for local error state
+ *
+ * ```ts
  * import { getErrorMessage } from '@/shared/lib/errors';
+ *
+ * catch (error) {
+ *   setError(getErrorMessage(error, 'Something went wrong'));
+ * }
+ * ```
  */
 
 // Re-export core types from result.ts
@@ -167,6 +204,16 @@ function isTechnicalMessage(message: string): boolean {
 export function handleMutationError(error: unknown, fallback: string): string {
   return getErrorMessage(error, fallback);
 }
+
+// ============================================================================
+// Query Error Utilities (re-exports)
+// ============================================================================
+
+export {
+  createQueryClientOptions,
+  getQueryErrorMessage,
+  shouldRetryQuery,
+} from './query-errors';
 
 // ============================================================================
 // Error Boundary Helpers

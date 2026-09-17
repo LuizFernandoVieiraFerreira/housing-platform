@@ -1,10 +1,8 @@
 import { Alert, Badge, Button, Card, EmptyState, PageHeader } from '@housing-platform/ui';
-import { useState } from 'react';
 
 import {
   formatBookingDate,
   formatKrw,
-  getBookingErrorMessage,
   getBookingStatusLabel,
 } from '@/features/booking/lib/booking-utils';
 import {
@@ -12,30 +10,31 @@ import {
   useHostBookings,
   useRejectHostBooking,
 } from '@/features/host/hooks/useHost';
+import { useErrorState } from '@/shared/hooks';
 
 export function HostBookingsPage() {
   const { data: bookings, isLoading, error } = useHostBookings();
   const approveBooking = useApproveHostBooking();
   const rejectBooking = useRejectHostBooking();
-  const [actionError, setActionError] = useState<string | null>(null);
+  const { error: actionError, handleError, clearError } = useErrorState();
 
   const handleApprove = async (bookingId: string) => {
-    setActionError(null);
+    clearError();
 
     try {
       await approveBooking.mutateAsync(bookingId);
     } catch (mutationError) {
-      setActionError(getBookingErrorMessage(mutationError, 'Unable to approve booking.'));
+      handleError('Unable to approve booking.')(mutationError);
     }
   };
 
   const handleReject = async (bookingId: string) => {
-    setActionError(null);
+    clearError();
 
     try {
       await rejectBooking.mutateAsync(bookingId);
     } catch (mutationError) {
-      setActionError(getBookingErrorMessage(mutationError, 'Unable to reject booking.'));
+      handleError('Unable to reject booking.')(mutationError);
     }
   };
 
@@ -54,11 +53,11 @@ export function HostBookingsPage() {
         description="Review request-to-book stays and approve guests before they pay."
       />
 
-      {actionError ? (
+      {actionError && (
         <Alert variant="error" className="mt-6">
           {actionError}
         </Alert>
-      ) : null}
+      )}
 
       {!bookings?.length ? (
         <EmptyState className="mt-10" description="No bookings yet." />
