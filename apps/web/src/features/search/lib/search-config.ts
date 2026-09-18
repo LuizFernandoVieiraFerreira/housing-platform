@@ -1,8 +1,0 @@
-/** @deprecated Import from '../model' instead. */
-
-export {
-  getMapSearchSkeletonCount,
-  MAP_SEARCH_GRID_COLUMNS,
-  MAP_SEARCH_SKELETON_VISIBLE_ROWS,
-  SEARCH_RESULTS_PAGE_SIZE,
-} from '../model';

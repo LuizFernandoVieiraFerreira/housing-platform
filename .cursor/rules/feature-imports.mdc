@@ -42,7 +42,7 @@ import { useAuth } from '../hooks/useAuth'; // ✅ OK within same feature
 | `@/features/booking` | `useBookingQuote`, `useMyBookings`, `BookingPanel`, `formatKrw` |
 | `@/features/host` | `useCurrentHost`, `isHostProfile`, `HostRoute`, `HostLayout` |
 | `@/features/search` | `usePropertySearch`, `buildSearchParams`, `SEOUL_CENTER` |
-| `@/features/platforms` | `professionalPlatforms`, `getProfessionalPlatform` |
+| `@/features/platforms` | `PROFESSIONAL_PLATFORMS`, `getProfessionalPlatform` |
 | `@/features/notifications` | `useNotifications`, `NotificationProvider` |
 
 ## Why This Matters

@@ -4,7 +4,7 @@ import { Route, Routes } from 'react-router-dom';
 
 import { PublicLayout } from '@/app/layouts/PublicLayout';
 import { PortalModeProvider } from '@/app/providers/PortalModeProvider';
-import { professionalPlatforms } from '@/features/platforms/lib/professional-platforms';
+import { PROFESSIONAL_PLATFORMS } from '@/features/platforms';
 import { ProfessionalPlatformPage } from '@/features/platforms/pages/ProfessionalPlatformPage';
 import { AuthContext, type AuthContextValue } from '@/features/auth/hooks/useAuth';
 import { renderWithProviders } from '@/test/render';
@@ -36,7 +36,7 @@ function renderPlatformRoute(path: string) {
       <PortalModeProvider>
         <Routes>
           <Route element={<PublicLayout />}>
-            {professionalPlatforms.map(({ key, landingPath }) => (
+            {PROFESSIONAL_PLATFORMS.map(({ key, landingPath }) => (
               <Route
                 key={key}
                 path={landingPath}

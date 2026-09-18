@@ -10,7 +10,7 @@ import { ChevronDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
-import { professionalPlatforms } from '@/features/platforms/lib/professional-platforms';
+import { PROFESSIONAL_PLATFORMS } from '@/features/platforms';
 
 /**
  * One header entry for every platform that is not the guest marketplace, so adding
@@ -33,7 +33,7 @@ export function ProfessionalPlatformsMenu() {
           <p className="text-ink-muted text-xs">{t('menu.description')}</p>
         </DropdownMenuHeader>
 
-        {professionalPlatforms.map(({ key, icon: Icon, landingPath }) => (
+        {PROFESSIONAL_PLATFORMS.map(({ key, icon: Icon, landingPath }) => (
           <DropdownMenuItem key={key} asChild>
             <Link to={landingPath} className="gap-2.5">
               <Icon size={16} aria-hidden />

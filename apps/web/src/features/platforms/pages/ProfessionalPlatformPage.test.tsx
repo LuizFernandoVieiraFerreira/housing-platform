@@ -2,7 +2,7 @@ import { screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
 import { ProfessionalPlatformPage } from '@/features/platforms/pages/ProfessionalPlatformPage';
-import type { ProfessionalPlatformKey } from '@/features/platforms/lib/professional-platforms';
+import type { ProfessionalPlatformKey } from '@/features/platforms';
 import { renderWithProviders } from '@/test/render';
 
 describe('ProfessionalPlatformPage', () => {

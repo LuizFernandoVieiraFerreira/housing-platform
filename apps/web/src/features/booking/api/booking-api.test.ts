@@ -12,7 +12,13 @@ vi.mock('@/shared/api/supabase', () => ({
   },
 }));
 
-import { fetchBookingDetail, fetchMyBookings, quoteBooking } from '@/features/booking/api/booking-api';
+import { unwrap } from '@/shared/lib/result';
+
+import {
+  fetchBookingDetail,
+  fetchMyBookings,
+  quoteBooking,
+} from '@/features/booking/api/booking-api';
 
 describe('booking-api', () => {
   beforeEach(() => {
@@ -60,14 +66,14 @@ describe('booking-api', () => {
         }),
       });
 
-      const bookings = await fetchMyBookings();
+      const bookings = unwrap(await fetchMyBookings());
 
       expect(bookings).toHaveLength(1);
       expect(bookings[0]?.id).toBe('complete');
       expect(bookings[0]?.propertyTitle).toBe('Studio');
     });
 
-    it('propagates supabase errors', async () => {
+    it('returns an error result when Supabase fails', async () => {
       fromMock.mockReturnValue({
         select: vi.fn().mockReturnValue({
           order: vi.fn().mockResolvedValue({
@@ -77,22 +83,29 @@ describe('booking-api', () => {
         }),
       });
 
-      await expect(fetchMyBookings()).rejects.toThrow('Database unavailable');
+      const result = await fetchMyBookings();
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error.message).toBe('Database unavailable');
+      }
     });
   });
 
   describe('quoteBooking', () => {
-    it('throws when RPC returns no quote row', async () => {
+    it('returns an error result when RPC returns no quote row', async () => {
       rpcMock.mockResolvedValue({ data: [], error: null });
 
-      await expect(
-        quoteBooking({
-          roomId: 'room-1',
-          checkIn: '2026-01-01',
-          checkOut: '2026-01-31',
-          guestCount: 1,
-        }),
-      ).rejects.toThrow('Unable to quote this stay');
+      const result = await quoteBooking({
+        roomId: 'room-1',
+        checkIn: '2026-01-01',
+        checkOut: '2026-01-31',
+        guestCount: 1,
+      });
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error.message).toBe('Unable to quote this stay');
+      }
     });
 
     it('maps quote row fields to camelCase', async () => {
@@ -112,14 +125,16 @@ describe('booking-api', () => {
         error: null,
       });
 
-      await expect(
-        quoteBooking({
+      const quote = unwrap(
+        await quoteBooking({
           roomId: 'room-1',
           checkIn: '2026-01-01',
           checkOut: '2026-01-31',
           guestCount: 1,
         }),
-      ).resolves.toEqual({
+      );
+
+      expect(quote).toEqual({
         roomId: 'room-1',
         propertyId: 'property-1',
         bookingMode: 'instant',
@@ -165,7 +180,9 @@ describe('booking-api', () => {
         }),
       });
 
-      await expect(fetchBookingDetail('booking-1')).resolves.toMatchObject({
+      const detail = unwrap(await fetchBookingDetail('booking-1'));
+
+      expect(detail).toMatchObject({
         id: 'booking-1',
         rentKrw: 1_000_000,
         serviceFeeKrw: 100_000,
@@ -185,7 +202,7 @@ describe('booking-api', () => {
         }),
       });
 
-      await expect(fetchBookingDetail('missing')).resolves.toBeNull();
+      expect(unwrap(await fetchBookingDetail('missing'))).toBeNull();
     });
   });
 });

@@ -16,7 +16,7 @@ import {
 } from '@housing-platform/ui';
 import { useState, type FormEvent } from 'react';
 
-import { accommodationTypeOptions, sortOptions } from '@/features/search/lib/filter-options';
+import { ACCOMMODATION_TYPE_OPTIONS, SORT_OPTIONS } from '@/features/search/model';
 
 interface PropertySearchFormProps {
   filters: PropertySearchFilters;
@@ -106,7 +106,7 @@ export function PropertySearchForm({
               <SelectValue placeholder="All" />
             </SelectTrigger>
             <SelectContent>
-              {accommodationTypeOptions.map((option) => (
+              {ACCOMMODATION_TYPE_OPTIONS.map((option) => (
                 <SelectItem key={option.value || 'all'} value={option.value || 'all'}>
                   {option.label}
                 </SelectItem>
@@ -138,7 +138,7 @@ export function PropertySearchForm({
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
             <SelectContent>
-              {sortOptions.map((option) => (
+              {SORT_OPTIONS.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
                 </SelectItem>

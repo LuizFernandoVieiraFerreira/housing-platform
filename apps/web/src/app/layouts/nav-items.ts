@@ -117,11 +117,6 @@ export const adminNavItems: NavItem[] = [
   { labelKey: 'my', to: '/account', end: false, icon: User, showInDesktopHeader: false },
 ];
 
-/** @deprecated Prefer role-specific nav helpers */
-export const navItems = customerNavItems;
-export const primaryNavItems = customerNavItems.filter((item) => item.showInDesktopHeader);
-export const mobileBottomNavItems = customerNavItems;
-
 export function getNavItemsForRole(role: string | undefined): NavItem[] {
   if (role === 'admin') {
     return adminNavItems;

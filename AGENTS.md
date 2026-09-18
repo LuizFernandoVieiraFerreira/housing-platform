@@ -164,13 +164,13 @@ catch (error) {
 ```typescript
 import { Result, AppError, isOk } from '@/shared/lib/result';
 
-async function fetchDataSafe(): Promise<Result<Data>> {
+async function fetchData(): Promise<Result<Data>> {
   const { data, error } = await supabase.from('table').select();
   if (error) return Result.err(AppError.fromSupabase(error, 'Fetch failed'));
   return Result.ok(data);
 }
 
-const result = await fetchDataSafe();
+const result = await fetchData();
 if (isOk(result)) {
   console.log(result.data);
 } else {
@@ -194,7 +194,7 @@ export const bookingKeys = {
 export function useBookingDetail(bookingId: string | undefined) {
   return useQuery({
     queryKey: bookingKeys.detail(bookingId!),
-    queryFn: () => fetchBookingDetail(bookingId!),
+    queryFn: async () => unwrap(await fetchBookingDetail(bookingId!)),
     enabled: Boolean(bookingId),
   });
 }

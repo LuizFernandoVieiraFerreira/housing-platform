@@ -6,7 +6,7 @@ import {
   getProfessionalPlatform,
   isPlatformOpen,
   type ProfessionalPlatformKey,
-} from '@/features/platforms/lib/professional-platforms';
+} from '@/features/platforms';
 import { PageContainer } from '@/shared/components/PageContainer';
 import { marketingHero } from '@/shared/lib/variants';
 

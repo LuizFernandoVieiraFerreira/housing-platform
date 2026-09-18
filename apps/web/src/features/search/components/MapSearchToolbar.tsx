@@ -1,7 +1,7 @@
 import type { AccommodationType, PropertySearchFilters } from '@housing-platform/types';
 import { Button, FilterChip } from '@housing-platform/ui';
 
-import { accommodationTypeOptions, sortOptions } from '@/features/search/lib/filter-options';
+import { ACCOMMODATION_TYPE_OPTIONS, SORT_OPTIONS } from '@/features/search/model';
 
 interface MapSearchToolbarProps {
   filters: PropertySearchFilters;
@@ -43,7 +43,7 @@ export function MapSearchToolbar({
 }: MapSearchToolbarProps) {
   const activeType = filters.propertyType ?? '';
   const sortLabel =
-    sortOptions.find((option) => option.value === (filters.sort ?? 'recommended'))?.label ??
+    SORT_OPTIONS.find((option) => option.value === (filters.sort ?? 'recommended'))?.label ??
     'Recommended';
 
   return (
@@ -61,7 +61,7 @@ export function MapSearchToolbar({
       </div>
 
       <div className="scrollbar-none flex gap-2 overflow-x-auto px-4 pb-3">
-        {accommodationTypeOptions.map((option) => (
+        {ACCOMMODATION_TYPE_OPTIONS.map((option) => (
           <FilterChip
             key={option.value || 'all'}
             active={activeType === option.value}

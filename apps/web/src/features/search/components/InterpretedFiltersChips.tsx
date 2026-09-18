@@ -1,7 +1,7 @@
 import type { PropertySearchFilters } from '@housing-platform/types';
 import { FilterChip } from '@housing-platform/ui';
 
-import { accommodationTypeOptions } from '@/features/search/lib/filter-options';
+import { ACCOMMODATION_TYPE_OPTIONS } from '@/features/search/model';
 import { useFormatPrice } from '@/i18n/CurrencyProvider';
 
 interface InterpretedFiltersChipsProps {
@@ -20,7 +20,7 @@ export function InterpretedFiltersChips({
 
   if (filters.propertyType) {
     const label =
-      accommodationTypeOptions.find((option) => option.value === filters.propertyType)?.label ??
+      ACCOMMODATION_TYPE_OPTIONS.find((option) => option.value === filters.propertyType)?.label ??
       filters.propertyType;
     chips.push(label);
   }

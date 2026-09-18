@@ -4,7 +4,7 @@ import {
 } from '@housing-platform/config/design-tokens/role-themes';
 import { describe, expect, it } from 'vitest';
 
-import { professionalPlatforms } from '@/features/platforms/lib/professional-platforms';
+import { PROFESSIONAL_PLATFORMS } from '@/features/platforms';
 
 describe('resolveExplicitPathThemeKey', () => {
   it('claims host pages for the host palette', () => {
@@ -32,7 +32,7 @@ describe('resolveExplicitPathThemeKey', () => {
   });
 
   it('gives every platform landing page a theme', () => {
-    for (const { landingPath } of professionalPlatforms) {
+    for (const { landingPath } of PROFESSIONAL_PLATFORMS) {
       expect(resolveExplicitPathThemeKey(landingPath)).toBeDefined();
     }
   });

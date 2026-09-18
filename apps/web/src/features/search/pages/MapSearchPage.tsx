@@ -20,7 +20,7 @@ import {
   parseSearchParams,
   SEOUL_CENTER,
 } from '@/features/search/lib/search-params';
-import { getMapSearchSkeletonCount } from '@/features/search/lib/search-config';
+import { getMapSearchSkeletonCount } from '@/features/search/model';
 import type { NaverPixelOffset } from '@/shared/lib/naver-maps';
 
 export function MapSearchPage() {

@@ -2,7 +2,7 @@ import type { ApiErrorResponse } from '@housing-platform/types';
 
 import { supabase } from '@/shared/api/supabase';
 import { logger, createTimer } from '@/shared/lib/logger';
-import { AppError, Result, unwrap, type ErrorCode } from '@/shared/lib/result';
+import { AppError, Result, type ErrorCode } from '@/shared/lib/result';
 
 import type { ConfirmPaymentResult, CreatePaymentOrderResult } from '../model';
 import { createDevMockPaymentKey, TOSS_FAIL_PATH, TOSS_SUCCESS_PATH } from '../model';
@@ -77,14 +77,14 @@ function extractInlineError(data: unknown): string | null {
  * Create a payment order for a booking. Returns a Result.
  *
  * @example
- * const result = await createPaymentOrderSafe(bookingId);
+ * const result = await createPaymentOrder(bookingId);
  * if (result.ok) {
  *   console.log('Order created:', result.data.orderId);
  * } else {
  *   console.error('Failed:', result.error.message);
  * }
  */
-export async function createPaymentOrderSafe(
+export async function createPaymentOrder(
   bookingId: string,
 ): Promise<Result<CreatePaymentOrderResult>> {
   const timer = createTimer();
@@ -147,14 +147,14 @@ export async function createPaymentOrderSafe(
  * Confirm a payment after user completes the payment flow. Returns a Result.
  *
  * @example
- * const result = await confirmPaymentSafe({ paymentKey, orderId, amount });
+ * const result = await confirmPayment({ paymentKey, orderId, amount });
  * if (result.ok) {
  *   console.log('Payment confirmed for booking:', result.data.bookingId);
  * } else {
  *   console.error('Confirmation failed:', result.error.message);
  * }
  */
-export async function confirmPaymentSafe(input: {
+export async function confirmPayment(input: {
   paymentKey: string;
   orderId: string;
   amount: number;
@@ -216,36 +216,6 @@ export async function confirmPaymentSafe(input: {
     });
     return Result.fromError(error, 'PAYMENT_FAILED');
   }
-}
-
-// ============================================================================
-// Throwing API Functions (for TanStack Query compatibility)
-// ============================================================================
-
-/**
- * Create a payment order for a booking.
- * Throws on error (for use with TanStack Query mutations).
- *
- * @deprecated Prefer createPaymentOrderSafe for explicit error handling.
- */
-export async function createPaymentOrder(bookingId: string): Promise<CreatePaymentOrderResult> {
-  const result = await createPaymentOrderSafe(bookingId);
-  return unwrap(result);
-}
-
-/**
- * Confirm a payment after user completes the payment flow.
- * Throws on error (for use with TanStack Query mutations).
- *
- * @deprecated Prefer confirmPaymentSafe for explicit error handling.
- */
-export async function confirmPayment(input: {
-  paymentKey: string;
-  orderId: string;
-  amount: number;
-}): Promise<ConfirmPaymentResult> {
-  const result = await confirmPaymentSafe(input);
-  return unwrap(result);
 }
 
 export function getTossClientKey(): string | null {

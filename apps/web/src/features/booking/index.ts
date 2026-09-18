@@ -65,11 +65,11 @@ export { bookingKeys } from './keys';
 
 // Result-returning API functions
 export {
-  cancelOwnBookingSafe,
-  createBookingHoldSafe,
-  fetchBookingDetailSafe,
-  fetchMyBookingsSafe,
-  quoteBookingSafe,
+  cancelOwnBooking,
+  createBookingHold,
+  fetchBookingDetail,
+  fetchMyBookings,
+  quoteBooking,
 } from './api/booking-api';
 
 // Mappers (for advanced use cases)

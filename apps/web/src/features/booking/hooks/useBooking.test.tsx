@@ -3,6 +3,8 @@ import { renderHook, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { AppError, Result } from '@/shared/lib/result';
+
 import {
   useBookingDetail,
   useBookingQuote,
@@ -56,7 +58,7 @@ describe('useBookingQuote', () => {
       serviceFeeKrw: 80_000,
       totalKrw: 880_000,
     };
-    mockQuoteBooking.mockResolvedValue(mockQuote);
+    mockQuoteBooking.mockResolvedValue(Result.ok(mockQuote));
 
     const queryClient = createTestQueryClient();
     const { result } = renderHook(
@@ -93,7 +95,9 @@ describe('useBookingQuote', () => {
   });
 
   it('handles error state', async () => {
-    mockQuoteBooking.mockRejectedValue(new Error('Quote failed'));
+    mockQuoteBooking.mockResolvedValue(
+      Result.err(new AppError('API_ERROR', 'Quote failed')),
+    );
 
     const queryClient = createTestQueryClient();
     const { result } = renderHook(
@@ -123,7 +127,7 @@ describe('useMyBookings', () => {
       { id: 'booking-1', status: 'confirmed' },
       { id: 'booking-2', status: 'pending_payment' },
     ];
-    mockFetchMyBookings.mockResolvedValue(mockBookings);
+    mockFetchMyBookings.mockResolvedValue(Result.ok(mockBookings));
 
     const queryClient = createTestQueryClient();
     const { result } = renderHook(() => useMyBookings(), {
@@ -148,7 +152,7 @@ describe('useBookingDetail', () => {
       status: 'confirmed',
       propertyTitle: 'Test Property',
     };
-    mockFetchBookingDetail.mockResolvedValue(mockBooking);
+    mockFetchBookingDetail.mockResolvedValue(Result.ok(mockBooking));
 
     const queryClient = createTestQueryClient();
     const { result } = renderHook(() => useBookingDetail('booking-1'), {
@@ -180,7 +184,7 @@ describe('useCreateBookingHold', () => {
 
   it('creates booking hold and invalidates cache', async () => {
     const mockBooking = { id: 'booking-1', status: 'pending_payment' };
-    mockCreateBookingHold.mockResolvedValue(mockBooking);
+    mockCreateBookingHold.mockResolvedValue(Result.ok(mockBooking));
 
     const queryClient = createTestQueryClient();
     const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
@@ -209,7 +213,7 @@ describe('useCreateBookingHold', () => {
   });
 
   it('includes customerNotes when provided', async () => {
-    mockCreateBookingHold.mockResolvedValue({ id: 'booking-1' });
+    mockCreateBookingHold.mockResolvedValue(Result.ok({ id: 'booking-1' }));
 
     const queryClient = createTestQueryClient();
     const { result } = renderHook(() => useCreateBookingHold(), {
@@ -243,7 +247,7 @@ describe('useCancelBooking', () => {
 
   it('cancels booking and invalidates both caches', async () => {
     const mockCancelledBooking = { id: 'booking-1', status: 'cancelled' };
-    mockCancelOwnBooking.mockResolvedValue(mockCancelledBooking);
+    mockCancelOwnBooking.mockResolvedValue(Result.ok(mockCancelledBooking));
 
     const queryClient = createTestQueryClient();
     const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');

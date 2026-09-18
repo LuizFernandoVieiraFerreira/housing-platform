@@ -12,6 +12,8 @@ vi.mock('@/shared/api/supabase', () => ({
   },
 }));
 
+import { unwrap } from '@/shared/lib/result';
+
 import {
   confirmPayment,
   createDevMockPaymentKey,
@@ -35,7 +37,9 @@ describe('payment-api', () => {
         error: null,
       });
 
-      await expect(createPaymentOrder('booking-1')).resolves.toEqual({
+      const order = unwrap(await createPaymentOrder('booking-1'));
+
+      expect(order).toEqual({
         orderId: 'order-123',
         amountKrw: 500_000,
         orderName: 'Monthly stay',
@@ -46,16 +50,20 @@ describe('payment-api', () => {
       });
     });
 
-    it('throws inline API error messages from response body', async () => {
+    it('returns an error result for inline API error messages', async () => {
       invokeMock.mockResolvedValue({
         data: { error: { message: 'Booking is not payable.' } },
         error: null,
       });
 
-      await expect(createPaymentOrder('booking-1')).rejects.toThrow('Booking is not payable.');
+      const result = await createPaymentOrder('booking-1');
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error.message).toBe('Booking is not payable.');
+      }
     });
 
-    it('throws parsed function error from Response context', async () => {
+    it('returns an error result for function errors with Response context', async () => {
       invokeMock.mockResolvedValue({
         data: null,
         error: {
@@ -66,16 +74,24 @@ describe('payment-api', () => {
         },
       });
 
-      await expect(createPaymentOrder('booking-1')).rejects.toThrow('Hold expired.');
+      const result = await createPaymentOrder('booking-1');
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error.message).toBe('Hold expired.');
+      }
     });
 
-    it('falls back to default message when function error is opaque', async () => {
+    it('returns an error result for opaque function errors', async () => {
       invokeMock.mockResolvedValue({
         data: null,
         error: new Error('network down'),
       });
 
-      await expect(createPaymentOrder('booking-1')).rejects.toThrow('network down');
+      const result = await createPaymentOrder('booking-1');
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error.message).toBe('network down');
+      }
     });
   });
 
@@ -86,31 +102,36 @@ describe('payment-api', () => {
         error: null,
       });
 
-      await expect(
-        confirmPayment({
+      const result = unwrap(
+        await confirmPayment({
           paymentKey: 'pay-key',
           orderId: 'order-99',
           amount: 500_000,
         }),
-      ).resolves.toEqual({
+      );
+
+      expect(result).toEqual({
         bookingId: 'booking-99',
         status: 'confirmed',
       });
     });
 
-    it('throws inline API error messages from response body', async () => {
+    it('returns an error result for inline API error messages', async () => {
       invokeMock.mockResolvedValue({
         data: { error: { message: 'Amount mismatch.' } },
         error: null,
       });
 
-      await expect(
-        confirmPayment({
-          paymentKey: 'pay-key',
-          orderId: 'order-99',
-          amount: 500_000,
-        }),
-      ).rejects.toThrow('Amount mismatch.');
+      const result = await confirmPayment({
+        paymentKey: 'pay-key',
+        orderId: 'order-99',
+        amount: 500_000,
+      });
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error.message).toBe('Amount mismatch.');
+      }
     });
   });
 

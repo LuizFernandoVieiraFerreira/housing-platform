@@ -13,8 +13,8 @@ export { useCreatePaymentOrder, useConfirmPayment } from './hooks/usePayment';
 
 // API (Result-returning for explicit error handling)
 export {
-  confirmPaymentSafe,
-  createPaymentOrderSafe,
+  confirmPayment,
+  createPaymentOrder,
   // Toss configuration (environment-dependent)
   getTossClientKey,
   getTossFailUrl,

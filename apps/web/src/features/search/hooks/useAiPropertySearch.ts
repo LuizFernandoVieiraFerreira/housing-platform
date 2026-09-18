@@ -2,7 +2,7 @@ import type { AiPropertySearchRequest } from '@housing-platform/types';
 import { useQuery } from '@tanstack/react-query';
 
 import { aiPropertySearch } from '../api/ai-search-api';
-import { SEARCH_RESULTS_PAGE_SIZE } from '../lib/search-config';
+import { SEARCH_RESULTS_PAGE_SIZE } from '../model';
 import { searchKeys } from '../keys';
 
 export function useAiPropertySearch(request: AiPropertySearchRequest | null) {

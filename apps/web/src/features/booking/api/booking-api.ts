@@ -2,7 +2,7 @@ import type { Booking } from '@housing-platform/types';
 
 import { supabase } from '@/shared/api/supabase';
 import { logger, createTimer } from '@/shared/lib/logger';
-import { AppError, Result, unwrap } from '@/shared/lib/result';
+import { AppError, Result } from '@/shared/lib/result';
 
 import type {
   BookingDetail,
@@ -31,7 +31,7 @@ const log = logger.child('booking-api');
 /**
  * Get a price quote for a potential booking. Returns a Result.
  */
-export async function quoteBookingSafe(input: {
+export async function quoteBooking(input: {
   roomId: string;
   checkIn: string;
   checkOut: string;
@@ -59,7 +59,7 @@ export async function quoteBookingSafe(input: {
 /**
  * Create a booking hold (reservation). Returns a Result.
  */
-export async function createBookingHoldSafe(input: {
+export async function createBookingHold(input: {
   roomId: string;
   checkIn: string;
   checkOut: string;
@@ -118,7 +118,7 @@ export async function createBookingHoldSafe(input: {
 /**
  * Fetch all bookings for the current user. Returns a Result.
  */
-export async function fetchMyBookingsSafe(): Promise<Result<BookingListItem[]>> {
+export async function fetchMyBookings(): Promise<Result<BookingListItem[]>> {
   try {
     const { data, error } = await supabase
       .from('bookings')
@@ -156,7 +156,7 @@ export async function fetchMyBookingsSafe(): Promise<Result<BookingListItem[]>> 
 /**
  * Fetch details for a specific booking. Returns a Result.
  */
-export async function fetchBookingDetailSafe(
+export async function fetchBookingDetail(
   bookingId: string,
 ): Promise<Result<BookingDetail | null>> {
   try {
@@ -206,7 +206,7 @@ export async function fetchBookingDetailSafe(
 /**
  * Cancel a booking owned by the current user. Returns a Result.
  */
-export async function cancelOwnBookingSafe(bookingId: string): Promise<Result<Booking>> {
+export async function cancelOwnBooking(bookingId: string): Promise<Result<Booking>> {
   const timer = createTimer();
   log.info('Cancelling booking', { action: 'cancelBooking', data: { bookingId } });
 
@@ -250,59 +250,4 @@ export async function cancelOwnBookingSafe(bookingId: string): Promise<Result<Bo
     });
     return Result.fromError(error, 'API_ERROR');
   }
-}
-
-// ============================================================================
-// Throwing API Functions (for TanStack Query compatibility)
-// ============================================================================
-
-/**
- * Get a price quote for a potential booking.
- * @deprecated Prefer quoteBookingSafe for explicit error handling.
- */
-export async function quoteBooking(input: {
-  roomId: string;
-  checkIn: string;
-  checkOut: string;
-  guestCount: number;
-}): Promise<BookingQuote> {
-  return unwrap(await quoteBookingSafe(input));
-}
-
-/**
- * Create a booking hold (reservation).
- * @deprecated Prefer createBookingHoldSafe for explicit error handling.
- */
-export async function createBookingHold(input: {
-  roomId: string;
-  checkIn: string;
-  checkOut: string;
-  guestCount: number;
-  customerNotes?: string;
-}): Promise<Booking> {
-  return unwrap(await createBookingHoldSafe(input));
-}
-
-/**
- * Fetch all bookings for the current user.
- * @deprecated Prefer fetchMyBookingsSafe for explicit error handling.
- */
-export async function fetchMyBookings(): Promise<BookingListItem[]> {
-  return unwrap(await fetchMyBookingsSafe());
-}
-
-/**
- * Fetch details for a specific booking.
- * @deprecated Prefer fetchBookingDetailSafe for explicit error handling.
- */
-export async function fetchBookingDetail(bookingId: string): Promise<BookingDetail | null> {
-  return unwrap(await fetchBookingDetailSafe(bookingId));
-}
-
-/**
- * Cancel a booking owned by the current user.
- * @deprecated Prefer cancelOwnBookingSafe for explicit error handling.
- */
-export async function cancelOwnBooking(bookingId: string): Promise<Booking> {
-  return unwrap(await cancelOwnBookingSafe(bookingId));
 }

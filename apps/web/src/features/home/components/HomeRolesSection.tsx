@@ -3,7 +3,7 @@ import type { LucideIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
-import { professionalPlatforms, type ProfessionalPlatformKey } from '@/features/platforms';
+import { PROFESSIONAL_PLATFORMS, type ProfessionalPlatformKey } from '@/features/platforms';
 import { PageContainer } from '@/shared/components/PageContainer';
 import {
   responsiveIcon,
@@ -23,7 +23,7 @@ interface RoleConfig {
 // The band is what routes visitors to their platform, so every role links somewhere.
 const roleConfigs: RoleConfig[] = [
   { key: 'guest', icon: UserRound, to: '/map' },
-  ...professionalPlatforms.map(({ key, icon, landingPath }) => ({ key, icon, to: landingPath })),
+  ...PROFESSIONAL_PLATFORMS.map(({ key, icon, landingPath }) => ({ key, icon, to: landingPath })),
 ];
 
 interface HomeRoleLinkProps {
