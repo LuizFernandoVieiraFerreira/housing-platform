@@ -436,6 +436,7 @@ export function HostPropertyFormPage() {
                 variant="secondary"
                 onClick={() => void handleSubmitForReview()}
                 disabled={submitProperty.isPending}
+                data-testid="submit-for-review"
               >
                 {submitProperty.isPending ? 'Submitting...' : 'Submit for review'}
               </Button>

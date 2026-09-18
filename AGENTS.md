@@ -17,6 +17,7 @@ Agentic coding assistant instructions for housing-platform monorepo.
 | Storybook         | `npm run storybook`                                        |
 | Database reset    | `npm run db:reset`                                         |
 | Integration tests | `npm run test:integration`                                 |
+| E2E tests         | `pnpm db:reset && pnpm test:e2e` (starts edge functions if needed) |
 
 ## Project Structure
 

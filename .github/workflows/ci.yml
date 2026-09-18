@@ -83,3 +83,21 @@ jobs:
           SUPABASE_FUNCTIONS_URL: http://127.0.0.1:54321/functions/v1
           PAYMENT_DEV_MOCK: 'true'
           AI_SEARCH_DEV_MOCK: 'true'
+
+      - name: Build web app for E2E
+        run: pnpm --filter @housing-platform/web build
+        env:
+          VITE_SUPABASE_URL: http://127.0.0.1:54321
+          VITE_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
+          VITE_APP_URL: http://127.0.0.1:4173
+
+      - name: Install Playwright browsers
+        run: pnpm --dir tests/e2e exec playwright install chromium --with-deps
+
+      - name: E2E tests
+        run: pnpm test:e2e
+        env:
+          CI: true
+          E2E_BASE_URL: http://127.0.0.1:4173
+          VITE_SUPABASE_URL: http://127.0.0.1:54321
+          VITE_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0

@@ -67,6 +67,7 @@ export function BookingForm({
         onSubmit();
       }}
       noValidate
+      data-testid="booking-form"
     >
       {/* Room Selection */}
       {showRoomSelector ? (

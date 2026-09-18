@@ -57,6 +57,17 @@ Key rules:
 - Use `renderHook` for hook tests
 - Test behavior, not implementation
 
+## E2E (Playwright)
+
+Critical flows live in `tests/e2e/specs/`:
+
+```bash
+supabase start && pnpm db:reset   # seed dev accounts + catalog
+pnpm test:e2e                     # starts edge functions if needed, then Playwright
+```
+
+Use `data-testid` on forms and primary actions (`login-form`, `booking-form`, `checkout-pay`).
+
 ## Storybook
 
 Two Storybook instances:

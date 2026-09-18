@@ -164,6 +164,7 @@ export function CheckoutPage() {
             size="lg"
             onClick={() => void handlePay()}
             disabled={isLaunchingPayment || createPayment.isPending || confirmPayment.isPending}
+            data-testid="checkout-pay"
           >
             {isLaunchingPayment || createPayment.isPending || confirmPayment.isPending
               ? 'Processing...'

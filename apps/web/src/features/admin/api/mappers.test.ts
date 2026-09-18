@@ -80,6 +80,7 @@ describe('admin mappers', () => {
         properties: null,
         rooms: { name: 'Room A' },
         booking_price_snapshots: { total_krw: 900_000 },
+        profiles: null,
       });
 
       expect(result).toBeNull();
@@ -98,6 +99,7 @@ describe('admin mappers', () => {
         properties: { title: 'Mapo Studio' },
         rooms: { name: 'Room A' },
         booking_price_snapshots: { total_krw: 900_000 },
+        profiles: { full_name: 'Jane Doe' },
       });
 
       expect(result).toMatchObject({

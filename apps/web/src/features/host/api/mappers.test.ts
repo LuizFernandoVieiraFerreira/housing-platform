@@ -65,6 +65,7 @@ describe('host mappers', () => {
           bookingMode: 'instant',
           minStayNights: 30,
           tags: 'quiet, furnished , ',
+          amenityIds: [],
         },
         'host-1',
         'mapo-studio',
@@ -115,10 +116,11 @@ describe('host mappers', () => {
         postalCode: '',
         district: 'Mapo',
         nearestStationName: '',
-        nearestStationWalkMin: null,
+        nearestStationWalkMin: '',
         bookingMode: 'request',
         minStayNights: 30,
         tags: '',
+        amenityIds: [],
       });
 
       expect(result).not.toHaveProperty('host_id');

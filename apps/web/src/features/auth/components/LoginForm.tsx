@@ -93,7 +93,7 @@ export function LoginForm({
 
       {formError ? <Alert variant="error">{formError}</Alert> : null}
 
-      <form className="space-y-4" onSubmit={onSubmit} noValidate>
+      <form className="space-y-4" onSubmit={onSubmit} noValidate data-testid="login-form">
         <FormField label={t('login.email')} htmlFor="email" error={errors.email?.message} required>
           <Input
             id="email"
