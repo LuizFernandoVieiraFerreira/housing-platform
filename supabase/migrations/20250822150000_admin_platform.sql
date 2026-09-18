@@ -1,4 +1,4 @@
--- Phase 9: admin operations — housing requests, audit logs, host approval
+-- Admin operations — housing requests, audit logs, host approval
 
 create type public.housing_request_status as enum ('new', 'in_progress', 'closed');
 

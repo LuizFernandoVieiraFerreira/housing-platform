@@ -1,4 +1,4 @@
--- Phase 5: bookings, pricing snapshots, holds, and conflict prevention
+-- Bookings, pricing snapshots, holds, and conflict prevention
 
 create extension if not exists btree_gist with schema extensions;
 

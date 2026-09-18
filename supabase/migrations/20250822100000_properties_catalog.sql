@@ -1,4 +1,4 @@
--- Phase 3: properties catalog — hosts, properties, rooms, images, amenities, storage, publish workflow
+-- Properties catalog — hosts, properties, rooms, images, amenities, storage, publish workflow
 
 create extension if not exists postgis with schema extensions;
 

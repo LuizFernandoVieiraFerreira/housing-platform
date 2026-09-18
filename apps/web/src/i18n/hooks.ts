@@ -101,7 +101,6 @@ export function usePropertyTypeLabel(propertyType: string): string {
 // Re-exports
 // ============================================================================
 
-// Re-export the standard hook for gradual migration
 export { useTranslation } from 'react-i18next';
 
 // Re-export types for consumers

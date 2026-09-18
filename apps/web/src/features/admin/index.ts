@@ -32,7 +32,6 @@ export type {
 } from './model';
 
 // Constants
-// Note: HOST_STATUS_CONFIG is in host feature, PAYMENT_STATUS_CONFIG is in checkout feature
 export {
   ACTIVE_HOST_STATUSES,
   ADMIN_ROLE,
@@ -49,7 +48,6 @@ export {
 } from './model';
 
 // Pure Utils
-// Note: getHostStatusConfig is in host feature, getPaymentStatusConfig is in checkout feature
 export {
   canApproveHost,
   canTransitionHousingRequest,
@@ -69,8 +67,7 @@ export {
 // Query keys (colocated with feature)
 export { adminKeys } from './keys';
 
-// Mappers (for advanced use cases)
-// Note: getRelation is available from host feature
+// Mappers
 export {
   mapAdminBookingRow,
   mapAdminHostRow,

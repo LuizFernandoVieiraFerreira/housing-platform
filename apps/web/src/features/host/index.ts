@@ -1,12 +1,8 @@
 /**
- * Host feature public API
+ * Host feature public API.
  *
- * Usage:
- *   import { useCurrentHost, HostRoute, hostKeys } from '@/features/host';
- *
- * Note: Some utilities (HOST_STATUS_CONFIG, getHostStatusConfig, getRelation)
- * are not re-exported here to avoid conflicts with @/features/admin.
- * Import directly from '@/features/host/model' if needed.
+ * Host admin types (HostStatus, HostBookingListItem) and status helpers live in
+ * @/features/admin. Import other host-only utilities from @/features/host/model.
  */
 
 // ============================================================================
@@ -34,9 +30,6 @@ export type {
   HostBookingRow,
   CoordinatesRow,
 } from './model';
-
-// Note: HostStatus is exported from @/features/admin to avoid conflicts
-// Note: HostBookingListItem is exported from @/features/admin to avoid conflicts
 
 export {
   // Schemas
@@ -78,9 +71,6 @@ export {
   createPropertySlug,
   parseTags,
 } from './model';
-
-// Note: HOST_STATUS_CONFIG, getHostStatusConfig, getRelation are available
-// from @/features/admin or import directly from '@/features/host/model'
 
 // ============================================================================
 // Query Keys

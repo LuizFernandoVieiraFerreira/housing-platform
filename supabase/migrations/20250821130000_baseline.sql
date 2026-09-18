@@ -1,6 +1,6 @@
--- Housing Platform — Supabase baseline (Phase 1)
+-- Housing Platform — Supabase baseline
 --
 -- This migration establishes the project baseline.
--- Auth, profiles, properties, and booking schema begin in Phase 2+.
+-- Extensions and shared helpers used by later migrations.
 
 comment on schema public is 'Housing Platform application schema';

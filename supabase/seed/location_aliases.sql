@@ -1,4 +1,4 @@
--- Seoul neighborhood aliases for AI/structured location resolution (Phase 1)
+-- Seoul neighborhood aliases for AI/structured location resolution
 
 insert into public.location_aliases (
   id,

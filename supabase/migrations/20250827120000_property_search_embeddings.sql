@@ -1,4 +1,4 @@
--- Phase 2: property search embeddings (pgvector) + semantic ranking in search_properties_hybrid
+-- Property search embeddings (pgvector) + semantic ranking in search_properties_hybrid
 
 create extension if not exists vector with schema extensions;
 

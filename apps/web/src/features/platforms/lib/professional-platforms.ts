@@ -1,8 +1,4 @@
-/**
- * Professional platforms utilities.
- *
- * Re-exports from model layer for backward compatibility.
- */
+/** @deprecated Import from '../model' instead. */
 
 export type {
   OpenProfessionalPlatform,

@@ -28,7 +28,6 @@ import {
   mapAuditLogRow,
 } from './mappers';
 
-// Re-export isAdminProfile for backward compatibility
 export { isAdminProfile };
 
 export async function fetchAdminDashboardStats(): Promise<AdminDashboardStats> {

@@ -5,7 +5,6 @@ import { mapHostRow } from './mappers';
 import { supabase } from '@/shared/api/supabase';
 import { wrapSupabaseError } from '@/shared/lib/errors';
 
-// Re-export for backwards compatibility
 export { isHostProfile };
 
 export async function registerAsHost(displayName: string): Promise<HostRecord> {

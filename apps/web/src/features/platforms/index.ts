@@ -22,8 +22,5 @@ export { PLATFORMS_BY_KEY, PROFESSIONAL_PLATFORMS } from './model';
 // Utils
 export { getProfessionalPlatform, isPlatformOpen } from './model';
 
-// ============================================================================
-// Backward Compatibility (deprecated aliases)
-// ============================================================================
-
+/** @deprecated Use PROFESSIONAL_PLATFORMS from './model'. */
 export { PROFESSIONAL_PLATFORMS as professionalPlatforms } from './model';

@@ -1,4 +1,4 @@
--- Phase 2: profiles, auth trigger, and RLS
+-- Profiles, auth trigger, and RLS
 
 create type public.user_role as enum ('customer', 'host', 'admin');
 

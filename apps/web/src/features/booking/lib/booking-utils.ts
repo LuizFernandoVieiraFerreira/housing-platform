@@ -14,7 +14,6 @@ import { getStoredCurrency } from '@/i18n/storage';
 import i18n from '@/i18n/index';
 import { AppError, getUserErrorMessage } from '@/shared/lib/result';
 
-// Re-export pure utilities from model layer for backward compatibility
 export { canCancelBooking, canPayBooking, isHoldExpired } from '../model';
 
 /**

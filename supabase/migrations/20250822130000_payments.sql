@@ -1,4 +1,4 @@
--- Phase 6: Toss Payments — payment records, webhook audit, confirmation RPCs
+-- Toss Payments — payment records, webhook audit, confirmation RPCs
 
 create type public.payment_status as enum ('pending', 'confirmed', 'failed', 'cancelled');
 

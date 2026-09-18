@@ -529,7 +529,7 @@ values
   )
 on conflict (id) do nothing;
 
--- Phase 9 seed: demo admin account and housing request leads
+-- Demo admin account and housing request leads
 
 insert into auth.users (
   instance_id,

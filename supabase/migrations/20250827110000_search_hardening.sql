@@ -1,4 +1,4 @@
--- Phase 1: search hardening — amenity/station filters, location aliases, search_properties_hybrid
+-- Search hardening — amenity/station filters, location aliases, search_properties_hybrid
 
 create table public.location_aliases (
   id uuid primary key default gen_random_uuid(),

@@ -271,5 +271,4 @@ export function isPaymentDevMockEnabled(): boolean {
   return !getTossClientKey();
 }
 
-// Re-export from model for backwards compatibility
 export { createDevMockPaymentKey };

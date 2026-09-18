@@ -1,9 +1,4 @@
-/**
- * Filter options re-exports.
- *
- * @deprecated Import from '../model' instead.
- * This file is kept for backward compatibility.
- */
+/** @deprecated Import from '../model' instead. */
 
 export {
   ACCOMMODATION_TYPE_OPTIONS as accommodationTypeOptions,

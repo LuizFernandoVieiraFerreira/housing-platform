@@ -1,4 +1,4 @@
--- Phase 8: in-app notifications — table, RLS, booking hooks
+-- In-app notifications — table, RLS, booking hooks
 
 create type public.notification_type as enum (
   'booking_request',

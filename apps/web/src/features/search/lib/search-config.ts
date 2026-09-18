@@ -1,9 +1,4 @@
-/**
- * Search configuration re-exports.
- *
- * @deprecated Import from '../model' instead.
- * This file is kept for backward compatibility.
- */
+/** @deprecated Import from '../model' instead. */
 
 export {
   getMapSearchSkeletonCount,

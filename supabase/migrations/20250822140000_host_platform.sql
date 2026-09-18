@@ -1,4 +1,4 @@
--- Phase 7: host registration, property location updates, submit validation
+-- Host registration, property location updates, submit validation
 
 create or replace function public.register_as_host(p_display_name text)
 returns public.hosts

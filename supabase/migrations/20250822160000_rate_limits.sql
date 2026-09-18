@@ -1,4 +1,4 @@
--- Phase 10: API rate limiting for booking quotes/holds
+-- API rate limiting for booking quotes/holds
 
 create table public.api_rate_limits (
   bucket text not null,

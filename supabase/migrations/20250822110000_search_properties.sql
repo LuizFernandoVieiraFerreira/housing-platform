@@ -1,4 +1,4 @@
--- Phase 4: search_properties RPC for map/list discovery
+-- search_properties RPC for map/list discovery
 
 create or replace function public.search_properties(
   p_filters jsonb default '{}'::jsonb,
