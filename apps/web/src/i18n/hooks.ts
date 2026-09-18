@@ -1,6 +1,5 @@
 import { useCallback, useSyncExternalStore } from 'react';
 import { useTranslation as useI18nextTranslation } from 'react-i18next';
-import type { TFunction } from 'i18next';
 
 import { DEFAULT_LANGUAGE, type LanguageCode } from '@/i18n/config';
 import i18n, { changeLanguage, getCurrentLanguage } from '@/i18n/index';

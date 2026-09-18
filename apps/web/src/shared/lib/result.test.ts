@@ -354,7 +354,7 @@ describe('Helper functions', () => {
     it('short-circuits on failure', () => {
       const error = new AppError('API_ERROR', 'first error');
       const result = Result.err<AppError>(error);
-      const chained = flatMap(result, (_n: number) => Result.ok('should not reach'));
+      const chained = flatMap(result, () => Result.ok('should not reach'));
 
       expect(isErr(chained) && chained.error).toBe(error);
     });
