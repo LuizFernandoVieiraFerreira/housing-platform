@@ -41,7 +41,7 @@ pnpm db:reset
 
 If a dependency pulls Flyway or Liquibase onto the classpath, disable them (`spring.flyway.enabled=false`, `spring.liquibase.enabled=false`). Do not point them at the shared database “just to baseline.”
 
-REST backends connect with the database owner or service credentials and therefore bypass RLS. That does not make the ORM a second migration system. Authorization stays in the service layer. Integrity stays in PostgreSQL.
+REST backends connect with the database owner or service credentials and therefore bypass RLS. That does not make the ORM a second migration system. Authorization stays in the service layer, mapped from every policy in [authorization-matrix.md](./authorization-matrix.md). Integrity stays in PostgreSQL.
 
 ## Introspection target
 

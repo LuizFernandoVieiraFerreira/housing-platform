@@ -41,3 +41,4 @@ housing-platform/
 
 - [Security Checklist](./security-checklist.md) — Pre-deploy verification
 - [Database ownership](./database-ownership.md) — Migrations, and how Python, Java, and Node reflect the schema
+- [Authorization matrix](./authorization-matrix.md) — Every RLS policy, and the service-layer rule REST backends enforce instead

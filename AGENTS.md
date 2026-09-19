@@ -378,3 +378,4 @@ function BookingPanel() {
 | Logging                 | `apps/web/src/shared/lib/logger.ts`                |
 | Query keys              | `apps/web/src/shared/api/query-keys.ts`            |
 | Schema ownership        | `docs/database-ownership.md`                       |
+| Authorization matrix    | `docs/authorization-matrix.md`                     |
