@@ -31,7 +31,7 @@ housing-platform/
 │   ├── ui/               # Shared UI components (@housing-platform/ui)
 │   ├── utils/            # Shared utilities (@housing-platform/utils)
 │   └── validation/       # Zod schemas (@housing-platform/validation)
-├── supabase/             # Supabase migrations, functions, seed data
+├── supabase/             # SQL migrations (schema source of truth), functions, seed
 └── tests/integration/    # Integration tests
 ```
 
@@ -377,3 +377,4 @@ function BookingPanel() {
 | Error handling          | `apps/web/src/shared/lib/errors.ts`                |
 | Logging                 | `apps/web/src/shared/lib/logger.ts`                |
 | Query keys              | `apps/web/src/shared/api/query-keys.ts`            |
+| Schema ownership        | `docs/database-ownership.md`                       |

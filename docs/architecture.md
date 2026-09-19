@@ -35,7 +35,9 @@ housing-platform/
 3. **Result type for errors** — Explicit error handling instead of exceptions
 4. **Barrel exports** — Features expose public API via index.ts
 5. **No global state** — Server state in TanStack Query, form state in React Hook Form
+6. **One schema owner** — `supabase/migrations/` is the only DDL source. ORM models reflect it.
 
 ## Related Docs
 
 - [Security Checklist](./security-checklist.md) — Pre-deploy verification
+- [Database ownership](./database-ownership.md) — Migrations, and how Python, Java, and Node reflect the schema
