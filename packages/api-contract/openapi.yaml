@@ -1,0 +1,2470 @@
+# Canonical HTTP contract for housing-platform REST backends.
+# Zod schemas in generated/ are derived from this file. Do not treat them as the source of truth.
+openapi: 3.1.0
+info:
+  title: Housing Platform API
+  version: 0.1.0
+  description: |
+    Cross-language contract for the Python, Java, and Node backends.
+    The Supabase client path is separate and is not described here.
+
+    JSON properties are camelCase. Dates are `YYYY-MM-DD`. Timestamps are RFC 3339
+    with a timezone offset. Protected operations require `Authorization: Bearer`
+    with a Supabase Auth JWT. Role checks are enforced in each backend's service
+    layer; this document does not encode row-level security.
+servers:
+  - url: http://localhost:8000
+    description: Local REST backend
+tags:
+  - name: Properties
+  - name: Bookings
+  - name: Payments
+  - name: Hosts
+  - name: Admin
+  - name: Notifications
+  - name: Profile
+security:
+  - bearerAuth: []
+paths:
+  /api/v1/properties:
+    get:
+      tags: [Properties]
+      operationId: searchProperties
+      summary: Search published properties
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/Query'
+        - $ref: '#/components/parameters/PropertyType'
+        - $ref: '#/components/parameters/CheckIn'
+        - $ref: '#/components/parameters/CheckOut'
+        - $ref: '#/components/parameters/Guests'
+        - $ref: '#/components/parameters/PriceMin'
+        - $ref: '#/components/parameters/PriceMax'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/CenterLat'
+        - $ref: '#/components/parameters/CenterLng'
+        - $ref: '#/components/parameters/North'
+        - $ref: '#/components/parameters/South'
+        - $ref: '#/components/parameters/East'
+        - $ref: '#/components/parameters/West'
+        - $ref: '#/components/parameters/AmenitySlugs'
+        - $ref: '#/components/parameters/MaxStationWalkMin'
+        - $ref: '#/components/parameters/ExcludePropertyIds'
+      responses:
+        '200':
+          description: Matching published properties.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PropertySearchResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    post:
+      tags: [Properties]
+      operationId: createProperty
+      summary: Create a draft property
+      description: Caller must be a host. The new property status is `draft`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HostPropertyRequest'
+      responses:
+        '201':
+          description: Draft property created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreatedId'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/properties/{id}:
+    get:
+      tags: [Properties]
+      operationId: getProperty
+      summary: Get a published property
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/PropertyId'
+      responses:
+        '200':
+          description: Published property detail.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PropertyDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    patch:
+      tags: [Properties]
+      operationId: updateProperty
+      summary: Update a host-owned draft or pending property
+      parameters:
+        - $ref: '#/components/parameters/PropertyId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HostPropertyRequest'
+      responses:
+        '200':
+          description: Updated host view of the property.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostPropertyDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/properties/{id}/submit-review:
+    post:
+      tags: [Properties]
+      operationId: submitPropertyForReview
+      summary: Submit a property for review
+      description: Host must own the property. It needs at least one room and a geocoded location.
+      parameters:
+        - $ref: '#/components/parameters/PropertyId'
+      responses:
+        '200':
+          description: Property moved to pending review.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PropertyStatusChange'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/properties/{id}/location:
+    post:
+      tags: [Properties]
+      operationId: setPropertyLocation
+      summary: Set property coordinates
+      parameters:
+        - $ref: '#/components/parameters/PropertyId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetPropertyLocationRequest'
+      responses:
+        '204':
+          description: Coordinates saved.
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/properties/{id}/rooms:
+    post:
+      tags: [Properties]
+      operationId: createRoom
+      summary: Add a room to a host-owned property
+      parameters:
+        - $ref: '#/components/parameters/PropertyId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRoomRequest'
+      responses:
+        '201':
+          description: Room created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostRoom'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/rooms/{roomId}:
+    delete:
+      tags: [Properties]
+      operationId: deleteRoom
+      summary: Delete a room on a host-owned property
+      parameters:
+        - $ref: '#/components/parameters/RoomId'
+      responses:
+        '204':
+          description: Room deleted.
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/amenities:
+    get:
+      tags: [Properties]
+      operationId: listAmenities
+      summary: List amenities
+      security: []
+      responses:
+        '200':
+          description: Amenity catalog.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AmenityList'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/bookings/quote:
+    get:
+      tags: [Bookings]
+      operationId: quoteBooking
+      summary: Get a price quote
+      parameters:
+        - $ref: '#/components/parameters/RoomIdQuery'
+        - $ref: '#/components/parameters/CheckInRequired'
+        - $ref: '#/components/parameters/CheckOutRequired'
+        - $ref: '#/components/parameters/GuestCount'
+      responses:
+        '200':
+          description: Price quote for the stay.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingQuote'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/bookings:
+    get:
+      tags: [Bookings]
+      operationId: listBookings
+      summary: List my bookings
+      responses:
+        '200':
+          description: Bookings owned by the caller.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingList'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    post:
+      tags: [Bookings]
+      operationId: createBooking
+      summary: Create a booking hold
+      description: Check-out must be after check-in. Overlapping stays are rejected.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBookingRequest'
+      responses:
+        '201':
+          description: Booking hold created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/bookings/{id}:
+    get:
+      tags: [Bookings]
+      operationId: getBooking
+      summary: Get one of my bookings
+      parameters:
+        - $ref: '#/components/parameters/BookingId'
+      responses:
+        '200':
+          description: Booking detail for the customer, host, or admin.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/bookings/{id}/cancel:
+    post:
+      tags: [Bookings]
+      operationId: cancelBooking
+      summary: Cancel my booking
+      parameters:
+        - $ref: '#/components/parameters/BookingId'
+      responses:
+        '200':
+          description: Booking cancelled.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/bookings/{id}/approve:
+    post:
+      tags: [Bookings]
+      operationId: approveBooking
+      summary: Approve a booking request
+      description: Caller must be the host of the booking or an admin.
+      parameters:
+        - $ref: '#/components/parameters/BookingId'
+      responses:
+        '200':
+          description: Booking approved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/bookings/{id}/reject:
+    post:
+      tags: [Bookings]
+      operationId: rejectBooking
+      summary: Reject a booking request
+      description: Caller must be the host of the booking or an admin.
+      parameters:
+        - $ref: '#/components/parameters/BookingId'
+      responses:
+        '200':
+          description: Booking rejected.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/payments/orders:
+    post:
+      tags: [Payments]
+      operationId: createPaymentOrder
+      summary: Create a payment order
+      description: Caller must own the booking. The hold must still be active.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePaymentOrderRequest'
+      responses:
+        '201':
+          description: Payment order created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreatePaymentOrderResult'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/payments/confirm:
+    post:
+      tags: [Payments]
+      operationId: confirmPayment
+      summary: Confirm a payment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfirmPaymentRequest'
+      responses:
+        '200':
+          description: Payment confirmation result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfirmPaymentResult'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '502':
+          $ref: '#/components/responses/ExternalServiceError'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/payments/webhook:
+    post:
+      tags: [Payments]
+      operationId: receivePaymentWebhook
+      summary: Receive a Toss payment webhook
+      description: No user JWT. The backend verifies the payment with Toss before changing state.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TossWebhookPayload'
+      responses:
+        '200':
+          description: Webhook accepted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookAck'
+        '502':
+          $ref: '#/components/responses/ExternalServiceError'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/hosts:
+    post:
+      tags: [Hosts]
+      operationId: registerHost
+      summary: Register the current user as a host
+      description: Idempotent for an existing host profile.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterHostRequest'
+      responses:
+        '201':
+          description: Host profile.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Host'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/hosts/me:
+    get:
+      tags: [Hosts]
+      operationId: getCurrentHost
+      summary: Get the current host profile
+      responses:
+        '200':
+          description: Host profile, or null when the user is not a host.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NullableHost'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/hosts/me/properties:
+    get:
+      tags: [Hosts]
+      operationId: listHostProperties
+      summary: List properties owned by the current host
+      responses:
+        '200':
+          description: Host properties, including unpublished ones.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostPropertyList'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/hosts/me/properties/{id}:
+    get:
+      tags: [Hosts]
+      operationId: getHostProperty
+      summary: Get a host-owned property, including drafts
+      parameters:
+        - $ref: '#/components/parameters/PropertyId'
+      responses:
+        '200':
+          description: Host property detail.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostPropertyDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/hosts/me/bookings:
+    get:
+      tags: [Hosts]
+      operationId: listHostBookings
+      summary: List bookings on the current host's properties
+      responses:
+        '200':
+          description: Host booking inbox.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostBookingList'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/admin/stats:
+    get:
+      tags: [Admin]
+      operationId: getAdminStats
+      summary: Admin dashboard counts
+      responses:
+        '200':
+          description: Open work counts.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminDashboardStats'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/admin/properties:
+    get:
+      tags: [Admin]
+      operationId: listAdminProperties
+      summary: List properties for review
+      responses:
+        '200':
+          description: All non-deleted properties.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminPropertyList'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/admin/properties/{id}/publish:
+    post:
+      tags: [Admin]
+      operationId: publishProperty
+      summary: Publish a property
+      parameters:
+        - $ref: '#/components/parameters/PropertyId'
+      responses:
+        '200':
+          description: Property published.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PropertyStatusChange'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/admin/properties/{id}/reject:
+    post:
+      tags: [Admin]
+      operationId: rejectPropertyReview
+      summary: Reject a property review
+      parameters:
+        - $ref: '#/components/parameters/PropertyId'
+      responses:
+        '200':
+          description: Property review rejected.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PropertyStatusChange'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/admin/hosts:
+    get:
+      tags: [Admin]
+      operationId: listAdminHosts
+      summary: List hosts
+      responses:
+        '200':
+          description: Host accounts.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminHostList'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/admin/hosts/{id}/approve:
+    post:
+      tags: [Admin]
+      operationId: approveHost
+      summary: Approve a host
+      parameters:
+        - $ref: '#/components/parameters/HostId'
+      responses:
+        '200':
+          description: Host approved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Host'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/admin/bookings:
+    get:
+      tags: [Admin]
+      operationId: listAdminBookings
+      summary: List bookings
+      responses:
+        '200':
+          description: All bookings.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HostBookingList'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/admin/payments:
+    get:
+      tags: [Admin]
+      operationId: listAdminPayments
+      summary: List payments
+      responses:
+        '200':
+          description: Payment records.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminPaymentList'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/admin/housing-requests:
+    get:
+      tags: [Admin]
+      operationId: listHousingRequests
+      summary: List housing requests
+      responses:
+        '200':
+          description: Customer housing requests.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HousingRequestList'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/admin/housing-requests/{id}:
+    patch:
+      tags: [Admin]
+      operationId: updateHousingRequestStatus
+      summary: Update a housing request status
+      parameters:
+        - $ref: '#/components/parameters/HousingRequestId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateHousingRequestStatusRequest'
+      responses:
+        '200':
+          description: Updated housing request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HousingRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/admin/audit-logs:
+    get:
+      tags: [Admin]
+      operationId: listAuditLogs
+      summary: List audit logs
+      responses:
+        '200':
+          description: Admin audit trail.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditLogList'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/notifications:
+    get:
+      tags: [Notifications]
+      operationId: listNotifications
+      summary: List my notifications
+      responses:
+        '200':
+          description: Newest notifications for the caller.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationList'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/notifications/unread-count:
+    get:
+      tags: [Notifications]
+      operationId: getUnreadNotificationCount
+      summary: Count unread notifications
+      responses:
+        '200':
+          description: Unread count.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnreadNotificationCount'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/notifications/{id}/read:
+    post:
+      tags: [Notifications]
+      operationId: markNotificationRead
+      summary: Mark one notification read
+      parameters:
+        - $ref: '#/components/parameters/NotificationId'
+      responses:
+        '200':
+          description: Updated notification.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/notifications/read-all:
+    post:
+      tags: [Notifications]
+      operationId: markAllNotificationsRead
+      summary: Mark all notifications read
+      responses:
+        '200':
+          description: Number of notifications marked read.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarkAllNotificationsReadResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+  /api/v1/profile:
+    get:
+      tags: [Profile]
+      operationId: getProfile
+      summary: Get the current profile
+      responses:
+        '200':
+          description: Caller profile.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+    patch:
+      tags: [Profile]
+      operationId: updateProfile
+      summary: Update the current profile
+      description: Role cannot be changed through this operation.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileRequest'
+      responses:
+        '200':
+          description: Updated profile.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalError'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Supabase Auth access token.
+  parameters:
+    PropertyId:
+      name: id
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/Uuid'
+    BookingId:
+      name: id
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/Uuid'
+    RoomId:
+      name: roomId
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/Uuid'
+    HostId:
+      name: id
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/Uuid'
+    HousingRequestId:
+      name: id
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/Uuid'
+    NotificationId:
+      name: id
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/Uuid'
+    Query:
+      name: query
+      in: query
+      required: false
+      schema:
+        $ref: '#/components/schemas/PropertySearchQuery/properties/query'
+    PropertyType:
+      name: propertyType
+      in: query
+      required: false
+      schema:
+        $ref: '#/components/schemas/PropertySearchQuery/properties/propertyType'
+    CheckIn:
+      name: checkIn
+      in: query
+      required: false
+      schema:
+        $ref: '#/components/schemas/PropertySearchQuery/properties/checkIn'
+    CheckOut:
+      name: checkOut
+      in: query
+      required: false
+      schema:
+        $ref: '#/components/schemas/PropertySearchQuery/properties/checkOut'
+    Guests:
+      name: guests
+      in: query
+      required: false
+      schema:
+        $ref: '#/components/schemas/PropertySearchQuery/properties/guests'
+    PriceMin:
+      name: priceMin
+      in: query
+      required: false
+      schema:
+        $ref: '#/components/schemas/PropertySearchQuery/properties/priceMin'
+    PriceMax:
+      name: priceMax
+      in: query
+      required: false
+      schema:
+        $ref: '#/components/schemas/PropertySearchQuery/properties/priceMax'
+    Sort:
+      name: sort
+      in: query
+      required: false
+      schema:
+        $ref: '#/components/schemas/PropertySearchQuery/properties/sort'
+    CenterLat:
+      name: centerLat
+      in: query
+      required: false
+      schema:
+        $ref: '#/components/schemas/PropertySearchQuery/properties/centerLat'
+    CenterLng:
+      name: centerLng
+      in: query
+      required: false
+      schema:
+        $ref: '#/components/schemas/PropertySearchQuery/properties/centerLng'
+    North:
+      name: north
+      in: query
+      required: false
+      schema:
+        $ref: '#/components/schemas/PropertySearchQuery/properties/north'
+    South:
+      name: south
+      in: query
+      required: false
+      schema:
+        $ref: '#/components/schemas/PropertySearchQuery/properties/south'
+    East:
+      name: east
+      in: query
+      required: false
+      schema:
+        $ref: '#/components/schemas/PropertySearchQuery/properties/east'
+    West:
+      name: west
+      in: query
+      required: false
+      schema:
+        $ref: '#/components/schemas/PropertySearchQuery/properties/west'
+    AmenitySlugs:
+      name: amenitySlugs
+      in: query
+      required: false
+      style: form
+      explode: true
+      schema:
+        $ref: '#/components/schemas/PropertySearchQuery/properties/amenitySlugs'
+    MaxStationWalkMin:
+      name: maxStationWalkMin
+      in: query
+      required: false
+      schema:
+        $ref: '#/components/schemas/PropertySearchQuery/properties/maxStationWalkMin'
+    ExcludePropertyIds:
+      name: excludePropertyIds
+      in: query
+      required: false
+      style: form
+      explode: true
+      schema:
+        $ref: '#/components/schemas/PropertySearchQuery/properties/excludePropertyIds'
+    RoomIdQuery:
+      name: roomId
+      in: query
+      required: true
+      schema:
+        $ref: '#/components/schemas/Uuid'
+    CheckInRequired:
+      name: checkIn
+      in: query
+      required: true
+      schema:
+        $ref: '#/components/schemas/CalendarDate'
+    CheckOutRequired:
+      name: checkOut
+      in: query
+      required: true
+      schema:
+        $ref: '#/components/schemas/CalendarDate'
+    GuestCount:
+      name: guestCount
+      in: query
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 20
+  responses:
+    BadRequest:
+      description: The request failed validation.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiErrorResponse'
+          example:
+            error:
+              code: VALIDATION_ERROR
+              message: Check-out must be after check-in
+              details: {}
+    Unauthenticated:
+      description: The JWT is missing or invalid.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiErrorResponse'
+    Forbidden:
+      description: The caller is not allowed to perform this action.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiErrorResponse'
+          example:
+            error:
+              code: FORBIDDEN
+              message: Cannot cancel this booking
+              details: {}
+    NotFound:
+      description: The resource does not exist or is not visible to the caller.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiErrorResponse'
+    Conflict:
+      description: The request conflicts with current booking or payment state.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiErrorResponse'
+    RateLimited:
+      description: The caller exceeded the rate limit.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiErrorResponse'
+    ExternalServiceError:
+      description: An upstream provider, such as Toss, failed.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiErrorResponse'
+    InternalError:
+      description: Unexpected server error.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiErrorResponse'
+  schemas:
+    Uuid:
+      type: string
+      format: uuid
+    CalendarDate:
+      type: string
+      format: date
+      description: Calendar date in YYYY-MM-DD form.
+    DateTime:
+      type: string
+      format: date-time
+      description: RFC 3339 timestamp with a timezone offset.
+    NullableDate:
+      anyOf:
+        - $ref: '#/components/schemas/CalendarDate'
+        - type: 'null'
+    NullableDateTime:
+      anyOf:
+        - $ref: '#/components/schemas/DateTime'
+        - type: 'null'
+    JsonObject:
+      type: object
+      additionalProperties: true
+      description: Arbitrary JSON object.
+    ErrorCode:
+      type: string
+      enum:
+        - VALIDATION_ERROR
+        - UNAUTHENTICATED
+        - FORBIDDEN
+        - NOT_FOUND
+        - BOOKING_CONFLICT
+        - BOOKING_EXPIRED
+        - PAYMENT_FAILED
+        - PAYMENT_AMOUNT_MISMATCH
+        - EXTERNAL_SERVICE_ERROR
+        - RATE_LIMITED
+        - INTERNAL_ERROR
+    ApiError:
+      type: object
+      additionalProperties: false
+      required: [code, message]
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          type: string
+          minLength: 1
+        details:
+          $ref: '#/components/schemas/JsonObject'
+    ApiErrorResponse:
+      type: object
+      additionalProperties: false
+      required: [error]
+      properties:
+        error:
+          $ref: '#/components/schemas/ApiError'
+    AccommodationType:
+      type: string
+      enum: [share-house, studio, micro-studio, multi-bedroom]
+    PropertyStatus:
+      type: string
+      enum: [draft, pending_review, published, archived]
+    BookingMode:
+      type: string
+      enum: [instant, request]
+    RoomStatus:
+      type: string
+      enum: [available, unavailable, archived]
+    PropertySearchSort:
+      type: string
+      enum: [recommended, price_asc, price_desc, distance, semantic]
+    PropertySearchQuery:
+      type: object
+      additionalProperties: false
+      description: Check-out must be after check-in, and priceMax must be greater than or equal to priceMin.
+      properties:
+        query:
+          type: string
+          maxLength: 120
+        propertyType:
+          $ref: '#/components/schemas/AccommodationType'
+        checkIn:
+          $ref: '#/components/schemas/CalendarDate'
+        checkOut:
+          $ref: '#/components/schemas/CalendarDate'
+        guests:
+          type: integer
+          minimum: 1
+          maximum: 20
+        priceMin:
+          type: integer
+          minimum: 0
+        priceMax:
+          type: integer
+          minimum: 0
+        sort:
+          $ref: '#/components/schemas/PropertySearchSort'
+        centerLat:
+          type: number
+          minimum: -90
+          maximum: 90
+        centerLng:
+          type: number
+          minimum: -180
+          maximum: 180
+        north:
+          type: number
+          minimum: -90
+          maximum: 90
+        south:
+          type: number
+          minimum: -90
+          maximum: 90
+        east:
+          type: number
+          minimum: -180
+          maximum: 180
+        west:
+          type: number
+          minimum: -180
+          maximum: 180
+        amenitySlugs:
+          type: array
+          items:
+            type: string
+        maxStationWalkMin:
+          type: integer
+          minimum: 1
+          maximum: 120
+        excludePropertyIds:
+          type: array
+          items:
+            $ref: '#/components/schemas/Uuid'
+    PropertyCard:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - title
+        - slug
+        - propertyType
+        - district
+        - nearestStationName
+        - monthlyPriceMin
+        - coverImageUrl
+        - coverImageAlt
+        - tags
+      properties:
+        id:
+          $ref: '#/components/schemas/Uuid'
+        title:
+          type: string
+        slug:
+          type: string
+        propertyType:
+          $ref: '#/components/schemas/AccommodationType'
+        district:
+          type: string
+        nearestStationName:
+          type: [string, 'null']
+        monthlyPriceMin:
+          type: integer
+          minimum: 0
+        coverImageUrl:
+          type: [string, 'null']
+        coverImageAlt:
+          type: [string, 'null']
+        tags:
+          type: array
+          items:
+            type: string
+    SearchPropertyCard:
+      allOf:
+        - $ref: '#/components/schemas/PropertyCard'
+        - type: object
+          additionalProperties: false
+          required: [latitude, longitude, distanceMeters]
+          properties:
+            latitude:
+              type: number
+            longitude:
+              type: number
+            distanceMeters:
+              type: [number, 'null']
+    PropertySearchResult:
+      type: object
+      additionalProperties: false
+      required: [items, totalCount]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchPropertyCard'
+        totalCount:
+          type: integer
+          minimum: 0
+    PropertyImage:
+      type: object
+      additionalProperties: false
+      required: [id, storagePath, url, altText, sortOrder, isCover]
+      properties:
+        id:
+          $ref: '#/components/schemas/Uuid'
+        storagePath:
+          type: string
+        url:
+          type: string
+        altText:
+          type: [string, 'null']
+        sortOrder:
+          type: integer
+        isCover:
+          type: boolean
+    PropertyRoom:
+      type: object
+      additionalProperties: false
+      required: [id, name, roomType, sizeSqm, maxOccupancy, monthlyPriceKrw, status, availableFrom]
+      properties:
+        id:
+          $ref: '#/components/schemas/Uuid'
+        name:
+          type: string
+        roomType:
+          type: [string, 'null']
+        sizeSqm:
+          type: [number, 'null']
+        maxOccupancy:
+          type: integer
+          minimum: 1
+        monthlyPriceKrw:
+          type: integer
+          minimum: 0
+        status:
+          $ref: '#/components/schemas/RoomStatus'
+        availableFrom:
+          $ref: '#/components/schemas/NullableDate'
+    PropertyAmenity:
+      type: object
+      additionalProperties: false
+      required: [id, slug, name, icon]
+      properties:
+        id:
+          $ref: '#/components/schemas/Uuid'
+        slug:
+          type: string
+        name:
+          type: string
+        icon:
+          type: [string, 'null']
+    PropertyDetail:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - title
+        - slug
+        - description
+        - propertyType
+        - district
+        - nearestStationName
+        - nearestStationWalkMin
+        - addressLine1
+        - addressLine2
+        - city
+        - bookingMode
+        - minStayNights
+        - monthlyPriceMin
+        - tags
+        - hostDisplayName
+        - latitude
+        - longitude
+        - images
+        - rooms
+        - amenities
+      properties:
+        id:
+          $ref: '#/components/schemas/Uuid'
+        title:
+          type: string
+        slug:
+          type: string
+        description:
+          type: string
+        propertyType:
+          $ref: '#/components/schemas/AccommodationType'
+        district:
+          type: string
+        nearestStationName:
+          type: [string, 'null']
+        nearestStationWalkMin:
+          type: [integer, 'null']
+        addressLine1:
+          type: string
+        addressLine2:
+          type: [string, 'null']
+        city:
+          type: string
+        bookingMode:
+          $ref: '#/components/schemas/BookingMode'
+        minStayNights:
+          type: integer
+          minimum: 1
+        monthlyPriceMin:
+          type: integer
+          minimum: 0
+        tags:
+          type: array
+          items:
+            type: string
+        hostDisplayName:
+          type: string
+        latitude:
+          type: [number, 'null']
+        longitude:
+          type: [number, 'null']
+        images:
+          type: array
+          items:
+            $ref: '#/components/schemas/PropertyImage'
+        rooms:
+          type: array
+          items:
+            $ref: '#/components/schemas/PropertyRoom'
+        amenities:
+          type: array
+          items:
+            $ref: '#/components/schemas/PropertyAmenity'
+    Amenity:
+      type: object
+      additionalProperties: false
+      required: [id, slug, name]
+      properties:
+        id:
+          $ref: '#/components/schemas/Uuid'
+        slug:
+          type: string
+        name:
+          type: string
+    AmenityList:
+      type: array
+      items:
+        $ref: '#/components/schemas/Amenity'
+    HostPropertyRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - title
+        - description
+        - propertyType
+        - addressLine1
+        - city
+        - district
+        - bookingMode
+        - minStayNights
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 160
+        description:
+          type: string
+          minLength: 20
+          maxLength: 5000
+        propertyType:
+          $ref: '#/components/schemas/AccommodationType'
+        addressLine1:
+          type: string
+          minLength: 1
+          maxLength: 200
+        addressLine2:
+          type: string
+          maxLength: 200
+        city:
+          type: string
+          minLength: 1
+          maxLength: 80
+        postalCode:
+          type: string
+          maxLength: 20
+        district:
+          type: string
+          minLength: 1
+          maxLength: 80
+        nearestStationName:
+          type: string
+          maxLength: 120
+        nearestStationWalkMin:
+          type: integer
+          minimum: 1
+          maximum: 120
+        bookingMode:
+          $ref: '#/components/schemas/BookingMode'
+        minStayNights:
+          type: integer
+          minimum: 1
+          maximum: 365
+        tags:
+          type: array
+          maxItems: 20
+          items:
+            type: string
+            maxLength: 40
+        amenityIds:
+          type: array
+          maxItems: 20
+          default: []
+          items:
+            $ref: '#/components/schemas/Uuid'
+        latitude:
+          type: number
+          minimum: -90
+          maximum: 90
+        longitude:
+          type: number
+          minimum: -180
+          maximum: 180
+    SetPropertyLocationRequest:
+      type: object
+      additionalProperties: false
+      required: [latitude, longitude]
+      properties:
+        latitude:
+          type: number
+          minimum: -90
+          maximum: 90
+        longitude:
+          type: number
+          minimum: -180
+          maximum: 180
+    CreateRoomRequest:
+      type: object
+      additionalProperties: false
+      required: [name, maxOccupancy, monthlyPriceKrw]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        roomType:
+          type: string
+          maxLength: 80
+        sizeSqm:
+          type: number
+          exclusiveMinimum: 0
+          maximum: 500
+        maxOccupancy:
+          type: integer
+          minimum: 1
+          maximum: 20
+        monthlyPriceKrw:
+          type: integer
+          minimum: 100000
+        availableFrom:
+          $ref: '#/components/schemas/CalendarDate'
+    HostRoom:
+      type: object
+      additionalProperties: false
+      required: [id, name, roomType, sizeSqm, maxOccupancy, monthlyPriceKrw, status, availableFrom]
+      properties:
+        id:
+          $ref: '#/components/schemas/Uuid'
+        name:
+          type: string
+        roomType:
+          type: [string, 'null']
+        sizeSqm:
+          type: [number, 'null']
+        maxOccupancy:
+          type: integer
+          minimum: 1
+        monthlyPriceKrw:
+          type: integer
+          minimum: 0
+        status:
+          $ref: '#/components/schemas/RoomStatus'
+        availableFrom:
+          $ref: '#/components/schemas/NullableDate'
+    HostPropertyListItem:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - title
+        - slug
+        - propertyType
+        - district
+        - status
+        - bookingMode
+        - monthlyPriceMin
+        - roomCount
+        - updatedAt
+      properties:
+        id:
+          $ref: '#/components/schemas/Uuid'
+        title:
+          type: string
+        slug:
+          type: string
+        propertyType:
+          $ref: '#/components/schemas/AccommodationType'
+        district:
+          type: string
+        status:
+          $ref: '#/components/schemas/PropertyStatus'
+        bookingMode:
+          $ref: '#/components/schemas/BookingMode'
+        monthlyPriceMin:
+          type: [integer, 'null']
+        roomCount:
+          type: integer
+          minimum: 0
+        updatedAt:
+          $ref: '#/components/schemas/DateTime'
+    HostPropertyList:
+      type: array
+      items:
+        $ref: '#/components/schemas/HostPropertyListItem'
+    HostPropertyDetail:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - title
+        - slug
+        - description
+        - propertyType
+        - addressLine1
+        - addressLine2
+        - city
+        - postalCode
+        - district
+        - nearestStationName
+        - nearestStationWalkMin
+        - status
+        - bookingMode
+        - minStayNights
+        - tags
+        - latitude
+        - longitude
+        - amenityIds
+        - rooms
+      properties:
+        id:
+          $ref: '#/components/schemas/Uuid'
+        title:
+          type: string
+        slug:
+          type: string
+        description:
+          type: string
+        propertyType:
+          $ref: '#/components/schemas/AccommodationType'
+        addressLine1:
+          type: string
+        addressLine2:
+          type: [string, 'null']
+        city:
+          type: string
+        postalCode:
+          type: [string, 'null']
+        district:
+          type: string
+        nearestStationName:
+          type: [string, 'null']
+        nearestStationWalkMin:
+          type: [integer, 'null']
+        status:
+          $ref: '#/components/schemas/PropertyStatus'
+        bookingMode:
+          $ref: '#/components/schemas/BookingMode'
+        minStayNights:
+          type: integer
+          minimum: 1
+        tags:
+          type: array
+          items:
+            type: string
+        latitude:
+          type: [number, 'null']
+        longitude:
+          type: [number, 'null']
+        amenityIds:
+          type: array
+          items:
+            $ref: '#/components/schemas/Uuid'
+        rooms:
+          type: array
+          items:
+            $ref: '#/components/schemas/HostRoom'
+    CreatedId:
+      type: object
+      additionalProperties: false
+      required: [id]
+      properties:
+        id:
+          $ref: '#/components/schemas/Uuid'
+    PropertyStatusChange:
+      type: object
+      additionalProperties: false
+      required: [id, status]
+      properties:
+        id:
+          $ref: '#/components/schemas/Uuid'
+        status:
+          $ref: '#/components/schemas/PropertyStatus'
+    BookingStatus:
+      type: string
+      enum:
+        - requested
+        - pending_payment
+        - expired
+        - confirmed
+        - payment_failed
+        - active
+        - completed
+        - cancelled
+        - rejected
+    BookingType:
+      type: string
+      enum: [instant, request]
+    BookingQuote:
+      type: object
+      additionalProperties: false
+      required:
+        [roomId, propertyId, bookingMode, nights, rentKrw, serviceFeeKrw, totalKrw, pricingVersion]
+      properties:
+        roomId:
+          $ref: '#/components/schemas/Uuid'
+        propertyId:
+          $ref: '#/components/schemas/Uuid'
+        bookingMode:
+          $ref: '#/components/schemas/BookingMode'
+        nights:
+          type: integer
+          minimum: 1
+        rentKrw:
+          type: integer
+          minimum: 0
+        serviceFeeKrw:
+          type: integer
+          minimum: 0
+        totalKrw:
+          type: integer
+          minimum: 0
+        pricingVersion:
+          type: string
+    CreateBookingRequest:
+      type: object
+      additionalProperties: false
+      required: [roomId, checkIn, checkOut, guestCount]
+      properties:
+        roomId:
+          $ref: '#/components/schemas/Uuid'
+        checkIn:
+          $ref: '#/components/schemas/CalendarDate'
+        checkOut:
+          $ref: '#/components/schemas/CalendarDate'
+        guestCount:
+          type: integer
+          minimum: 1
+          maximum: 20
+        customerNotes:
+          type: string
+          maxLength: 500
+    Booking:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - customerId
+        - roomId
+        - propertyId
+        - checkIn
+        - checkOut
+        - guestCount
+        - status
+        - bookingType
+        - holdExpiresAt
+        - customerNotes
+        - approvedAt
+        - approvedBy
+        - cancelledAt
+        - paymentRetryCount
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          $ref: '#/components/schemas/Uuid'
+        customerId:
+          $ref: '#/components/schemas/Uuid'
+        roomId:
+          $ref: '#/components/schemas/Uuid'
+        propertyId:
+          $ref: '#/components/schemas/Uuid'
+        checkIn:
+          $ref: '#/components/schemas/CalendarDate'
+        checkOut:
+          $ref: '#/components/schemas/CalendarDate'
+        guestCount:
+          type: integer
+          minimum: 1
+        status:
+          $ref: '#/components/schemas/BookingStatus'
+        bookingType:
+          $ref: '#/components/schemas/BookingType'
+        holdExpiresAt:
+          $ref: '#/components/schemas/NullableDateTime'
+        customerNotes:
+          type: [string, 'null']
+        approvedAt:
+          $ref: '#/components/schemas/NullableDateTime'
+        approvedBy:
+          anyOf:
+            - $ref: '#/components/schemas/Uuid'
+            - type: 'null'
+        cancelledAt:
+          $ref: '#/components/schemas/NullableDateTime'
+        paymentRetryCount:
+          type: integer
+          minimum: 0
+        createdAt:
+          $ref: '#/components/schemas/DateTime'
+        updatedAt:
+          $ref: '#/components/schemas/DateTime'
+    BookingListItem:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - status
+        - bookingType
+        - checkIn
+        - checkOut
+        - guestCount
+        - propertyTitle
+        - district
+        - roomName
+        - totalKrw
+        - holdExpiresAt
+        - createdAt
+      properties:
+        id:
+          $ref: '#/components/schemas/Uuid'
+        status:
+          $ref: '#/components/schemas/BookingStatus'
+        bookingType:
+          $ref: '#/components/schemas/BookingType'
+        checkIn:
+          $ref: '#/components/schemas/CalendarDate'
+        checkOut:
+          $ref: '#/components/schemas/CalendarDate'
+        guestCount:
+          type: integer
+          minimum: 1
+        propertyTitle:
+          type: string
+        district:
+          type: string
+        roomName:
+          type: string
+        totalKrw:
+          type: integer
+          minimum: 0
+        holdExpiresAt:
+          $ref: '#/components/schemas/NullableDateTime'
+        createdAt:
+          $ref: '#/components/schemas/DateTime'
+    BookingList:
+      type: array
+      items:
+        $ref: '#/components/schemas/BookingListItem'
+    BookingDetail:
+      allOf:
+        - $ref: '#/components/schemas/BookingListItem'
+        - type: object
+          additionalProperties: false
+          required:
+            - customerNotes
+            - rentKrw
+            - serviceFeeKrw
+            - serviceFeePercent
+            - pricingVersion
+            - propertyId
+            - roomId
+          properties:
+            customerNotes:
+              type: [string, 'null']
+            rentKrw:
+              type: integer
+              minimum: 0
+            serviceFeeKrw:
+              type: integer
+              minimum: 0
+            serviceFeePercent:
+              type: number
+              minimum: 0
+            pricingVersion:
+              type: string
+            propertyId:
+              $ref: '#/components/schemas/Uuid'
+            roomId:
+              $ref: '#/components/schemas/Uuid'
+    PaymentStatus:
+      type: string
+      enum: [pending, confirmed, failed, cancelled]
+    CreatePaymentOrderRequest:
+      type: object
+      additionalProperties: false
+      required: [bookingId]
+      properties:
+        bookingId:
+          $ref: '#/components/schemas/Uuid'
+    ConfirmPaymentRequest:
+      type: object
+      additionalProperties: false
+      required: [paymentKey, orderId, amount]
+      properties:
+        paymentKey:
+          type: string
+          minLength: 1
+        orderId:
+          $ref: '#/components/schemas/Uuid'
+        amount:
+          type: integer
+          minimum: 1
+    CreatePaymentOrderResult:
+      type: object
+      additionalProperties: false
+      required: [paymentId, orderId, bookingId, amountKrw, orderName]
+      properties:
+        paymentId:
+          $ref: '#/components/schemas/Uuid'
+        orderId:
+          $ref: '#/components/schemas/Uuid'
+        bookingId:
+          $ref: '#/components/schemas/Uuid'
+        amountKrw:
+          type: integer
+          minimum: 1
+        orderName:
+          type: string
+    ConfirmPaymentResult:
+      type: object
+      additionalProperties: false
+      required: [paymentId, orderId, bookingId, status]
+      properties:
+        paymentId:
+          $ref: '#/components/schemas/Uuid'
+        orderId:
+          $ref: '#/components/schemas/Uuid'
+        bookingId:
+          anyOf:
+            - $ref: '#/components/schemas/Uuid'
+            - type: 'null'
+        status:
+          $ref: '#/components/schemas/PaymentStatus'
+    TossWebhookPayload:
+      type: object
+      additionalProperties: true
+      properties:
+        eventType:
+          type: string
+        createdAt:
+          $ref: '#/components/schemas/DateTime'
+        data:
+          $ref: '#/components/schemas/JsonObject'
+    WebhookAck:
+      type: object
+      additionalProperties: false
+      required: [ok, status]
+      properties:
+        ok:
+          type: boolean
+        status:
+          type: string
+          enum: [confirmed, failed, ignored, already_confirmed]
+    RegisterHostRequest:
+      type: object
+      additionalProperties: false
+      required: [displayName]
+      properties:
+        displayName:
+          type: string
+          minLength: 1
+          maxLength: 120
+    HostStatus:
+      type: string
+      enum: [pending, active, suspended]
+    Host:
+      type: object
+      additionalProperties: false
+      required: [id, profileId, displayName, status, verifiedAt, createdAt, updatedAt]
+      properties:
+        id:
+          $ref: '#/components/schemas/Uuid'
+        profileId:
+          $ref: '#/components/schemas/Uuid'
+        displayName:
+          type: string
+        status:
+          $ref: '#/components/schemas/HostStatus'
+        verifiedAt:
+          $ref: '#/components/schemas/NullableDateTime'
+        createdAt:
+          $ref: '#/components/schemas/DateTime'
+        updatedAt:
+          $ref: '#/components/schemas/DateTime'
+    NullableHost:
+      anyOf:
+        - $ref: '#/components/schemas/Host'
+        - type: 'null'
+    UserRole:
+      type: string
+      enum: [customer, host, admin]
+    Profile:
+      type: object
+      additionalProperties: false
+      required:
+        [
+          id,
+          role,
+          fullName,
+          phone,
+          avatarUrl,
+          preferredLanguage,
+          marketingConsent,
+          createdAt,
+          updatedAt,
+        ]
+      properties:
+        id:
+          $ref: '#/components/schemas/Uuid'
+        role:
+          $ref: '#/components/schemas/UserRole'
+        fullName:
+          type: string
+        phone:
+          type: [string, 'null']
+        avatarUrl:
+          type: [string, 'null']
+        preferredLanguage:
+          type: string
+        marketingConsent:
+          type: boolean
+        createdAt:
+          $ref: '#/components/schemas/DateTime'
+        updatedAt:
+          $ref: '#/components/schemas/DateTime'
+    UpdateProfileRequest:
+      type: object
+      additionalProperties: false
+      required: [fullName, preferredLanguage, marketingConsent]
+      properties:
+        fullName:
+          type: string
+          minLength: 1
+          maxLength: 120
+        phone:
+          type: string
+          maxLength: 30
+        preferredLanguage:
+          type: string
+          minLength: 2
+          maxLength: 10
+        marketingConsent:
+          type: boolean
+        avatarUrl:
+          type: string
+          format: uri
+    NotificationType:
+      type: string
+      enum: [booking_request, booking_confirmed, booking_rejected]
+    Notification:
+      type: object
+      additionalProperties: false
+      required: [id, userId, type, title, body, metadata, readAt, createdAt]
+      properties:
+        id:
+          $ref: '#/components/schemas/Uuid'
+        userId:
+          $ref: '#/components/schemas/Uuid'
+        type:
+          $ref: '#/components/schemas/NotificationType'
+        title:
+          type: string
+        body:
+          type: string
+        metadata:
+          $ref: '#/components/schemas/JsonObject'
+        readAt:
+          $ref: '#/components/schemas/NullableDateTime'
+        createdAt:
+          $ref: '#/components/schemas/DateTime'
+    NotificationList:
+      type: array
+      items:
+        $ref: '#/components/schemas/Notification'
+    UnreadNotificationCount:
+      type: object
+      additionalProperties: false
+      required: [count]
+      properties:
+        count:
+          type: integer
+          minimum: 0
+    MarkAllNotificationsReadResult:
+      type: object
+      additionalProperties: false
+      required: [updatedCount]
+      properties:
+        updatedCount:
+          type: integer
+          minimum: 0
+    AdminDashboardStats:
+      type: object
+      additionalProperties: false
+      required: [pendingProperties, pendingHosts, openBookings, openHousingRequests]
+      properties:
+        pendingProperties:
+          type: integer
+          minimum: 0
+        pendingHosts:
+          type: integer
+          minimum: 0
+        openBookings:
+          type: integer
+          minimum: 0
+        openHousingRequests:
+          type: integer
+          minimum: 0
+    AdminHost:
+      type: object
+      additionalProperties: false
+      required: [id, displayName, status, profileName, verifiedAt, createdAt]
+      properties:
+        id:
+          $ref: '#/components/schemas/Uuid'
+        displayName:
+          type: string
+        status:
+          $ref: '#/components/schemas/HostStatus'
+        profileName:
+          type: string
+        verifiedAt:
+          $ref: '#/components/schemas/NullableDateTime'
+        createdAt:
+          $ref: '#/components/schemas/DateTime'
+    AdminHostList:
+      type: array
+      items:
+        $ref: '#/components/schemas/AdminHost'
+    AdminProperty:
+      allOf:
+        - $ref: '#/components/schemas/HostPropertyListItem'
+        - type: object
+          additionalProperties: false
+          required: [hostDisplayName]
+          properties:
+            hostDisplayName:
+              type: string
+    AdminPropertyList:
+      type: array
+      items:
+        $ref: '#/components/schemas/AdminProperty'
+    AdminPayment:
+      type: object
+      additionalProperties: false
+      required:
+        [
+          id,
+          orderId,
+          bookingId,
+          amountKrw,
+          status,
+          propertyTitle,
+          customerName,
+          confirmedAt,
+          createdAt,
+        ]
+      properties:
+        id:
+          $ref: '#/components/schemas/Uuid'
+        orderId:
+          $ref: '#/components/schemas/Uuid'
+        bookingId:
+          $ref: '#/components/schemas/Uuid'
+        amountKrw:
+          type: integer
+          minimum: 0
+        status:
+          $ref: '#/components/schemas/PaymentStatus'
+        propertyTitle:
+          type: [string, 'null']
+        customerName:
+          type: [string, 'null']
+        confirmedAt:
+          $ref: '#/components/schemas/NullableDateTime'
+        createdAt:
+          $ref: '#/components/schemas/DateTime'
+    AdminPaymentList:
+      type: array
+      items:
+        $ref: '#/components/schemas/AdminPayment'
+    HousingRequestStatus:
+      type: string
+      enum: [new, in_progress, closed]
+    HousingRequest:
+      type: object
+      additionalProperties: false
+      required:
+        [
+          id,
+          email,
+          desiredArea,
+          checkIn,
+          checkOut,
+          budgetMax,
+          accommodationType,
+          notes,
+          status,
+          createdAt,
+        ]
+      properties:
+        id:
+          $ref: '#/components/schemas/Uuid'
+        email:
+          type: string
+          format: email
+        desiredArea:
+          type: string
+        checkIn:
+          $ref: '#/components/schemas/NullableDate'
+        checkOut:
+          $ref: '#/components/schemas/NullableDate'
+        budgetMax:
+          type: [integer, 'null']
+        accommodationType:
+          anyOf:
+            - $ref: '#/components/schemas/AccommodationType'
+            - type: 'null'
+        notes:
+          type: [string, 'null']
+        status:
+          $ref: '#/components/schemas/HousingRequestStatus'
+        createdAt:
+          $ref: '#/components/schemas/DateTime'
+    HousingRequestList:
+      type: array
+      items:
+        $ref: '#/components/schemas/HousingRequest'
+    UpdateHousingRequestStatusRequest:
+      type: object
+      additionalProperties: false
+      required: [status]
+      properties:
+        status:
+          $ref: '#/components/schemas/HousingRequestStatus'
+    AuditLog:
+      type: object
+      additionalProperties: false
+      required: [id, action, entityType, entityId, actorName, metadata, createdAt]
+      properties:
+        id:
+          $ref: '#/components/schemas/Uuid'
+        action:
+          type: string
+        entityType:
+          type: string
+        entityId:
+          anyOf:
+            - $ref: '#/components/schemas/Uuid'
+            - type: 'null'
+        actorName:
+          type: string
+        metadata:
+          $ref: '#/components/schemas/JsonObject'
+        createdAt:
+          $ref: '#/components/schemas/DateTime'
+    AuditLogList:
+      type: array
+      items:
+        $ref: '#/components/schemas/AuditLog'
+    HostBooking:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - status
+        - bookingType
+        - checkIn
+        - checkOut
+        - guestCount
+        - customerNotes
+        - propertyTitle
+        - roomName
+        - totalKrw
+        - createdAt
+      properties:
+        id:
+          $ref: '#/components/schemas/Uuid'
+        status:
+          $ref: '#/components/schemas/BookingStatus'
+        bookingType:
+          $ref: '#/components/schemas/BookingType'
+        checkIn:
+          $ref: '#/components/schemas/CalendarDate'
+        checkOut:
+          $ref: '#/components/schemas/CalendarDate'
+        guestCount:
+          type: integer
+          minimum: 1
+        customerNotes:
+          type: [string, 'null']
+        propertyTitle:
+          type: string
+        roomName:
+          type: string
+        totalKrw:
+          type: integer
+          minimum: 0
+        createdAt:
+          $ref: '#/components/schemas/DateTime'
+    HostBookingList:
+      type: array
+      items:
+        $ref: '#/components/schemas/HostBooking'
