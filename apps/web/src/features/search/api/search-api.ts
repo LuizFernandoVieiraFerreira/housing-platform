@@ -4,7 +4,7 @@ import type {
   PropertySearchResult,
 } from '@housing-platform/types';
 
-import { supabase } from '@/shared/api/supabase';
+import { registerApiRoute } from '@/shared/api/client';
 import { wrapSupabaseError } from '@/shared/lib/errors';
 
 import type { PropertyCoordinatesRow, PropertyDetailRow, SearchPropertyRow } from '../model';
@@ -12,34 +12,58 @@ import { filtersToRpcPayload, SEARCH_RESULTS_PAGE_SIZE } from '../model';
 
 import { extractCoordinateRow, mapPropertyDetail, mapSearchProperty } from './mappers';
 
-export async function searchProperties(
+interface SearchPropertiesBody {
+  filters: PropertySearchFilters;
+  limit: number;
+  offset: number;
+}
+
+const searchPropertiesRequest = registerApiRoute<PropertySearchResult>(
+  'search',
+  'GET',
+  '/properties',
+  async ({ client, body }) => {
+    const { filters, limit, offset } = body as SearchPropertiesBody;
+    const { data, error } = await client.rpc('search_properties', {
+      p_filters: filtersToRpcPayload(filters),
+      p_limit: limit,
+      p_offset: offset,
+    });
+
+    if (error) {
+      throw wrapSupabaseError(error, 'Unable to search properties');
+    }
+
+    const rows = (data ?? []) as SearchPropertyRow[];
+
+    return {
+      items: rows.map(mapSearchProperty),
+      totalCount: rows[0]?.total_count ?? 0,
+    };
+  },
+);
+
+export function searchProperties(
   filters: PropertySearchFilters,
   limit = SEARCH_RESULTS_PAGE_SIZE,
   offset = 0,
 ): Promise<PropertySearchResult> {
-  const { data, error } = await supabase.rpc('search_properties', {
-    p_filters: filtersToRpcPayload(filters),
-    p_limit: limit,
-    p_offset: offset,
+  return searchPropertiesRequest({
+    body: { filters, limit, offset },
+    anonymous: true,
   });
-
-  if (error) {
-    throw wrapSupabaseError(error, 'Unable to search properties');
-  }
-
-  const rows = (data ?? []) as SearchPropertyRow[];
-
-  return {
-    items: rows.map(mapSearchProperty),
-    totalCount: rows[0]?.total_count ?? 0,
-  };
 }
 
-export async function fetchPropertyDetail(propertyId: string): Promise<PropertyDetail | null> {
-  const { data, error } = await supabase
-    .from('properties')
-    .select(
-      `
+const fetchPropertyDetailRequest = registerApiRoute<PropertyDetail | null>(
+  'properties',
+  'GET',
+  '/properties/:id',
+  async ({ client, params }) => {
+    const propertyId = params.id ?? '';
+    const { data, error } = await client
+      .from('properties')
+      .select(
+        `
         id,
         title,
         slug,
@@ -83,32 +107,37 @@ export async function fetchPropertyDetail(propertyId: string): Promise<PropertyD
           )
         )
       `,
-    )
-    .eq('id', propertyId)
-    .eq('status', 'published')
-    .maybeSingle();
+      )
+      .eq('id', propertyId)
+      .eq('status', 'published')
+      .maybeSingle();
 
-  if (error) {
-    throw wrapSupabaseError(error, 'Unable to load property details');
-  }
+    if (error) {
+      throw wrapSupabaseError(error, 'Unable to load property details');
+    }
 
-  if (!data) {
-    return null;
-  }
+    if (!data) {
+      return null;
+    }
 
-  const row = data as unknown as PropertyDetailRow;
+    const row = data as unknown as PropertyDetailRow;
 
-  const { data: coordinates, error: coordinatesError } = await supabase.rpc(
-    'get_property_coordinates',
-    { p_property_id: propertyId },
-  );
+    const { data: coordinates, error: coordinatesError } = await client.rpc(
+      'get_property_coordinates',
+      { p_property_id: propertyId },
+    );
 
-  if (coordinatesError) {
-    throw wrapSupabaseError(coordinatesError, 'Unable to load property location');
-  }
+    if (coordinatesError) {
+      throw wrapSupabaseError(coordinatesError, 'Unable to load property location');
+    }
 
-  return mapPropertyDetail(
-    row,
-    extractCoordinateRow(coordinates as PropertyCoordinatesRow[] | null),
-  );
+    return mapPropertyDetail(row, extractCoordinateRow(coordinates as PropertyCoordinatesRow[] | null));
+  },
+);
+
+export function fetchPropertyDetail(propertyId: string): Promise<PropertyDetail | null> {
+  return fetchPropertyDetailRequest({
+    params: { id: propertyId },
+    anonymous: true,
+  });
 }

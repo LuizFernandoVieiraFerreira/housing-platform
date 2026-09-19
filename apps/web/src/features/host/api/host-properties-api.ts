@@ -1,3 +1,6 @@
+import type { SupabaseClient } from '@supabase/supabase-js';
+import type { Database } from '@housing-platform/types';
+
 import type {
   AmenityOption,
   HostBookingListItem,
@@ -28,14 +31,18 @@ import {
 
 import { submitPropertyForReview } from '@/features/listings/api/properties-api';
 import { fetchCurrentHost } from '@/features/host/api/host-api';
-import { supabase } from '@/shared/api/supabase';
+import { registerApiRoute } from '@/shared/api/client';
 import { AppError, wrapSupabaseError } from '@/shared/lib/errors';
 
-export async function fetchHostProperties(): Promise<HostPropertyListItem[]> {
-  const { data, error } = await supabase
-    .from('properties')
-    .select(
-      `
+export const fetchHostProperties = registerApiRoute<HostPropertyListItem[]>(
+  'hosts',
+  'GET',
+  '/hosts/me/properties',
+  async ({ client }) => {
+    const { data, error } = await client
+      .from('properties')
+      .select(
+        `
         id,
         title,
         slug,
@@ -47,35 +54,46 @@ export async function fetchHostProperties(): Promise<HostPropertyListItem[]> {
         updated_at,
         rooms ( id )
       `,
-    )
-    .is('deleted_at', null)
-    .order('updated_at', { ascending: false });
+      )
+      .is('deleted_at', null)
+      .order('updated_at', { ascending: false });
 
-  if (error) {
-    throw wrapSupabaseError(error, 'Unable to load your properties');
-  }
+    if (error) {
+      throw wrapSupabaseError(error, 'Unable to load your properties');
+    }
 
-  return mapPropertyListRows((data ?? []) as HostPropertyListRow[]);
-}
+    return mapPropertyListRows((data ?? []) as HostPropertyListRow[]);
+  },
+);
 
-export async function fetchAmenities(): Promise<AmenityOption[]> {
-  const { data, error } = await supabase
-    .from('amenities')
-    .select('id, slug, name')
-    .order('sort_order', { ascending: true });
+export const fetchAmenities = registerApiRoute<AmenityOption[]>(
+  'hosts',
+  'GET',
+  '/amenities',
+  async ({ client }) => {
+    const { data, error } = await client
+      .from('amenities')
+      .select('id, slug, name')
+      .order('sort_order', { ascending: true });
 
-  if (error) {
-    throw wrapSupabaseError(error, 'Unable to load amenities');
-  }
+    if (error) {
+      throw wrapSupabaseError(error, 'Unable to load amenities');
+    }
 
-  return mapAmenityOptionRows((data ?? []) as AmenityOptionRow[]);
-}
+    return mapAmenityOptionRows((data ?? []) as AmenityOptionRow[]);
+  },
+);
 
-export async function fetchHostProperty(propertyId: string): Promise<HostPropertyDetail | null> {
-  const { data, error } = await supabase
-    .from('properties')
-    .select(
-      `
+const fetchHostPropertyRequest = registerApiRoute<HostPropertyDetail | null>(
+  'hosts',
+  'GET',
+  '/hosts/me/properties/:id',
+  async ({ client, params }) => {
+    const propertyId = params.id ?? '';
+    const { data, error } = await client
+      .from('properties')
+      .select(
+        `
         id,
         title,
         slug,
@@ -105,96 +123,66 @@ export async function fetchHostProperty(propertyId: string): Promise<HostPropert
           available_from
         )
       `,
-    )
-    .eq('id', propertyId)
-    .is('deleted_at', null)
-    .maybeSingle();
+      )
+      .eq('id', propertyId)
+      .is('deleted_at', null)
+      .maybeSingle();
 
-  if (error) {
-    throw wrapSupabaseError(error, 'Unable to load property details');
-  }
+    if (error) {
+      throw wrapSupabaseError(error, 'Unable to load property details');
+    }
 
-  if (!data) {
-    return null;
-  }
+    if (!data) {
+      return null;
+    }
 
-  const { data: coordinates } = await supabase.rpc('get_host_property_coordinates', {
-    p_property_id: propertyId,
-  });
+    const { data: coordinates } = await client.rpc('get_host_property_coordinates', {
+      p_property_id: propertyId,
+    });
 
-  return mapPropertyDetailRow(
-    data as HostPropertyDetailRow,
-    extractCoordinateRow(coordinates),
-  );
+    return mapPropertyDetailRow(data as HostPropertyDetailRow, extractCoordinateRow(coordinates));
+  },
+);
+
+export function fetchHostProperty(propertyId: string): Promise<HostPropertyDetail | null> {
+  return fetchHostPropertyRequest({ params: { id: propertyId } });
 }
 
-export async function createHostProperty(input: HostPropertyInput): Promise<string> {
-  const slug = createPropertySlug(input.title);
-  const host = await fetchCurrentHost();
+const setPropertyLocationRequest = registerApiRoute<void>(
+  'hosts',
+  'POST',
+  '/properties/:id/location',
+  async ({ client, params, body }) => {
+    const { latitude, longitude } = body as { latitude: number; longitude: number };
+    const { error } = await client.rpc('set_property_location', {
+      p_property_id: params.id,
+      p_latitude: latitude,
+      p_longitude: longitude,
+    });
 
-  if (!host) {
-    throw new AppError('FORBIDDEN', 'Host profile is required before creating listings');
-  }
+    if (error) {
+      throw wrapSupabaseError(error, 'Unable to set property location');
+    }
+  },
+);
 
-  const { data, error } = await supabase
-    .from('properties')
-    .insert(toCreateHostPropertyPayload(input, host.id, slug))
-    .select('id')
-    .single();
-
-  if (error) {
-    throw wrapSupabaseError(error, 'Unable to create listing');
-  }
-
-  const propertyId = data.id as string;
-
-  if (input.latitude != null && input.longitude != null) {
-    await setPropertyLocation(propertyId, input.latitude, input.longitude);
-  }
-
-  await syncPropertyAmenities(propertyId, input.amenityIds);
-
-  return propertyId;
-}
-
-export async function updateHostProperty(
-  propertyId: string,
-  input: HostPropertyInput,
-): Promise<void> {
-  const { error } = await supabase
-    .from('properties')
-    .update(toHostPropertyPayload(input))
-    .eq('id', propertyId);
-
-  if (error) {
-    throw wrapSupabaseError(error, 'Unable to update listing');
-  }
-
-  if (input.latitude != null && input.longitude != null) {
-    await setPropertyLocation(propertyId, input.latitude, input.longitude);
-  }
-
-  await syncPropertyAmenities(propertyId, input.amenityIds);
-}
-
-export async function setPropertyLocation(
+export function setPropertyLocation(
   propertyId: string,
   latitude: number,
   longitude: number,
 ): Promise<void> {
-  const { error } = await supabase.rpc('set_property_location', {
-    p_property_id: propertyId,
-    p_latitude: latitude,
-    p_longitude: longitude,
+  return setPropertyLocationRequest({
+    params: { id: propertyId },
+    body: { latitude, longitude },
   });
-
-  if (error) {
-    throw wrapSupabaseError(error, 'Unable to set property location');
-  }
 }
 
-async function syncPropertyAmenities(propertyId: string, amenityIds: string[]): Promise<void> {
-  const { error: deleteError } = await supabase
+async function syncPropertyAmenities(
+  client: SupabaseClient<Database>,
+  propertyId: string,
+  amenityIds: string[],
+): Promise<void> {
+  const { error: deleteError } = await client
     .from('property_amenities')
     .delete()
     .eq('property_id', propertyId);
@@ -207,7 +195,7 @@ async function syncPropertyAmenities(propertyId: string, amenityIds: string[]): 
     return;
   }
 
-  const { error: insertError } = await supabase
+  const { error: insertError } = await client
     .from('property_amenities')
     .insert(toPropertyAmenityRows(propertyId, amenityIds));
 
@@ -216,42 +204,129 @@ async function syncPropertyAmenities(propertyId: string, amenityIds: string[]): 
   }
 }
 
-export async function createHostRoom(
-  propertyId: string,
-  input: HostRoomInput,
-): Promise<HostRoomDetail> {
-  const { data, error } = await supabase
-    .from('rooms')
-    .insert(toHostRoomInsertPayload(propertyId, input))
-    .select(
-      'id, name, room_type, size_sqm, max_occupancy, monthly_price_krw, status, available_from',
-    )
-    .single();
+const createHostPropertyRequest = registerApiRoute<string>(
+  'hosts',
+  'POST',
+  '/properties',
+  async ({ client, body }) => {
+    const input = body as HostPropertyInput;
+    const slug = createPropertySlug(input.title);
+    const host = await fetchCurrentHost();
 
-  if (error) {
-    throw wrapSupabaseError(error, 'Unable to create room');
-  }
+    if (!host) {
+      throw new AppError('FORBIDDEN', 'Host profile is required before creating listings');
+    }
 
-  return mapRoomRow(data as HostRoomRow);
+    const { data, error } = await client
+      .from('properties')
+      .insert(toCreateHostPropertyPayload(input, host.id, slug))
+      .select('id')
+      .single();
+
+    if (error) {
+      throw wrapSupabaseError(error, 'Unable to create listing');
+    }
+
+    const propertyId = data.id as string;
+
+    if (input.latitude != null && input.longitude != null) {
+      await setPropertyLocation(propertyId, input.latitude, input.longitude);
+    }
+
+    await syncPropertyAmenities(client, propertyId, input.amenityIds);
+
+    return propertyId;
+  },
+);
+
+export function createHostProperty(input: HostPropertyInput): Promise<string> {
+  return createHostPropertyRequest({ body: input });
 }
 
-export async function deleteHostRoom(roomId: string): Promise<void> {
-  const { error } = await supabase.from('rooms').delete().eq('id', roomId);
+const updateHostPropertyRequest = registerApiRoute<void>(
+  'hosts',
+  'PATCH',
+  '/properties/:id',
+  async ({ client, params, body }) => {
+    const input = body as HostPropertyInput;
+    const propertyId = params.id ?? '';
+    const { error } = await client
+      .from('properties')
+      .update(toHostPropertyPayload(input))
+      .eq('id', propertyId);
 
-  if (error) {
-    throw wrapSupabaseError(error, 'Unable to delete room');
-  }
+    if (error) {
+      throw wrapSupabaseError(error, 'Unable to update listing');
+    }
+
+    if (input.latitude != null && input.longitude != null) {
+      await setPropertyLocation(propertyId, input.latitude, input.longitude);
+    }
+
+    await syncPropertyAmenities(client, propertyId, input.amenityIds);
+  },
+);
+
+export function updateHostProperty(propertyId: string, input: HostPropertyInput): Promise<void> {
+  return updateHostPropertyRequest({ params: { id: propertyId }, body: input });
 }
 
-export async function submitHostPropertyForReview(propertyId: string) {
+const createHostRoomRequest = registerApiRoute<HostRoomDetail>(
+  'hosts',
+  'POST',
+  '/properties/:id/rooms',
+  async ({ client, params, body }) => {
+    const input = body as HostRoomInput;
+    const { data, error } = await client
+      .from('rooms')
+      .insert(toHostRoomInsertPayload(params.id ?? '', input))
+      .select(
+        'id, name, room_type, size_sqm, max_occupancy, monthly_price_krw, status, available_from',
+      )
+      .single();
+
+    if (error) {
+      throw wrapSupabaseError(error, 'Unable to create room');
+    }
+
+    return mapRoomRow(data as HostRoomRow);
+  },
+);
+
+export function createHostRoom(propertyId: string, input: HostRoomInput): Promise<HostRoomDetail> {
+  return createHostRoomRequest({ params: { id: propertyId }, body: input });
+}
+
+const deleteHostRoomRequest = registerApiRoute<void>(
+  'hosts',
+  'DELETE',
+  '/rooms/:roomId',
+  async ({ client, params }) => {
+    const { error } = await client.from('rooms').delete().eq('id', params.roomId ?? '');
+
+    if (error) {
+      throw wrapSupabaseError(error, 'Unable to delete room');
+    }
+  },
+);
+
+export function deleteHostRoom(roomId: string): Promise<void> {
+  return deleteHostRoomRequest({ params: { roomId } });
+}
+
+export function submitHostPropertyForReview(propertyId: string) {
   return submitPropertyForReview(propertyId);
 }
 
-export async function fetchHostBookings(): Promise<HostBookingListItem[]> {
-  const { data, error } = await supabase
-    .from('bookings')
-    .select(
-      `
+export const fetchHostBookings = registerApiRoute<HostBookingListItem[]>(
+  'hosts',
+  'GET',
+  '/hosts/me/bookings',
+  async ({ client }) => {
+    const { data, error } = await client
+      .from('bookings')
+      .select(
+        `
         id,
         status,
         booking_type,
@@ -264,36 +339,55 @@ export async function fetchHostBookings(): Promise<HostBookingListItem[]> {
         rooms ( name ),
         booking_price_snapshots ( total_krw )
       `,
-    )
-    .order('created_at', { ascending: false });
+      )
+      .order('created_at', { ascending: false });
 
-  if (error) {
-    throw wrapSupabaseError(error, 'Unable to load bookings');
-  }
+    if (error) {
+      throw wrapSupabaseError(error, 'Unable to load bookings');
+    }
 
-  return mapBookingRows((data ?? []) as HostBookingRow[]);
+    return mapBookingRows((data ?? []) as HostBookingRow[]);
+  },
+);
+
+const approveHostBookingRequest = registerApiRoute<unknown>(
+  'hosts',
+  'POST',
+  '/bookings/:id/approve',
+  async ({ client, params }) => {
+    const { data, error } = await client.rpc('approve_booking_request', {
+      p_booking_id: params.id,
+    });
+
+    if (error) {
+      throw wrapSupabaseError(error, 'Unable to approve booking');
+    }
+
+    return data;
+  },
+);
+
+export function approveHostBooking(bookingId: string) {
+  return approveHostBookingRequest({ params: { id: bookingId } });
 }
 
-export async function approveHostBooking(bookingId: string) {
-  const { data, error } = await supabase.rpc('approve_booking_request', {
-    p_booking_id: bookingId,
-  });
+const rejectHostBookingRequest = registerApiRoute<unknown>(
+  'hosts',
+  'POST',
+  '/bookings/:id/reject',
+  async ({ client, params }) => {
+    const { data, error } = await client.rpc('reject_booking_request', {
+      p_booking_id: params.id,
+    });
 
-  if (error) {
-    throw wrapSupabaseError(error, 'Unable to approve booking');
-  }
+    if (error) {
+      throw wrapSupabaseError(error, 'Unable to reject booking');
+    }
 
-  return data;
-}
+    return data;
+  },
+);
 
-export async function rejectHostBooking(bookingId: string) {
-  const { data, error } = await supabase.rpc('reject_booking_request', {
-    p_booking_id: bookingId,
-  });
-
-  if (error) {
-    throw wrapSupabaseError(error, 'Unable to reject booking');
-  }
-
-  return data;
+export function rejectHostBooking(bookingId: string) {
+  return rejectHostBookingRequest({ params: { id: bookingId } });
 }

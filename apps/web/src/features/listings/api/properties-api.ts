@@ -1,14 +1,18 @@
-import { supabase } from '@/shared/api/supabase';
+import { registerApiRoute } from '@/shared/api/client';
 import { wrapSupabaseError } from '@/shared/lib/errors';
 
 import type { FeaturedPropertyCard, FeaturedPropertyRow } from '../model';
 import { mapFeaturedPropertyRow } from './mappers';
 
-export async function fetchFeaturedProperties(): Promise<FeaturedPropertyCard[]> {
-  const { data, error } = await supabase
-    .from('properties')
-    .select(
-      `
+const fetchFeaturedPropertiesRequest = registerApiRoute<FeaturedPropertyCard[]>(
+  'properties',
+  'GET',
+  '/properties/featured',
+  async ({ client }) => {
+    const { data, error } = await client
+      .from('properties')
+      .select(
+        `
         id,
         title,
         slug,
@@ -24,29 +28,43 @@ export async function fetchFeaturedProperties(): Promise<FeaturedPropertyCard[]>
           sort_order
         )
       `,
-    )
-    .eq('status', 'published')
-    .eq('is_featured', true)
-    .order('published_at', { ascending: false })
-    .limit(8);
+      )
+      .eq('status', 'published')
+      .eq('is_featured', true)
+      .order('published_at', { ascending: false })
+      .limit(8);
 
-  if (error) {
-    throw wrapSupabaseError(error, 'Unable to load featured properties');
-  }
+    if (error) {
+      throw wrapSupabaseError(error, 'Unable to load featured properties');
+    }
 
-  return ((data ?? []) as FeaturedPropertyRow[])
-    .map(mapFeaturedPropertyRow)
-    .filter((property): property is FeaturedPropertyCard => property !== null);
+    return ((data ?? []) as FeaturedPropertyRow[])
+      .map(mapFeaturedPropertyRow)
+      .filter((property): property is FeaturedPropertyCard => property !== null);
+  },
+);
+
+export function fetchFeaturedProperties(): Promise<FeaturedPropertyCard[]> {
+  return fetchFeaturedPropertiesRequest({ anonymous: true });
 }
 
-export async function submitPropertyForReview(propertyId: string) {
-  const { data, error } = await supabase.rpc('submit_property_for_review', {
-    p_property_id: propertyId,
-  });
+const submitPropertyForReviewRequest = registerApiRoute<unknown>(
+  'properties',
+  'POST',
+  '/properties/:id/submit-review',
+  async ({ client, params }) => {
+    const { data, error } = await client.rpc('submit_property_for_review', {
+      p_property_id: params.id,
+    });
 
-  if (error) {
-    throw wrapSupabaseError(error, 'Unable to submit property for review');
-  }
+    if (error) {
+      throw wrapSupabaseError(error, 'Unable to submit property for review');
+    }
 
-  return data;
+    return data;
+  },
+);
+
+export function submitPropertyForReview(propertyId: string) {
+  return submitPropertyForReviewRequest({ params: { id: propertyId } });
 }

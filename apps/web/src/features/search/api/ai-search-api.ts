@@ -4,7 +4,7 @@ import type {
   ApiErrorResponse,
 } from '@housing-platform/types';
 
-import { supabase } from '@/shared/api/supabase';
+import { registerApiRoute } from '@/shared/api/client';
 import { AppError } from '@/shared/lib/errors';
 
 import type { AiSearchFunctionResponse } from '../model';
@@ -30,25 +30,33 @@ async function parseFunctionError(error: unknown, fallbackMessage: string): Prom
   return AppError.from(error, 'API_ERROR');
 }
 
-export async function aiPropertySearch(
-  request: AiPropertySearchRequest,
-): Promise<AiPropertySearchResponse> {
-  const { data, error } = await supabase.functions.invoke('ai-property-search', {
-    body: request,
-  });
+const aiPropertySearchRequest = registerApiRoute<AiPropertySearchResponse>(
+  'search',
+  'POST',
+  '/properties/ai-search',
+  async ({ client, body }) => {
+    const request = body as AiPropertySearchRequest;
+    const { data, error } = await client.functions.invoke('ai-property-search', {
+      body: request,
+    });
 
-  if (error) {
-    throw await parseFunctionError(error, 'Unable to run smart search.');
-  }
+    if (error) {
+      throw await parseFunctionError(error, 'Unable to run smart search.');
+    }
 
-  if (
-    typeof data === 'object' &&
-    data !== null &&
-    'error' in data &&
-    typeof (data as ApiErrorResponse).error?.message === 'string'
-  ) {
-    throw new AppError('API_ERROR', (data as ApiErrorResponse).error.message);
-  }
+    if (
+      typeof data === 'object' &&
+      data !== null &&
+      'error' in data &&
+      typeof (data as ApiErrorResponse).error?.message === 'string'
+    ) {
+      throw new AppError('API_ERROR', (data as ApiErrorResponse).error.message);
+    }
 
-  return mapAiSearchResponse(data as AiSearchFunctionResponse);
+    return mapAiSearchResponse(data as AiSearchFunctionResponse);
+  },
+);
+
+export function aiPropertySearch(request: AiPropertySearchRequest): Promise<AiPropertySearchResponse> {
+  return aiPropertySearchRequest({ body: request, anonymous: true });
 }

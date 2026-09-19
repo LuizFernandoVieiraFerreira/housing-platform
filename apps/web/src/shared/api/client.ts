@@ -21,13 +21,19 @@
 import { AppError } from '@/shared/lib/errors';
 
 import { createRestAdapter } from './adapters/rest-adapter';
-import { createSupabaseAdapter } from './adapters/supabase-adapter';
 import {
+  createSupabaseAdapter,
+  registerSupabaseRoute,
+  type SupabaseRouteHandler,
+} from './adapters/supabase-adapter';
+import {
+  type AdapterRequest,
   type ApiFeature,
   type BackendAdapter,
   type BackendConfig,
   type BackendEnv,
   type BackendKind,
+  type HttpMethod,
   DEFAULT_API_BASE_URL,
   DEFAULT_BACKEND,
   isBackendKind,
@@ -96,6 +102,35 @@ export function getApiClient(feature: ApiFeature, env?: BackendEnv): BackendAdap
 /** Drops cached adapters. Does not unregister Supabase route handlers. */
 export function resetApiClients(): void {
   adapters.clear();
+}
+
+type ApiRouteCall<T> = (
+  request?: Partial<Pick<AdapterRequest, 'params' | 'query' | 'body' | 'anonymous'>>,
+) => Promise<T>;
+
+/**
+ * Registers the Supabase implementation of an API route and returns the caller
+ * feature modules export. The caller always goes through `getApiClient`, so the
+ * default `supabase` backend keeps the handler's PostgREST, RPC, or Edge
+ * Function behavior.
+ */
+export function registerApiRoute<T>(
+  feature: ApiFeature,
+  method: HttpMethod,
+  path: string,
+  handler: SupabaseRouteHandler,
+): ApiRouteCall<T> {
+  registerSupabaseRoute(method, path, handler);
+
+  return (request) =>
+    getApiClient(feature).request<T>({
+      method,
+      path,
+      params: request?.params,
+      query: request?.query,
+      body: request?.body,
+      anonymous: request?.anonymous,
+    });
 }
 
 function createAdapter(kind: BackendKind, config: BackendConfig): BackendAdapter {

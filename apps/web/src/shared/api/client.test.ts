@@ -2,11 +2,13 @@ import { afterEach, describe, expect, it } from 'vitest';
 
 import { AppError } from '@/shared/lib/errors';
 
-import { resetApiClients, getApiClient, readBackendConfig, resolveBackend } from './client';
+import { resetApiClients, getApiClient, readBackendConfig, registerApiRoute, resolveBackend } from './client';
+import { clearSupabaseRoutes } from './adapters/supabase-adapter';
 
 describe('api client', () => {
   afterEach(() => {
     resetApiClients();
+    clearSupabaseRoutes();
   });
 
   describe('readBackendConfig', () => {
@@ -93,6 +95,20 @@ describe('api client', () => {
 
       expect(second).not.toBe(first);
       expect(second.kind).toBe('supabase');
+    });
+  });
+
+  describe('registerApiRoute', () => {
+    it('dispatches the default backend through the registered Supabase handler', async () => {
+      const loadProfile = registerApiRoute<{ id: string }>(
+        'profile',
+        'GET',
+        '/profile',
+        async () => ({ id: 'user-1' }),
+      );
+
+      await expect(loadProfile()).resolves.toEqual({ id: 'user-1' });
+      expect(getApiClient('profile').kind).toBe('supabase');
     });
   });
 });

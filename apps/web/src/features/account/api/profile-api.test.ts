@@ -1,12 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { fromMock } = vi.hoisted(() => ({
+const { fromMock, getUserMock } = vi.hoisted(() => ({
   fromMock: vi.fn(),
+  getUserMock: vi.fn(),
 }));
 
 vi.mock('@/shared/api/supabase', () => ({
   supabase: {
     from: fromMock,
+    auth: {
+      getUser: getUserMock,
+    },
   },
 }));
 
@@ -28,6 +32,8 @@ const profileRow = {
 describe('profile-api', () => {
   beforeEach(() => {
     fromMock.mockReset();
+    getUserMock.mockReset();
+    getUserMock.mockResolvedValue({ data: { user: { id: 'user-1' } }, error: null });
   });
 
   describe('fetchCurrentProfile', () => {

@@ -1,5 +1,5 @@
-import { supabase } from '@/shared/api/supabase';
-import { AppError, wrapSupabaseError } from '@/shared/lib/errors';
+import { getApiClient } from '@/shared/api/client';
+import { AppError } from '@/shared/lib/errors';
 
 import type { ChannelBootResult } from '../model';
 import { mapChannelBootResult } from './mappers';
@@ -10,13 +10,10 @@ export function getChannelPluginKey(): string | null {
 }
 
 export async function fetchChannelBoot(): Promise<ChannelBootResult> {
-  const { data, error } = await supabase.functions.invoke('channel-boot', {
+  const data = await getApiClient('auth').request<unknown>({
     method: 'GET',
+    path: '/support/channel-boot',
   });
-
-  if (error) {
-    throw wrapSupabaseError(error, 'Unable to initialize chat support');
-  }
 
   const bootResult = mapChannelBootResult(data);
 
