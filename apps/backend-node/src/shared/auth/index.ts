@@ -1,0 +1,11 @@
+export { AuthModule } from './auth.module';
+export { AuthUser, UserRole, isAdminUser } from './auth-user.model';
+export type { AuthenticatedRequest, JwtClaims } from './auth.types';
+export { AuthorizationService } from './authorization.service';
+export { JwtValidatorService } from './jwt-validator.service';
+export { AuthGuard } from './auth.guard';
+export { OptionalAuthGuard } from './optional-auth.guard';
+export { AdminGuard } from './admin.guard';
+export { CurrentUser } from './current-user.decorator';
+export { Public } from './public.decorator';
+export { extractBearerToken } from './extract-bearer-token';

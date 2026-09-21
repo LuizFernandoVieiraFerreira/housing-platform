@@ -4,6 +4,7 @@ import { NestFactory } from '@nestjs/core';
 
 import { AppModule } from './app.module';
 import type { AppConfiguration } from './config/configuration';
+import { AppErrorFilter } from './shared/errors';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
@@ -12,6 +13,7 @@ async function bootstrap(): Promise<void> {
   const corsOrigins = config.get('corsOrigins', { infer: true });
   const port = config.get('port', { infer: true });
 
+  app.useGlobalFilters(new AppErrorFilter());
   app.setGlobalPrefix(apiPrefix);
   app.enableCors({
     origin: corsOrigins,
