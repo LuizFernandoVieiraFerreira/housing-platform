@@ -1,0 +1,53 @@
+package com.housingplatform.features.profile;
+
+import com.housingplatform.shared.auth.error.NotFoundException;
+import com.housingplatform.shared.auth.model.AuthenticatedUser;
+import com.housingplatform.persistence.repository.ProfileRepository;
+import com.housingplatform.features.profile.dto.ProfileDto;
+import com.housingplatform.features.profile.dto.UpdateProfileRequest;
+import com.housingplatform.features.profile.mapper.ProfileMapper;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+public class ProfileService {
+
+  private final ProfileRepository profileRepository;
+
+  public ProfileService(ProfileRepository profileRepository) {
+    this.profileRepository = profileRepository;
+  }
+
+  @Transactional(readOnly = true)
+  public ProfileDto getProfile(AuthenticatedUser user) {
+    return profileRepository
+        .findActiveById(user.id())
+        .map(ProfileMapper::toDto)
+        .orElseThrow(() -> new NotFoundException("Profile not found"));
+  }
+
+  @Transactional
+  public ProfileDto updateProfile(AuthenticatedUser user, UpdateProfileRequest request) {
+    String phone = request.phone() == null || request.phone().isBlank() ? null : request.phone().strip();
+    String avatarUrl =
+        request.avatarUrl() == null || request.avatarUrl().isBlank()
+            ? null
+            : request.avatarUrl().strip();
+
+    if (profileRepository.updateActiveProfile(
+            user.id(),
+            request.fullName().strip(),
+            phone,
+            request.preferredLanguage().strip(),
+            request.marketingConsent(),
+            avatarUrl)
+        == 0) {
+      throw new NotFoundException("Profile not found");
+    }
+
+    return profileRepository
+        .findActiveById(user.id())
+        .map(ProfileMapper::toDto)
+        .orElseThrow(() -> new NotFoundException("Profile not found"));
+  }
+}

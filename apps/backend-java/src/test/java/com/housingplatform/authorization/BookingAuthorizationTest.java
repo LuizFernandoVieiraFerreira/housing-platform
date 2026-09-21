@@ -10,17 +10,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.housingplatform.api.error.GlobalExceptionHandler;
-import com.housingplatform.auth.jwt.SupabaseJwtValidator;
-import com.housingplatform.auth.model.AuthenticatedUser;
-import com.housingplatform.auth.security.SecurityConfig;
-import com.housingplatform.auth.security.SupabaseJwtAuthenticationFilter;
-import com.housingplatform.auth.support.TestJwtFactory;
-import com.housingplatform.bookings.BookingController;
-import com.housingplatform.bookings.BookingNotificationService;
-import com.housingplatform.bookings.BookingPricingService;
-import com.housingplatform.bookings.BookingService;
-import com.housingplatform.bookings.BookingValidationService;
-import com.housingplatform.bookings.model.BookingListView;
+import com.housingplatform.shared.auth.jwt.SupabaseJwtValidator;
+import com.housingplatform.shared.auth.model.AuthenticatedUser;
+import com.housingplatform.shared.auth.security.SecurityConfig;
+import com.housingplatform.shared.auth.security.SupabaseJwtAuthenticationFilter;
+import com.housingplatform.shared.auth.support.TestJwtFactory;
+import com.housingplatform.features.bookings.BookingController;
+import com.housingplatform.features.bookings.BookingNotificationService;
+import com.housingplatform.features.bookings.BookingPricingService;
+import com.housingplatform.features.bookings.BookingService;
+import com.housingplatform.features.bookings.BookingValidationService;
+import com.housingplatform.features.bookings.model.BookingListView;
 import com.housingplatform.config.AppProperties;
 import com.housingplatform.persistence.entity.Booking;
 import com.housingplatform.persistence.enums.BookingStatus;

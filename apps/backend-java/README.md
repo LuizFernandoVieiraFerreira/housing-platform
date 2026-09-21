@@ -2,7 +2,7 @@
 
 Spring Boot + JPA backend that reflects the shared Supabase PostgreSQL schema.
 
-**Architecture:** Feature packages own controllers, services, DTOs, and mappers; all persistence lives under `persistence/repository/` (Spring Data JPA interfaces + custom `*Impl` classes for native SQL). See [`docs/services/backend-java/architecture.md`](../../docs/services/backend-java/architecture.md).
+**Architecture:** Feature packages under `features/` own controllers, services, DTOs, and mappers; all persistence lives under `persistence/repository/` (Spring Data JPA interfaces + custom `*Impl` classes for native SQL). See [`docs/services/backend-java/architecture.md`](../../docs/services/backend-java/architecture.md).
 
 **Schema ownership:** Supabase SQL migrations in `supabase/migrations/` are the only DDL source. This app does not use Flyway, Liquibase, or Hibernate schema update/create modes.
 

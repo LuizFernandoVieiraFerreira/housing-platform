@@ -1,6 +1,6 @@
 package com.housingplatform.api.error;
 
-import com.housingplatform.auth.error.AppException;
+import com.housingplatform.shared.auth.error.AppException;
 import java.util.Map;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;

@@ -11,17 +11,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.housingplatform.api.error.GlobalExceptionHandler;
-import com.housingplatform.auth.jwt.SupabaseJwtValidator;
-import com.housingplatform.auth.model.AuthenticatedUser;
-import com.housingplatform.auth.security.SecurityConfig;
-import com.housingplatform.auth.security.SupabaseJwtAuthenticationFilter;
-import com.housingplatform.auth.support.TestJwtFactory;
+import com.housingplatform.shared.auth.jwt.SupabaseJwtValidator;
+import com.housingplatform.shared.auth.model.AuthenticatedUser;
+import com.housingplatform.shared.auth.security.SecurityConfig;
+import com.housingplatform.shared.auth.security.SupabaseJwtAuthenticationFilter;
+import com.housingplatform.shared.auth.support.TestJwtFactory;
 import com.housingplatform.config.AppProperties;
 import com.housingplatform.persistence.entity.Property;
 import com.housingplatform.persistence.enums.PropertyStatus;
-import com.housingplatform.properties.PropertyController;
+import com.housingplatform.features.properties.PropertyController;
 import com.housingplatform.persistence.repository.PropertyRepository;
-import com.housingplatform.properties.PropertyService;
+import com.housingplatform.features.properties.PropertyService;
 import com.housingplatform.shared.StorageUrlResolver;
 import java.util.List;
 import java.util.Optional;
@@ -67,7 +67,7 @@ class PropertyAuthorizationTest {
 
   @MockitoBean private PropertyRepository propertyRepository;
 
-  @MockitoBean private com.housingplatform.properties.PropertySearchService propertySearchService;
+  @MockitoBean private com.housingplatform.features.properties.PropertySearchService propertySearchService;
 
   @MockitoBean private com.housingplatform.persistence.repository.ProfileRepository profileRepository;
 
@@ -104,7 +104,7 @@ class PropertyAuthorizationTest {
   @Test
   void searchDelegatesToRepositoryWithoutAuth() throws Exception {
     when(propertySearchService.search(any()))
-        .thenReturn(new com.housingplatform.properties.dto.PropertySearchResult(List.of(), 0));
+        .thenReturn(new com.housingplatform.features.properties.dto.PropertySearchResult(List.of(), 0));
 
     mockMvc
         .perform(get(AuthorizationMvcTestSupport.API + "/properties"))

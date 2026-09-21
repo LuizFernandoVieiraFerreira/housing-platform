@@ -2,9 +2,9 @@ package com.housingplatform.authorization;
 
 import static org.mockito.Mockito.when;
 
-import com.housingplatform.auth.model.AuthenticatedUser;
-import com.housingplatform.auth.support.TestJwtFactory;
-import com.housingplatform.auth.support.TestProfiles;
+import com.housingplatform.shared.auth.model.AuthenticatedUser;
+import com.housingplatform.shared.auth.support.TestJwtFactory;
+import com.housingplatform.shared.auth.support.TestProfiles;
 import com.housingplatform.persistence.enums.UserRole;
 import com.housingplatform.persistence.repository.ProfileRepository;
 import java.util.Optional;

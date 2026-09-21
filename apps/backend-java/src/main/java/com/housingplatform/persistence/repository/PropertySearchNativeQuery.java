@@ -2,7 +2,7 @@ package com.housingplatform.persistence.repository;
 
 import com.housingplatform.persistence.enums.AccommodationType;
 import com.housingplatform.persistence.repository.PropertyRepositoryCustom.SearchPropertyRow;
-import com.housingplatform.properties.model.PropertySearchCriteria;
+import com.housingplatform.features.properties.model.PropertySearchCriteria;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import java.util.ArrayList;

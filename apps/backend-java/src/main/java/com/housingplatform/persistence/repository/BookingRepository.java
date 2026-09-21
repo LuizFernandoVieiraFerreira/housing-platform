@@ -1,6 +1,6 @@
 package com.housingplatform.persistence.repository;
 
-import com.housingplatform.bookings.model.BookingListView;
+import com.housingplatform.features.bookings.model.BookingListView;
 import com.housingplatform.persistence.entity.Booking;
 import com.housingplatform.persistence.enums.BookingStatus;
 import jakarta.persistence.LockModeType;
@@ -41,7 +41,7 @@ public interface BookingRepository extends JpaRepository<Booking, UUID> {
 
   @Query(
       """
-      SELECT new com.housingplatform.bookings.model.BookingListView(
+      SELECT new com.housingplatform.features.bookings.model.BookingListView(
         b.id,
         b.customerId,
         b.status,
@@ -73,7 +73,7 @@ public interface BookingRepository extends JpaRepository<Booking, UUID> {
 
   @Query(
       """
-      SELECT new com.housingplatform.bookings.model.BookingListView(
+      SELECT new com.housingplatform.features.bookings.model.BookingListView(
         b.id,
         b.customerId,
         b.status,

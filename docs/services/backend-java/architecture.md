@@ -12,14 +12,16 @@ Controller  →  Service  →  Repository (Spring Data)  →  Entity
 
 | Layer | Location | Responsibility |
 | --- | --- | --- |
-| Controller | `{feature}/` | HTTP routing, validation, auth guard |
-| Service | `{feature}/` | Business rules, authorization, orchestration, transactions |
+| Controller | `features/{feature}/` | HTTP routing, validation, auth guard |
+| Service | `features/{feature}/` | Business rules, authorization, orchestration, transactions |
 | Repository | `persistence/repository/` | One Spring Data interface per entity; custom impl only for native SQL |
 | Entity | `persistence/entity/` | JPA mapping of shared PostgreSQL schema (read-only generation + manual write helpers) |
-| DTO | `{feature}/dto/` | OpenAPI request/response shapes |
-| Mapper | `{feature}/mapper/` | Entity/projection → DTO |
+| DTO | `features/{feature}/dto/` | OpenAPI request/response shapes |
+| Mapper | `features/{feature}/mapper/` | Entity/projection → DTO |
 
-Feature packages (`bookings/`, `properties/`, `hosts/`, …) own controllers, services, DTOs, and mappers. They do **not** own repository classes.
+Feature packages under `features/` (`bookings/`, `properties/`, `hosts/`, …) own controllers, services, DTOs, and mappers. They do **not** own repository classes.
+
+Cross-cutting code lives under `shared/` (`auth/`, utilities) and `config/`. Authentication, JWT validation, security filters, and app exceptions are in `shared/auth/`.
 
 ## Spring Data JPA conventions
 

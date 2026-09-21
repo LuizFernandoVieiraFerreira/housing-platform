@@ -1,15 +1,15 @@
 package com.housingplatform.persistence.repository;
 
 import com.housingplatform.persistence.entity.Amenity;
-import com.housingplatform.properties.model.PropertySearchCriteria;
+import com.housingplatform.features.properties.model.PropertySearchCriteria;
 import com.housingplatform.persistence.entity.Property;
 import com.housingplatform.persistence.entity.PropertyImage;
 import com.housingplatform.persistence.entity.Room;
 import com.housingplatform.persistence.enums.PropertyStatus;
 import com.housingplatform.persistence.enums.RoomStatus;
-import com.housingplatform.properties.dto.CreateRoomRequest;
-import com.housingplatform.properties.dto.HostPropertyRequest;
-import com.housingplatform.properties.mapper.PropertyMapper;
+import com.housingplatform.features.properties.dto.CreateRoomRequest;
+import com.housingplatform.features.properties.dto.HostPropertyRequest;
+import com.housingplatform.features.properties.mapper.PropertyMapper;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;

@@ -1,15 +1,15 @@
 package com.housingplatform.contract;
 
-import com.housingplatform.admin.AdminController;
+import com.housingplatform.features.admin.AdminController;
 import com.housingplatform.api.HealthController;
-import com.housingplatform.bookings.BookingController;
-import com.housingplatform.hosts.HostController;
-import com.housingplatform.notifications.NotificationController;
-import com.housingplatform.payments.PaymentController;
-import com.housingplatform.profile.ProfileController;
-import com.housingplatform.properties.AmenityController;
-import com.housingplatform.properties.PropertyController;
-import com.housingplatform.properties.RoomController;
+import com.housingplatform.features.bookings.BookingController;
+import com.housingplatform.features.hosts.HostController;
+import com.housingplatform.features.notifications.NotificationController;
+import com.housingplatform.features.payments.PaymentController;
+import com.housingplatform.features.profile.ProfileController;
+import com.housingplatform.features.properties.AmenityController;
+import com.housingplatform.features.properties.PropertyController;
+import com.housingplatform.features.properties.RoomController;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;

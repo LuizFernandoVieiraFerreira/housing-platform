@@ -8,16 +8,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.housingplatform.api.error.GlobalExceptionHandler;
-import com.housingplatform.auth.jwt.SupabaseJwtValidator;
-import com.housingplatform.auth.model.AuthenticatedUser;
-import com.housingplatform.auth.security.SecurityConfig;
-import com.housingplatform.auth.security.SupabaseJwtAuthenticationFilter;
-import com.housingplatform.auth.service.AuthorizationService;
-import com.housingplatform.auth.support.TestJwtFactory;
-import com.housingplatform.bookings.BookingController;
+import com.housingplatform.shared.auth.jwt.SupabaseJwtValidator;
+import com.housingplatform.shared.auth.model.AuthenticatedUser;
+import com.housingplatform.shared.auth.security.SecurityConfig;
+import com.housingplatform.shared.auth.security.SupabaseJwtAuthenticationFilter;
+import com.housingplatform.shared.auth.service.AuthorizationService;
+import com.housingplatform.shared.auth.support.TestJwtFactory;
+import com.housingplatform.features.bookings.BookingController;
 import com.housingplatform.config.AppProperties;
-import com.housingplatform.payments.PaymentController;
-import com.housingplatform.payments.PaymentService;
+import com.housingplatform.features.payments.PaymentController;
+import com.housingplatform.features.payments.PaymentService;
 import com.housingplatform.persistence.enums.UserRole;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -112,7 +112,7 @@ class ContractTest {
 
     @Autowired private MockMvc mockMvc;
 
-    @MockitoBean private com.housingplatform.bookings.BookingService bookingService;
+    @MockitoBean private com.housingplatform.features.bookings.BookingService bookingService;
 
     @MockitoBean private AuthorizationService authorizationService;
 

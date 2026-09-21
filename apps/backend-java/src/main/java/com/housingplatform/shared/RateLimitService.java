@@ -1,6 +1,6 @@
 package com.housingplatform.shared;
 
-import com.housingplatform.auth.error.RateLimitedException;
+import com.housingplatform.shared.auth.error.RateLimitedException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.hibernate.exception.GenericJDBCException;

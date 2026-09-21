@@ -1,8 +1,8 @@
 package com.housingplatform.persistence.repository;
 
-import com.housingplatform.auth.error.BadRequestException;
-import com.housingplatform.auth.error.BookingExpiredException;
-import com.housingplatform.auth.error.ForbiddenException;
+import com.housingplatform.shared.auth.error.BadRequestException;
+import com.housingplatform.shared.auth.error.BookingExpiredException;
+import com.housingplatform.shared.auth.error.ForbiddenException;
 import com.housingplatform.persistence.enums.PaymentStatus;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;

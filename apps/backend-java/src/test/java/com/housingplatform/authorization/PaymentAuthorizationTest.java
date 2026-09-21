@@ -7,17 +7,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.housingplatform.api.error.GlobalExceptionHandler;
-import com.housingplatform.auth.jwt.SupabaseJwtValidator;
-import com.housingplatform.auth.model.AuthenticatedUser;
-import com.housingplatform.auth.security.SecurityConfig;
-import com.housingplatform.auth.security.SupabaseJwtAuthenticationFilter;
-import com.housingplatform.auth.support.TestJwtFactory;
+import com.housingplatform.shared.auth.jwt.SupabaseJwtValidator;
+import com.housingplatform.shared.auth.model.AuthenticatedUser;
+import com.housingplatform.shared.auth.security.SecurityConfig;
+import com.housingplatform.shared.auth.security.SupabaseJwtAuthenticationFilter;
+import com.housingplatform.shared.auth.support.TestJwtFactory;
 import com.housingplatform.config.AppProperties;
-import com.housingplatform.payments.PaymentController;
+import com.housingplatform.features.payments.PaymentController;
 import com.housingplatform.persistence.repository.PaymentRepository;
 import com.housingplatform.persistence.repository.PaymentRepositoryCustom;
-import com.housingplatform.payments.PaymentService;
-import com.housingplatform.payments.TossClient;
+import com.housingplatform.features.payments.PaymentService;
+import com.housingplatform.features.payments.TossClient;
 import com.housingplatform.persistence.enums.PaymentStatus;
 import com.housingplatform.shared.RateLimitService;
 import java.util.Optional;
@@ -63,7 +63,7 @@ class PaymentAuthorizationTest {
 
   @MockitoBean private PaymentRepository paymentRepository;
 
-  @MockitoBean private com.housingplatform.payments.PaymentFinalizationService paymentFinalizationService;
+  @MockitoBean private com.housingplatform.features.payments.PaymentFinalizationService paymentFinalizationService;
 
   @MockitoBean private RateLimitService rateLimitService;
 
@@ -91,7 +91,7 @@ class PaymentAuthorizationTest {
   void customerCannotCreatePaymentOrderForForeignBooking() throws Exception {
     UUID bookingId = UUID.randomUUID();
     when(paymentRepository.createPaymentOrder(bookingId, customerId))
-        .thenThrow(new com.housingplatform.auth.error.ForbiddenException("Booking not found"));
+        .thenThrow(new com.housingplatform.shared.auth.error.ForbiddenException("Booking not found"));
 
     mockMvc
         .perform(

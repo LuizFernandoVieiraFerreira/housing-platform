@@ -6,14 +6,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.housingplatform.admin.AdminController;
-import com.housingplatform.admin.AdminService;
+import com.housingplatform.features.admin.AdminController;
+import com.housingplatform.features.admin.AdminService;
 import com.housingplatform.api.error.GlobalExceptionHandler;
-import com.housingplatform.auth.jwt.SupabaseJwtValidator;
-import com.housingplatform.auth.security.SecurityConfig;
-import com.housingplatform.auth.security.SupabaseJwtAuthenticationFilter;
-import com.housingplatform.auth.service.AuthorizationService;
-import com.housingplatform.auth.support.TestJwtFactory;
+import com.housingplatform.shared.auth.jwt.SupabaseJwtValidator;
+import com.housingplatform.shared.auth.security.SecurityConfig;
+import com.housingplatform.shared.auth.security.SupabaseJwtAuthenticationFilter;
+import com.housingplatform.shared.auth.service.AuthorizationService;
+import com.housingplatform.shared.auth.support.TestJwtFactory;
 import com.housingplatform.config.AppProperties;
 import java.util.UUID;
 import java.util.stream.Stream;
