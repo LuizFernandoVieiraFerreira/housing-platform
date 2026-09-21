@@ -9,11 +9,10 @@ import com.housingplatform.persistence.enums.PropertyStatus;
 import com.housingplatform.persistence.enums.RoomStatus;
 import com.housingplatform.properties.dto.CreateRoomRequest;
 import com.housingplatform.properties.dto.HostPropertyRequest;
-import com.housingplatform.properties.dto.PropertySearchQuery;
+import com.housingplatform.properties.model.PropertySearchCriteria;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -47,7 +46,7 @@ public interface PropertyRepositoryCustom {
       RoomStatus status,
       LocalDate availableFrom) {}
 
-  List<SearchPropertyRow> search(Map<String, Object> filters, int limit, int offset);
+  List<SearchPropertyRow> search(PropertySearchCriteria criteria, int limit, int offset);
 
   Optional<Property> findPublishedProperty(UUID propertyId);
 
@@ -93,5 +92,4 @@ public interface PropertyRepositoryCustom {
 
   Optional<HostRoomDtoRow> findRoomRow(UUID roomId);
 
-  Map<String, Object> buildSearchFilters(PropertySearchQuery query);
 }

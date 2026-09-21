@@ -67,6 +67,8 @@ class PropertyAuthorizationTest {
 
   @MockitoBean private PropertyRepository propertyRepository;
 
+  @MockitoBean private com.housingplatform.properties.PropertySearchService propertySearchService;
+
   @MockitoBean private com.housingplatform.persistence.repository.ProfileRepository profileRepository;
 
   @MockitoBean private com.housingplatform.persistence.repository.HostRepository hostRepository;
@@ -101,7 +103,8 @@ class PropertyAuthorizationTest {
 
   @Test
   void searchDelegatesToRepositoryWithoutAuth() throws Exception {
-    when(propertyRepository.search(any(), eq(20), eq(0))).thenReturn(List.of());
+    when(propertySearchService.search(any()))
+        .thenReturn(new com.housingplatform.properties.dto.PropertySearchResult(List.of(), 0));
 
     mockMvc
         .perform(get(AuthorizationMvcTestSupport.API + "/properties"))

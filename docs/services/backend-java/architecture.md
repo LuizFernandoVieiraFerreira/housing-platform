@@ -39,7 +39,7 @@ Supabase SQL migrations remain the sole DDL source. JPA entities reflect the sch
 | --- | --- | --- |
 | Simple reads | SQLAlchemy queries / raw SQL | Spring Data derived methods |
 | Pricing / validation | Often via PostgreSQL RPC | Java service code |
-| Property search | `search_properties` RPC | `PropertyRepositoryCustom` / `PropertyRepositoryImpl` (native SQL + RPC) |
+| Property search | `search_properties` RPC | `PropertySearchService` + `PropertySearchNativeQuery` (native SQL, PostGIS) |
 | Payment finalize | PostgreSQL RPCs | `PaymentFinalizationService` (Java; pessimistic locks + JPA save) |
 | Admin dashboards | Native SQL aggregations | `AdminRepositoryCustom` / `AdminRepositoryImpl` |
 | Notifications side effects | `notify_*` RPCs | `NotificationService` creates rows in Java |

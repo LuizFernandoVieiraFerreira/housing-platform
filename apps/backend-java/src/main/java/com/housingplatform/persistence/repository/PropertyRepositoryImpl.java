@@ -1,13 +1,10 @@
 package com.housingplatform.persistence.repository;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.housingplatform.persistence.entity.Amenity;
+import com.housingplatform.properties.model.PropertySearchCriteria;
 import com.housingplatform.persistence.entity.Property;
 import com.housingplatform.persistence.entity.PropertyImage;
 import com.housingplatform.persistence.entity.Room;
-import com.housingplatform.persistence.enums.AccommodationType;
-import com.housingplatform.persistence.enums.BookingMode;
 import com.housingplatform.persistence.enums.PropertyStatus;
 import com.housingplatform.persistence.enums.RoomStatus;
 import com.housingplatform.properties.dto.CreateRoomRequest;
@@ -18,66 +15,17 @@ import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 public class PropertyRepositoryImpl implements PropertyRepositoryCustom {
 
   @PersistenceContext private EntityManager entityManager;
 
-  private final ObjectMapper objectMapper;
-
-  public PropertyRepositoryImpl(ObjectMapper objectMapper) {
-    this.objectMapper = objectMapper;
-  }
-
   @Override
-  public List<SearchPropertyRow> search(Map<String, Object> filters, int limit, int offset) {
-    String filtersJson;
-    try {
-      filtersJson = objectMapper.writeValueAsString(filters);
-    } catch (JsonProcessingException exception) {
-      throw new IllegalStateException("Unable to serialize search filters", exception);
-    }
-
-    @SuppressWarnings("unchecked")
-    List<Object[]> rows =
-        entityManager
-            .createNativeQuery(
-                """
-                select id, title, slug, property_type, district, nearest_station_name,
-                       monthly_price_min, tags, cover_storage_path, cover_alt_text,
-                       latitude, longitude, distance_meters, total_count
-                from public.search_properties(cast(:filters as jsonb), :limit, :offset)
-                """)
-            .setParameter("filters", filtersJson)
-            .setParameter("limit", limit)
-            .setParameter("offset", offset)
-            .getResultList();
-
-    List<SearchPropertyRow> results = new ArrayList<>();
-    for (Object[] row : rows) {
-      results.add(
-          new SearchPropertyRow(
-              (UUID) row[0],
-              (String) row[1],
-              (String) row[2],
-              AccommodationType.fromDbValue((String) row[3]),
-              (String) row[4],
-              (String) row[5],
-              ((Number) row[6]).intValue(),
-              toStringList(row[7]),
-              (String) row[8],
-              (String) row[9],
-              ((Number) row[10]).doubleValue(),
-              ((Number) row[11]).doubleValue(),
-              row[12] == null ? null : ((Number) row[12]).doubleValue(),
-              ((Number) row[13]).intValue()));
-    }
-    return results;
+  public List<SearchPropertyRow> search(
+      PropertySearchCriteria criteria, int limit, int offset) {
+    return PropertySearchNativeQuery.execute(entityManager, criteria, limit, offset);
   }
 
   @Override
@@ -506,78 +454,4 @@ public class PropertyRepositoryImpl implements PropertyRepositoryCustom {
         row[7] == null ? null : ((java.sql.Date) row[7]).toLocalDate());
   }
 
-  @SuppressWarnings("unchecked")
-  private List<String> toStringList(Object value) {
-    if (value == null) {
-      return List.of();
-    }
-    if (value instanceof String[] array) {
-      return List.of(array);
-    }
-    if (value instanceof Object[] array) {
-      List<String> tags = new ArrayList<>();
-      for (Object item : array) {
-        if (item != null) {
-          tags.add(item.toString());
-        }
-      }
-      return tags;
-    }
-    return List.of();
-  }
-
-  @Override
-  public Map<String, Object> buildSearchFilters(com.housingplatform.properties.dto.PropertySearchQuery query) {
-    Map<String, Object> payload = new LinkedHashMap<>();
-    payload.put("sort", query.sort().name());
-
-    if (query.query() != null && !query.query().isBlank()) {
-      payload.put("query", query.query());
-    }
-    if (query.propertyType() != null) {
-      payload.put("property_type", query.propertyType().dbValue());
-    }
-    if (query.checkIn() != null) {
-      payload.put("check_in", query.checkIn().toString());
-    }
-    if (query.checkOut() != null) {
-      payload.put("check_out", query.checkOut().toString());
-    }
-    if (query.guests() != null) {
-      payload.put("guests", query.guests());
-    }
-    if (query.priceMin() != null) {
-      payload.put("price_min", query.priceMin());
-    }
-    if (query.priceMax() != null) {
-      payload.put("price_max", query.priceMax());
-    }
-    if (query.centerLat() != null) {
-      payload.put("center_lat", query.centerLat());
-    }
-    if (query.centerLng() != null) {
-      payload.put("center_lng", query.centerLng());
-    }
-    if (query.north() != null
-        && query.south() != null
-        && query.east() != null
-        && query.west() != null) {
-      payload.put("north", query.north());
-      payload.put("south", query.south());
-      payload.put("east", query.east());
-      payload.put("west", query.west());
-    }
-    if (query.amenitySlugs() != null && !query.amenitySlugs().isEmpty()) {
-      payload.put("amenity_slugs", query.amenitySlugs());
-    }
-    if (query.maxStationWalkMin() != null) {
-      payload.put("max_station_walk_min", query.maxStationWalkMin());
-    }
-    if (query.excludePropertyIds() != null && !query.excludePropertyIds().isEmpty()) {
-      payload.put(
-          "exclude_property_ids",
-          query.excludePropertyIds().stream().map(UUID::toString).toList());
-    }
-    return payload;
-  }
 }

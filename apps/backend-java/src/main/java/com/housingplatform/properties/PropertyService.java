@@ -30,30 +30,24 @@ import org.springframework.transaction.annotation.Transactional;
 public class PropertyService {
 
   private final PropertyRepository propertyRepository;
+  private final PropertySearchService propertySearchService;
   private final AuthorizationService authorizationService;
   private final StorageUrlResolver storageUrlResolver;
 
   public PropertyService(
       PropertyRepository propertyRepository,
+      PropertySearchService propertySearchService,
       AuthorizationService authorizationService,
       StorageUrlResolver storageUrlResolver) {
     this.propertyRepository = propertyRepository;
+    this.propertySearchService = propertySearchService;
     this.authorizationService = authorizationService;
     this.storageUrlResolver = storageUrlResolver;
   }
 
   @Transactional(readOnly = true)
   public PropertySearchResult search(PropertySearchQuery query) {
-    validateSearchQuery(query);
-    var rows =
-        propertyRepository.search(
-            propertyRepository.buildSearchFilters(query), query.limit(), query.offset());
-    int totalCount = rows.isEmpty() ? 0 : rows.getFirst().totalCount();
-    List<com.housingplatform.properties.dto.SearchPropertyCard> items =
-        rows.stream()
-            .map(row -> PropertyMapper.toSearchCard(row, storageUrlResolver))
-            .toList();
-    return new PropertySearchResult(items, totalCount);
+    return propertySearchService.search(query);
   }
 
   @Transactional(readOnly = true)
@@ -242,16 +236,4 @@ public class PropertyService {
     }
   }
 
-  private static void validateSearchQuery(PropertySearchQuery query) {
-    if (query.priceMin() != null
-        && query.priceMax() != null
-        && query.priceMax() < query.priceMin()) {
-      throw new BadRequestException("priceMax must be greater than or equal to priceMin");
-    }
-    if (query.checkIn() != null
-        && query.checkOut() != null
-        && !query.checkOut().isAfter(query.checkIn())) {
-      throw new BadRequestException("checkOut must be after checkIn");
-    }
-  }
 }
