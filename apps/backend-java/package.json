@@ -1,0 +1,11 @@
+{
+  "name": "@housing-platform/backend-java",
+  "private": true,
+  "scripts": {
+    "dev": "mvn spring-boot:run",
+    "build": "mvn -q -DskipTests package",
+    "lint": "mvn -q -DskipTests verify",
+    "typecheck": "mvn -q -DskipTests compile",
+    "test": "mvn -q test"
+  }
+}

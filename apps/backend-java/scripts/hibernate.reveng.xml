@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-reverse-engineering PUBLIC
+  "-//Hibernate/Hibernate Reverse Engineering DTD 3.0//EN"
+  "https://hibernate.org/dtd/hibernate-reverse-engineering-3.0.dtd">
+<hibernate-reverse-engineering>
+  <schema-selection match-schema="public"/>
+  <table-filter match-schema="public" match-name=".*"/>
+  <table-filter match-schema="auth" exclude="true"/>
+  <table-filter match-schema="storage" exclude="true"/>
+  <table-filter match-schema="extensions" exclude="true"/>
+  <table-filter match-schema="private" exclude="true"/>
+  <table-filter match-schema="graphql_public" exclude="true"/>
+  <table-filter match-schema="realtime" exclude="true"/>
+</hibernate-reverse-engineering>

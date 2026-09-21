@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: housing-platform-backend
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://127.0.0.1:54322/postgres}
+    username: ${DATABASE_USERNAME:postgres}
+    password: ${DATABASE_PASSWORD:postgres}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: public
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  flyway:
+    enabled: false
+  liquibase:
+    enabled: false
+
+server:
+  port: ${PORT:8080}
+
+housing-platform:
+  api-prefix: /api/v1
+  cors-origins: ${CORS_ORIGINS:http://localhost:5173}
+  supabase-url: ${SUPABASE_URL:http://127.0.0.1:54321}
+  supabase-jwt-secret: ${SUPABASE_JWT_SECRET:}
+  supabase-jwt-audience: ${SUPABASE_JWT_AUDIENCE:authenticated}
+  toss-secret-key: ${TOSS_SECRET_KEY:}
+  payment-dev-mock: ${PAYMENT_DEV_MOCK:false}
