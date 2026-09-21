@@ -22,6 +22,7 @@ httpx = "^0.28.1"
 ruff = "^0.11.0"
 pytest = "^8.3.5"
 httpx = "^0.28.1"
+pyyaml = "^6.0.2"
 sqlacodegen = "^3.0.0"
 
 [tool.poetry.scripts]
@@ -45,7 +46,7 @@ select = ["E", "F", "I", "UP"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["src"]
+pythonpath = ["src", "."]
 markers = [
     "integration: tests that require a running local Supabase database",
 ]
