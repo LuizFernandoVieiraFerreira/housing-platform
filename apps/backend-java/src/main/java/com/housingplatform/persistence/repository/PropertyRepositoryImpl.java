@@ -1,4 +1,4 @@
-package com.housingplatform.properties;
+package com.housingplatform.persistence.repository;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,37 +24,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import org.springframework.stereotype.Repository;
-
-@Repository
-public class PropertyRepository {
+public class PropertyRepositoryImpl implements PropertyRepositoryCustom {
 
   @PersistenceContext private EntityManager entityManager;
 
   private final ObjectMapper objectMapper;
 
-  public PropertyRepository(ObjectMapper objectMapper) {
+  public PropertyRepositoryImpl(ObjectMapper objectMapper) {
     this.objectMapper = objectMapper;
   }
 
-  public record SearchPropertyRow(
-      UUID id,
-      String title,
-      String slug,
-      AccommodationType propertyType,
-      String district,
-      String nearestStationName,
-      int monthlyPriceMin,
-      List<String> tags,
-      String coverStoragePath,
-      String coverAltText,
-      double latitude,
-      double longitude,
-      Double distanceMeters,
-      int totalCount) {}
-
-  public record Coordinates(double latitude, double longitude) {}
-
+  @Override
   public List<SearchPropertyRow> search(Map<String, Object> filters, int limit, int offset) {
     String filtersJson;
     try {
@@ -100,6 +80,7 @@ public class PropertyRepository {
     return results;
   }
 
+  @Override
   public Optional<Property> findPublishedProperty(UUID propertyId) {
     return entityManager
         .createQuery(
@@ -513,16 +494,6 @@ public class PropertyRepository {
     }
   }
 
-  public record HostRoomDtoRow(
-      UUID id,
-      String name,
-      String roomType,
-      BigDecimal sizeSqm,
-      int maxOccupancy,
-      int monthlyPriceKrw,
-      RoomStatus status,
-      LocalDate availableFrom) {}
-
   private HostRoomDtoRow toHostRoomRow(Object[] row) {
     return new HostRoomDtoRow(
         (UUID) row[0],
@@ -555,6 +526,7 @@ public class PropertyRepository {
     return List.of();
   }
 
+  @Override
   public Map<String, Object> buildSearchFilters(com.housingplatform.properties.dto.PropertySearchQuery query) {
     Map<String, Object> payload = new LinkedHashMap<>();
     payload.put("sort", query.sort().name());

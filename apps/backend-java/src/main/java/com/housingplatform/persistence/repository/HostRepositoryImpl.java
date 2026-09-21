@@ -1,4 +1,4 @@
-package com.housingplatform.hosts;
+package com.housingplatform.persistence.repository;
 
 import com.housingplatform.persistence.entity.Host;
 import com.housingplatform.persistence.enums.BookingStatus;
@@ -12,38 +12,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import org.springframework.stereotype.Repository;
-
-@Repository
-public class HostRepository {
+public class HostRepositoryImpl implements HostRepositoryCustom {
 
   @PersistenceContext private EntityManager entityManager;
 
-  public record HostPropertyListRow(
-      UUID id,
-      String title,
-      String slug,
-      String propertyType,
-      String district,
-      String status,
-      String bookingMode,
-      Integer monthlyPriceMin,
-      int roomCount,
-      OffsetDateTime updatedAt) {}
-
-  public record HostBookingRow(
-      UUID id,
-      BookingStatus status,
-      BookingType bookingType,
-      LocalDate checkIn,
-      LocalDate checkOut,
-      int guestCount,
-      String customerNotes,
-      String propertyTitle,
-      String roomName,
-      int totalKrw,
-      OffsetDateTime createdAt) {}
-
+  @Override
   public Optional<Host> findByProfileId(UUID profileId) {
     return entityManager
         .createQuery(

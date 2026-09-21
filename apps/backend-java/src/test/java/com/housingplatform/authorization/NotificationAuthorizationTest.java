@@ -16,10 +16,11 @@ import com.housingplatform.auth.security.SupabaseJwtAuthenticationFilter;
 import com.housingplatform.auth.support.TestJwtFactory;
 import com.housingplatform.config.AppProperties;
 import com.housingplatform.notifications.NotificationController;
-import com.housingplatform.notifications.NotificationRepository;
 import com.housingplatform.notifications.NotificationService;
 import com.housingplatform.persistence.entity.Notification;
 import com.housingplatform.persistence.enums.NotificationType;
+import com.housingplatform.persistence.repository.NotificationRepository;
+import com.housingplatform.persistence.repository.ProfileRepository;
 import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.Optional;
@@ -64,7 +65,7 @@ class NotificationAuthorizationTest {
 
   @MockitoBean private NotificationRepository notificationRepository;
 
-  @MockitoBean private com.housingplatform.persistence.repository.ProfileRepository profileRepository;
+  @MockitoBean private ProfileRepository profileRepository;
 
   @MockitoBean private com.housingplatform.persistence.repository.HostRepository hostRepository;
 
@@ -85,7 +86,9 @@ class NotificationAuthorizationTest {
   @Test
   void customerCannotMarkAnotherUsersNotificationRead() throws Exception {
     UUID notificationId = UUID.randomUUID();
-    when(notificationRepository.markRead(customerId, notificationId)).thenReturn(Optional.empty());
+    when(notificationRepository.markRead(customerId, notificationId)).thenReturn(0);
+    when(notificationRepository.findByIdAndUserId(notificationId, customerId))
+        .thenReturn(Optional.empty());
 
     mockMvc
         .perform(
@@ -106,7 +109,8 @@ class NotificationAuthorizationTest {
     when(notification.getBody()).thenReturn("A guest requested a booking.");
     when(notification.getMetadata()).thenReturn(Map.of());
     when(notification.getCreatedAt()).thenReturn(OffsetDateTime.now());
-    when(notificationRepository.markRead(customerId, notificationId))
+    when(notificationRepository.markRead(customerId, notificationId)).thenReturn(1);
+    when(notificationRepository.findByIdAndUserId(notificationId, customerId))
         .thenReturn(Optional.of(notification));
 
     mockMvc

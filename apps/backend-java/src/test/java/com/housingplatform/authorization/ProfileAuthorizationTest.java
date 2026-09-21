@@ -17,10 +17,11 @@ import com.housingplatform.auth.support.TestJwtFactory;
 import com.housingplatform.auth.support.TestProfiles;
 import com.housingplatform.config.AppProperties;
 import com.housingplatform.persistence.enums.UserRole;
+import com.housingplatform.persistence.repository.ProfileRepository;
 import com.housingplatform.profile.ProfileController;
-import com.housingplatform.profile.ProfileRepository;
 import com.housingplatform.profile.ProfileService;
 import com.housingplatform.profile.dto.UpdateProfileRequest;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -63,8 +64,6 @@ class ProfileAuthorizationTest {
 
   @MockitoBean private ProfileRepository profileRepository;
 
-  @MockitoBean private com.housingplatform.persistence.repository.ProfileRepository authProfileRepository;
-
   @MockitoBean private com.housingplatform.persistence.repository.HostRepository hostRepository;
 
   @MockitoBean private com.housingplatform.persistence.repository.PropertyRepository propertyRepository;
@@ -78,7 +77,7 @@ class ProfileAuthorizationTest {
   void setUp() throws Exception {
     customerId = UUID.randomUUID();
     customer = AuthorizationMvcTestSupport.customer(customerId);
-    AuthorizationMvcTestSupport.stubAuthUser(authProfileRepository, customer);
+    AuthorizationMvcTestSupport.stubAuthUser(profileRepository, customer);
   }
 
   @Test
@@ -90,14 +89,16 @@ class ProfileAuthorizationTest {
 
   @Test
   void updateProfileKeepsExistingRole() throws Exception {
-    when(profileRepository.update(
+    when(profileRepository.updateActiveProfile(
             eq(customerId),
             eq("Jane Smith"),
             eq(null),
             eq("en"),
             eq(true),
             eq(null)))
-        .thenReturn(TestProfiles.active(customerId, UserRole.customer));
+        .thenReturn(1);
+    when(profileRepository.findActiveById(customerId))
+        .thenReturn(Optional.of(TestProfiles.active(customerId, UserRole.customer)));
 
     mockMvc
         .perform(
@@ -116,6 +117,7 @@ class ProfileAuthorizationTest {
         .andExpect(jsonPath("$.role").value("customer"));
 
     verify(profileRepository)
-        .update(eq(customerId), eq("Jane Smith"), eq(null), eq("en"), eq(true), eq(null));
+        .updateActiveProfile(
+            eq(customerId), eq("Jane Smith"), eq(null), eq("en"), eq(true), eq(null));
   }
 }

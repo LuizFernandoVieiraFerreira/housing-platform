@@ -20,7 +20,7 @@ import com.housingplatform.config.AppProperties;
 import com.housingplatform.persistence.entity.Property;
 import com.housingplatform.persistence.enums.PropertyStatus;
 import com.housingplatform.properties.PropertyController;
-import com.housingplatform.properties.PropertyRepository;
+import com.housingplatform.persistence.repository.PropertyRepository;
 import com.housingplatform.properties.PropertyService;
 import com.housingplatform.shared.StorageUrlResolver;
 import java.util.List;
@@ -71,9 +71,6 @@ class PropertyAuthorizationTest {
 
   @MockitoBean private com.housingplatform.persistence.repository.HostRepository hostRepository;
 
-  @MockitoBean
-  private com.housingplatform.persistence.repository.PropertyRepository authPropertyRepository;
-
   @MockitoBean private com.housingplatform.persistence.repository.BookingRepository bookingRepository;
 
   @MockitoBean private StorageUrlResolver storageUrlResolver;
@@ -121,7 +118,7 @@ class PropertyAuthorizationTest {
     when(propertyRepository.findHostProperty(propertyId)).thenReturn(Optional.of(property));
     when(profileRepository.existsActiveByIdAndRole(customerId, com.housingplatform.persistence.enums.UserRole.admin))
         .thenReturn(false);
-    when(authPropertyRepository.existsForHostProfile(customerId, propertyId)).thenReturn(false);
+    when(propertyRepository.existsForHostProfile(customerId, propertyId)).thenReturn(false);
     AuthorizationMvcTestSupport.stubAuthUser(profileRepository, customer);
 
     mockMvc
@@ -142,7 +139,7 @@ class PropertyAuthorizationTest {
     when(propertyRepository.findHostProperty(propertyId)).thenReturn(Optional.of(property));
     when(profileRepository.existsActiveByIdAndRole(customerId, com.housingplatform.persistence.enums.UserRole.admin))
         .thenReturn(false);
-    when(authPropertyRepository.existsForHostProfile(customerId, propertyId)).thenReturn(false);
+    when(propertyRepository.existsForHostProfile(customerId, propertyId)).thenReturn(false);
     AuthorizationMvcTestSupport.stubAuthUser(profileRepository, customer);
 
     mockMvc
@@ -158,7 +155,7 @@ class PropertyAuthorizationTest {
   @Test
   void customerCannotSubmitPropertyForReview() throws Exception {
     UUID propertyId = UUID.randomUUID();
-    when(authPropertyRepository.existsForHostProfile(customerId, propertyId)).thenReturn(false);
+    when(propertyRepository.existsForHostProfile(customerId, propertyId)).thenReturn(false);
     AuthorizationMvcTestSupport.stubAuthUser(profileRepository, customer);
 
     mockMvc
@@ -177,7 +174,7 @@ class PropertyAuthorizationTest {
     when(propertyRepository.findHostProperty(propertyId)).thenReturn(Optional.of(property));
     when(profileRepository.existsActiveByIdAndRole(hostId, com.housingplatform.persistence.enums.UserRole.admin))
         .thenReturn(false);
-    when(authPropertyRepository.existsForHostProfile(hostId, propertyId)).thenReturn(true);
+    when(propertyRepository.existsForHostProfile(hostId, propertyId)).thenReturn(true);
     AuthorizationMvcTestSupport.stubAuthUser(profileRepository, host);
 
     mockMvc

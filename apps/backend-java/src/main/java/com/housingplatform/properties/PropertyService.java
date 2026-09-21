@@ -6,6 +6,7 @@ import com.housingplatform.auth.error.NotFoundException;
 import com.housingplatform.auth.model.AuthenticatedUser;
 import com.housingplatform.auth.service.AuthorizationService;
 import com.housingplatform.persistence.entity.Property;
+import com.housingplatform.persistence.repository.PropertyRepository;
 import com.housingplatform.persistence.enums.PropertyStatus;
 import com.housingplatform.properties.dto.CreateRoomRequest;
 import com.housingplatform.properties.dto.CreatedId;

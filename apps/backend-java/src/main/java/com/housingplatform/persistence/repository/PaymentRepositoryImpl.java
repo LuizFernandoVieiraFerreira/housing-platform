@@ -1,4 +1,4 @@
-package com.housingplatform.payments;
+package com.housingplatform.persistence.repository;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,30 +18,17 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import org.hibernate.exception.GenericJDBCException;
-import org.springframework.stereotype.Repository;
-
-@Repository
-public class PaymentRepository {
+public class PaymentRepositoryImpl implements PaymentRepositoryCustom {
 
   @PersistenceContext private EntityManager entityManager;
 
   private final ObjectMapper objectMapper;
 
-  public PaymentRepository(ObjectMapper objectMapper) {
+  public PaymentRepositoryImpl(ObjectMapper objectMapper) {
     this.objectMapper = objectMapper;
   }
 
-  public record PaymentLookupRow(
-      UUID id,
-      UUID orderId,
-      UUID bookingId,
-      UUID customerId,
-      int amountKrw,
-      PaymentStatus status) {}
-
-  public record PaymentOrderRow(
-      UUID paymentId, UUID orderId, UUID bookingId, int amountKrw, String orderName) {}
-
+  @Override
   public Optional<PaymentLookupRow> findByOrderId(UUID orderId) {
     try {
       Object[] row =

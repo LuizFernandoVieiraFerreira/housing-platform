@@ -1,12 +1,14 @@
 package com.housingplatform.persistence.repository;
 
 import com.housingplatform.persistence.entity.Property;
+import com.housingplatform.persistence.enums.PropertyStatus;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface PropertyRepository extends JpaRepository<Property, UUID> {
+public interface PropertyRepository extends JpaRepository<Property, UUID>, PropertyRepositoryCustom {
 
   @Query(
       """
@@ -17,4 +19,8 @@ public interface PropertyRepository extends JpaRepository<Property, UUID> {
       """)
   boolean existsForHostProfile(
       @Param("profileId") UUID profileId, @Param("propertyId") UUID propertyId);
+
+  Optional<Property> findByIdAndDeletedAtIsNullAndStatus(UUID id, PropertyStatus status);
+
+  long countByHostIdAndDeletedAtIsNull(UUID hostId);
 }

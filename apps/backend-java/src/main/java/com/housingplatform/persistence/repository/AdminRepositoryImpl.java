@@ -1,4 +1,4 @@
-package com.housingplatform.admin;
+package com.housingplatform.persistence.repository;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,7 +22,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class AdminRepository {
+public class AdminRepositoryImpl implements AdminRepositoryCustom {
 
   private static final int AUDIT_LOG_LIMIT = 100;
 
@@ -30,76 +30,11 @@ public class AdminRepository {
 
   private final ObjectMapper objectMapper;
 
-  public AdminRepository(ObjectMapper objectMapper) {
+  public AdminRepositoryImpl(ObjectMapper objectMapper) {
     this.objectMapper = objectMapper;
   }
 
-  public record AdminPropertyRow(
-      UUID id,
-      String title,
-      String slug,
-      String propertyType,
-      String district,
-      String status,
-      String bookingMode,
-      Integer monthlyPriceMin,
-      int roomCount,
-      OffsetDateTime updatedAt,
-      String hostDisplayName) {}
-
-  public record AdminHostRow(
-      UUID id,
-      String displayName,
-      String status,
-      String profileName,
-      OffsetDateTime verifiedAt,
-      OffsetDateTime createdAt) {}
-
-  public record AdminBookingRow(
-      UUID id,
-      BookingStatus status,
-      BookingType bookingType,
-      LocalDate checkIn,
-      LocalDate checkOut,
-      int guestCount,
-      String customerNotes,
-      String propertyTitle,
-      String roomName,
-      int totalKrw,
-      OffsetDateTime createdAt) {}
-
-  public record AdminPaymentRow(
-      UUID id,
-      UUID orderId,
-      UUID bookingId,
-      int amountKrw,
-      String status,
-      String propertyTitle,
-      String customerName,
-      OffsetDateTime confirmedAt,
-      OffsetDateTime createdAt) {}
-
-  public record HousingRequestRow(
-      UUID id,
-      String email,
-      String desiredArea,
-      LocalDate checkIn,
-      LocalDate checkOut,
-      Integer budgetMax,
-      String accommodationType,
-      String notes,
-      String status,
-      OffsetDateTime createdAt) {}
-
-  public record AuditLogRow(
-      UUID id,
-      String action,
-      String entityType,
-      UUID entityId,
-      Map<String, Object> metadata,
-      OffsetDateTime createdAt,
-      String actorName) {}
-
+  @Override
   public Map<String, Integer> getDashboardStats() {
     Map<String, Integer> stats = new LinkedHashMap<>();
     stats.put("pendingProperties", countPendingProperties());

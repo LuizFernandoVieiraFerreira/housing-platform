@@ -1,5 +1,6 @@
 package com.housingplatform.admin;
 
+import com.housingplatform.persistence.repository.AdminRepositoryCustom;
 import com.housingplatform.admin.dto.AdminDashboardStats;
 import com.housingplatform.admin.dto.AdminHost;
 import com.housingplatform.admin.dto.AdminPayment;
@@ -25,10 +26,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class AdminService {
 
-  private final AdminRepository adminRepository;
+  private final AdminRepositoryCustom adminRepository;
   private final AuthorizationService authorizationService;
 
-  public AdminService(AdminRepository adminRepository, AuthorizationService authorizationService) {
+  public AdminService(
+      AdminRepositoryCustom adminRepository, AuthorizationService authorizationService) {
     this.adminRepository = adminRepository;
     this.authorizationService = authorizationService;
   }

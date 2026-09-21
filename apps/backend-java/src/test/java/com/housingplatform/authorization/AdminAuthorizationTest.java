@@ -61,7 +61,7 @@ class AdminAuthorizationTest {
 
   @Autowired private MockMvc mockMvc;
 
-  @MockitoBean private com.housingplatform.admin.AdminRepository adminRepository;
+  @MockitoBean private com.housingplatform.persistence.repository.AdminRepositoryCustom adminRepository;
 
   @MockitoBean private com.housingplatform.persistence.repository.ProfileRepository profileRepository;
 

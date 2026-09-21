@@ -6,6 +6,7 @@ import com.housingplatform.notifications.dto.MarkAllNotificationsReadResult;
 import com.housingplatform.notifications.dto.NotificationDto;
 import com.housingplatform.notifications.dto.UnreadNotificationCount;
 import com.housingplatform.notifications.mapper.NotificationMapper;
+import com.housingplatform.persistence.repository.NotificationRepository;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
@@ -22,21 +23,23 @@ public class NotificationService {
 
   @Transactional(readOnly = true)
   public List<NotificationDto> listNotifications(AuthenticatedUser user) {
-    return notificationRepository.listForUser(user.id()).stream()
+    return notificationRepository.findTop50ByUserIdOrderByCreatedAtDesc(user.id()).stream()
         .map(NotificationMapper::toDto)
         .toList();
   }
 
   @Transactional(readOnly = true)
   public UnreadNotificationCount getUnreadCount(AuthenticatedUser user) {
-    return new UnreadNotificationCount(notificationRepository.countUnread(user.id()));
+    return new UnreadNotificationCount(
+        Math.toIntExact(notificationRepository.countByUserIdAndReadAtIsNull(user.id())));
   }
 
   @Transactional
   public NotificationDto markRead(AuthenticatedUser user, UUID notificationId) {
+    notificationRepository.markRead(user.id(), notificationId);
     var notification =
         notificationRepository
-            .markRead(user.id(), notificationId)
+            .findByIdAndUserId(notificationId, user.id())
             .orElseThrow(() -> new NotFoundException("Notification not found"));
     return NotificationMapper.toDto(notification);
   }

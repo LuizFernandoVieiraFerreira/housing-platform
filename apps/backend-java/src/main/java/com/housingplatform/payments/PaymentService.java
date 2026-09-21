@@ -7,6 +7,7 @@ import com.housingplatform.auth.error.NotFoundException;
 import com.housingplatform.auth.error.PaymentAmountMismatchException;
 import com.housingplatform.auth.error.PaymentFailedException;
 import com.housingplatform.auth.model.AuthenticatedUser;
+import com.housingplatform.persistence.repository.PaymentRepository;
 import com.housingplatform.payments.dto.ConfirmPaymentRequest;
 import com.housingplatform.payments.dto.ConfirmPaymentResult;
 import com.housingplatform.payments.dto.CreatePaymentOrderRequest;

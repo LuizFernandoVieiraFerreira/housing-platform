@@ -15,14 +15,22 @@ import com.housingplatform.auth.model.AuthenticatedUser;
 import com.housingplatform.auth.security.SecurityConfig;
 import com.housingplatform.auth.security.SupabaseJwtAuthenticationFilter;
 import com.housingplatform.auth.support.TestJwtFactory;
-import com.housingplatform.persistence.enums.UserRole;
 import com.housingplatform.bookings.BookingController;
-import com.housingplatform.bookings.BookingRepository;
+import com.housingplatform.bookings.BookingNotificationService;
+import com.housingplatform.bookings.BookingPricingService;
 import com.housingplatform.bookings.BookingService;
+import com.housingplatform.bookings.BookingValidationService;
+import com.housingplatform.bookings.model.BookingListView;
 import com.housingplatform.config.AppProperties;
 import com.housingplatform.persistence.entity.Booking;
 import com.housingplatform.persistence.enums.BookingStatus;
 import com.housingplatform.persistence.enums.BookingType;
+import com.housingplatform.persistence.enums.UserRole;
+import com.housingplatform.persistence.repository.BookingPriceSnapshotRepository;
+import com.housingplatform.persistence.repository.BookingRepository;
+import com.housingplatform.persistence.repository.ProfileRepository;
+import com.housingplatform.persistence.repository.PropertyRepository;
+import com.housingplatform.persistence.repository.RoomRepository;
 import com.housingplatform.shared.RateLimitService;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -68,15 +76,23 @@ class BookingAuthorizationTest {
 
   @MockitoBean private BookingRepository bookingRepository;
 
-  @MockitoBean private com.housingplatform.persistence.repository.ProfileRepository profileRepository;
+  @MockitoBean private BookingPriceSnapshotRepository bookingPriceSnapshotRepository;
+
+  @MockitoBean private RoomRepository roomRepository;
+
+  @MockitoBean private PropertyRepository propertyRepository;
+
+  @MockitoBean private ProfileRepository profileRepository;
 
   @MockitoBean private com.housingplatform.persistence.repository.HostRepository hostRepository;
 
-  @MockitoBean private com.housingplatform.persistence.repository.PropertyRepository propertyRepository;
-
-  @MockitoBean private com.housingplatform.persistence.repository.BookingRepository authBookingRepository;
-
   @MockitoBean private RateLimitService rateLimitService;
+
+  @MockitoBean private BookingValidationService bookingValidationService;
+
+  @MockitoBean private BookingPricingService bookingPricingService;
+
+  @MockitoBean private BookingNotificationService bookingNotificationService;
 
   private UUID customerId;
   private AuthenticatedUser customer;
@@ -90,8 +106,8 @@ class BookingAuthorizationTest {
   @Test
   void customerCannotViewAnotherCustomersBooking() throws Exception {
     UUID bookingId = UUID.randomUUID();
-    when(bookingRepository.findBookingDetailRow(bookingId))
-        .thenReturn(Optional.of(bookingListRow(UUID.randomUUID())));
+    when(bookingRepository.findListViewById(bookingId))
+        .thenReturn(Optional.of(bookingListView(UUID.randomUUID())));
     when(profileRepository.existsActiveByIdAndRole(customerId, UserRole.admin)).thenReturn(false);
     when(propertyRepository.existsForHostProfile(eq(customerId), any())).thenReturn(false);
     AuthorizationMvcTestSupport.stubAuthUser(profileRepository, customer);
@@ -109,7 +125,7 @@ class BookingAuthorizationTest {
     UUID bookingId = UUID.randomUUID();
     Booking booking = mock(Booking.class);
     when(booking.getCustomerId()).thenReturn(UUID.randomUUID());
-    when(bookingRepository.findBooking(bookingId)).thenReturn(Optional.of(booking));
+    when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
     AuthorizationMvcTestSupport.stubAuthUser(profileRepository, customer);
 
     mockMvc
@@ -125,8 +141,8 @@ class BookingAuthorizationTest {
     UUID bookingId = UUID.randomUUID();
     Booking booking = mock(Booking.class);
     when(booking.getCustomerId()).thenReturn(customerId);
-    when(bookingRepository.findBooking(bookingId)).thenReturn(Optional.of(booking));
-    when(bookingRepository.cancelBooking(bookingId, customerId)).thenReturn(null);
+    when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
+    when(bookingRepository.cancelByCustomer(bookingId, customerId)).thenReturn(0);
     AuthorizationMvcTestSupport.stubAuthUser(profileRepository, customer);
 
     mockMvc
@@ -141,9 +157,9 @@ class BookingAuthorizationTest {
   void customerCannotApproveBooking() throws Exception {
     UUID bookingId = UUID.randomUUID();
     Booking booking = mock(Booking.class);
-    when(bookingRepository.findBooking(bookingId)).thenReturn(Optional.of(booking));
+    when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
     when(profileRepository.existsActiveByIdAndRole(customerId, UserRole.admin)).thenReturn(false);
-    when(authBookingRepository.findPropertyIdById(bookingId)).thenReturn(Optional.empty());
+    when(bookingRepository.findPropertyIdById(bookingId)).thenReturn(Optional.empty());
     AuthorizationMvcTestSupport.stubAuthUser(profileRepository, customer);
 
     mockMvc
@@ -154,8 +170,8 @@ class BookingAuthorizationTest {
         .andExpect(jsonPath("$.error.code").value("FORBIDDEN"));
   }
 
-  private static BookingRepository.BookingListRow bookingListRow(UUID customerId) {
-    return new BookingRepository.BookingListRow(
+  private static BookingListView bookingListView(UUID customerId) {
+    return new BookingListView(
         UUID.randomUUID(),
         customerId,
         BookingStatus.requested,

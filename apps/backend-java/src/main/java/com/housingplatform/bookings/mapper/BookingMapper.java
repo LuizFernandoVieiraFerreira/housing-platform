@@ -4,8 +4,9 @@ import com.housingplatform.bookings.dto.BookingDetail;
 import com.housingplatform.bookings.dto.BookingDto;
 import com.housingplatform.bookings.dto.BookingListItem;
 import com.housingplatform.bookings.dto.BookingQuote;
-import com.housingplatform.bookings.BookingRepository.BookingListRow;
-import com.housingplatform.bookings.BookingRepository.BookingPrice;
+import com.housingplatform.bookings.model.BookingListView;
+import com.housingplatform.bookings.model.BookingInputs;
+import com.housingplatform.bookings.model.BookingPrice;
 import com.housingplatform.persistence.entity.Booking;
 import com.housingplatform.persistence.enums.BookingMode;
 
@@ -20,9 +21,7 @@ public final class BookingMapper {
     return Math.round((serviceFeeKrw / (double) rentKrw) * 1000.0) / 10.0;
   }
 
-  public static BookingQuote toQuote(
-      com.housingplatform.bookings.BookingRepository.BookingInputs inputs,
-      BookingPrice price) {
+  public static BookingQuote toQuote(BookingInputs inputs, BookingPrice price) {
     return new BookingQuote(
         inputs.roomId(),
         inputs.propertyId(),
@@ -55,7 +54,7 @@ public final class BookingMapper {
         booking.getUpdatedAt());
   }
 
-  public static BookingListItem toListItem(BookingListRow row) {
+  public static BookingListItem toListItem(BookingListView row) {
     return new BookingListItem(
         row.id(),
         row.status(),
@@ -71,7 +70,7 @@ public final class BookingMapper {
         row.createdAt());
   }
 
-  public static BookingDetail toDetail(BookingListRow row) {
+  public static BookingDetail toDetail(BookingListView row) {
     BookingListItem listItem = toListItem(row);
     return new BookingDetail(
         listItem.id(),

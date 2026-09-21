@@ -2,6 +2,7 @@ package com.housingplatform.profile;
 
 import com.housingplatform.auth.error.NotFoundException;
 import com.housingplatform.auth.model.AuthenticatedUser;
+import com.housingplatform.persistence.repository.ProfileRepository;
 import com.housingplatform.profile.dto.ProfileDto;
 import com.housingplatform.profile.dto.UpdateProfileRequest;
 import com.housingplatform.profile.mapper.ProfileMapper;
@@ -20,7 +21,7 @@ public class ProfileService {
   @Transactional(readOnly = true)
   public ProfileDto getProfile(AuthenticatedUser user) {
     return profileRepository
-        .findById(user.id())
+        .findActiveById(user.id())
         .map(ProfileMapper::toDto)
         .orElseThrow(() -> new NotFoundException("Profile not found"));
   }
@@ -32,17 +33,21 @@ public class ProfileService {
         request.avatarUrl() == null || request.avatarUrl().isBlank()
             ? null
             : request.avatarUrl().strip();
-    var updated =
-        profileRepository.update(
+
+    if (profileRepository.updateActiveProfile(
             user.id(),
             request.fullName().strip(),
             phone,
             request.preferredLanguage().strip(),
             request.marketingConsent(),
-            avatarUrl);
-    if (updated == null) {
+            avatarUrl)
+        == 0) {
       throw new NotFoundException("Profile not found");
     }
-    return ProfileMapper.toDto(updated);
+
+    return profileRepository
+        .findActiveById(user.id())
+        .map(ProfileMapper::toDto)
+        .orElseThrow(() -> new NotFoundException("Profile not found"));
   }
 }

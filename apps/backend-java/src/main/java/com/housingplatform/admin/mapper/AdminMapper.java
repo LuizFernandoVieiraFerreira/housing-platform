@@ -5,11 +5,11 @@ import com.housingplatform.admin.dto.AdminPayment;
 import com.housingplatform.admin.dto.AdminProperty;
 import com.housingplatform.admin.dto.AuditLogDto;
 import com.housingplatform.admin.dto.HousingRequestDto;
-import com.housingplatform.admin.AdminRepository.AdminHostRow;
-import com.housingplatform.admin.AdminRepository.AdminPaymentRow;
-import com.housingplatform.admin.AdminRepository.AdminPropertyRow;
-import com.housingplatform.admin.AdminRepository.AuditLogRow;
-import com.housingplatform.admin.AdminRepository.HousingRequestRow;
+import com.housingplatform.persistence.repository.AdminRepositoryCustom.AdminHostRow;
+import com.housingplatform.persistence.repository.AdminRepositoryCustom.AdminPaymentRow;
+import com.housingplatform.persistence.repository.AdminRepositoryCustom.AdminPropertyRow;
+import com.housingplatform.persistence.repository.AdminRepositoryCustom.AuditLogRow;
+import com.housingplatform.persistence.repository.AdminRepositoryCustom.HousingRequestRow;
 import com.housingplatform.hosts.mapper.HostMapper;
 import com.housingplatform.persistence.entity.Host;
 import com.housingplatform.persistence.entity.HousingRequest;
@@ -25,7 +25,7 @@ public final class AdminMapper {
 
   public static AdminProperty toAdminProperty(AdminPropertyRow row) {
     var base = HostMapper.toPropertyListItem(
-        new com.housingplatform.hosts.HostRepository.HostPropertyListRow(
+        new com.housingplatform.persistence.repository.HostRepositoryCustom.HostPropertyListRow(
             row.id(),
             row.title(),
             row.slug(),

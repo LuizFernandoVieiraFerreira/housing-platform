@@ -14,7 +14,8 @@ import com.housingplatform.auth.security.SupabaseJwtAuthenticationFilter;
 import com.housingplatform.auth.support.TestJwtFactory;
 import com.housingplatform.config.AppProperties;
 import com.housingplatform.payments.PaymentController;
-import com.housingplatform.payments.PaymentRepository;
+import com.housingplatform.persistence.repository.PaymentRepository;
+import com.housingplatform.persistence.repository.PaymentRepositoryCustom;
 import com.housingplatform.payments.PaymentService;
 import com.housingplatform.payments.TossClient;
 import com.housingplatform.persistence.enums.PaymentStatus;
@@ -106,7 +107,7 @@ class PaymentAuthorizationTest {
     when(paymentRepository.findByOrderId(orderId))
         .thenReturn(
             Optional.of(
-                new PaymentRepository.PaymentLookupRow(
+                new PaymentRepositoryCustom.PaymentLookupRow(
                     UUID.randomUUID(),
                     orderId,
                     UUID.randomUUID(),
