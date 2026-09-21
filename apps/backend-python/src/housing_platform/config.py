@@ -12,6 +12,9 @@ class Settings(BaseSettings):
     api_prefix: str = "/api/v1"
     cors_origins: Annotated[list[str], NoDecode] = Field(default=["http://localhost:5173"])
     debug: bool = False
+    supabase_url: str = "http://127.0.0.1:54321"
+    supabase_jwt_secret: str | None = None
+    supabase_jwt_audience: str = "authenticated"
 
     @field_validator("cors_origins", mode="before")
     @classmethod

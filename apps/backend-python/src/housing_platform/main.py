@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from housing_platform.api.errors import register_exception_handlers
 from housing_platform.api.router import api_router
 from housing_platform.config import settings
 
@@ -30,6 +31,7 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
+    register_exception_handlers(app)
     app.include_router(api_router, prefix=settings.api_prefix)
     return app
 

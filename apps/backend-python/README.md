@@ -54,3 +54,6 @@ poetry run ruff check src tests
 | `DATABASE_URL` | `postgresql+psycopg://postgres:postgres@127.0.0.1:54322/postgres` | Service-role DB connection (bypasses RLS) |
 | `CORS_ORIGINS` | `http://localhost:5173` | Comma-separated origins, or a JSON array |
 | `DEBUG` | `false` | Enable uvicorn reload |
+| `SUPABASE_URL` | `http://127.0.0.1:54321` | Supabase project URL for JWT validation |
+| `SUPABASE_JWT_SECRET` | — | HS256 secret from `supabase status` (required for local tokens) |
+| `SUPABASE_JWT_AUDIENCE` | `authenticated` | Expected JWT `aud` claim for user access tokens |
