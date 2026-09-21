@@ -2,6 +2,8 @@
 
 FastAPI + Poetry + SQLAlchemy backend that reflects the shared Supabase PostgreSQL schema.
 
+**Architecture:** Feature packages own routers, services, repositories, schemas, and mappers; shared ORM models live under `db/`. See [`docs/services/backend-python/architecture.md`](../../docs/services/backend-python/architecture.md).
+
 **Schema ownership:** Supabase SQL migrations in `supabase/migrations/` are the only DDL source. This app does not use Alembic or `MetaData.create_all()`.
 
 ## Prerequisites
