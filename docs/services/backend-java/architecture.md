@@ -1,50 +1,67 @@
 # Java backend architecture
 
-Spring Boot backend following standard community patterns. Unlike the Python backend (which leans on SQLAlchemy + PostgreSQL RPCs for parity with Supabase), the Java backend keeps **business logic in services** and uses **Spring Data JPA** for most persistence.
+Spring Boot service with feature-based application packages and a shared persistence module.
 
-## Layering
+## Package layout
 
 ```text
-Controller  →  Service  →  Repository (Spring Data)  →  Entity
+com.housingplatform/
+├── features/              # Business domains (controller, service, dto, mapper)
+│   ├── bookings/
+│   ├── properties/
+│   ├── payments/
+│   ├── hosts/
+│   ├── admin/
+│   ├── profile/
+│   └── notifications/
+├── persistence/           # JPA entities, repositories, custom SQL impls
+│   ├── entity/
+│   ├── repository/
+│   └── enums/
+├── shared/                  # Cross-cutting utilities
+│   └── auth/              # JWT, security, app exceptions
+├── config/                # Spring configuration
+└── api/                   # Health check, global exception handler
+```
+
+## Request flow
+
+```text
+Controller  →  Service  →  Repository  →  Entity
                   ↓
-                DTO / Mapper
+              DTO / Mapper
 ```
 
 | Layer | Location | Responsibility |
 | --- | --- | --- |
-| Controller | `features/{feature}/` | HTTP routing, validation, auth guard |
-| Service | `features/{feature}/` | Business rules, authorization, orchestration, transactions |
-| Repository | `persistence/repository/` | One Spring Data interface per entity; custom impl only for native SQL |
-| Entity | `persistence/entity/` | JPA mapping of shared PostgreSQL schema (read-only generation + manual write helpers) |
-| DTO | `features/{feature}/dto/` | OpenAPI request/response shapes |
+| Controller | `features/{feature}/` | HTTP routing, input validation |
+| Service | `features/{feature}/` | Business rules, orchestration, transactions |
+| Repository | `persistence/repository/` | Data access (Spring Data JPA) |
+| Entity | `persistence/entity/` | Database table mapping |
+| DTO | `features/{feature}/dto/` | API request/response shapes |
 | Mapper | `features/{feature}/mapper/` | Entity/projection → DTO |
 
-Feature packages under `features/` (`bookings/`, `properties/`, `hosts/`, …) own controllers, services, DTOs, and mappers. They do **not** own repository classes.
+Feature packages do **not** own repositories or entities.
 
-Cross-cutting code lives under `shared/` (`auth/`, utilities) and `config/`. Authentication, JWT validation, security filters, and app exceptions are in `shared/auth/`.
+## Persistence conventions
 
-## Spring Data JPA conventions
+- One Spring Data interface per entity in `persistence/repository/`.
+- Prefer **derived query methods** and **`@Query` JPQL** for most reads/writes.
+- Use **custom repository fragments** (`*Custom` + `*Impl`) only when JPQL is not enough (PostGIS search, heavy aggregations).
+- Keep **`EntityManager` out of services** — only inside custom repository implementations.
+- Generated entities are read-only; writes use factories in `persistence/entity/support/`.
 
-- **One repository interface per entity** under `persistence/repository/`.
-- **Derived query methods** for simple filters: `findByCustomerIdOrderByCreatedAtDesc`.
-- **`@Query` JPQL** for joins and moderate complexity.
-- **Custom repository fragments** (`PropertyRepositoryCustom` + `PropertyRepositoryImpl`) only when JPQL is insufficient: PostGIS search, pgvector, heavy aggregations.
-- **No EntityManager in services.** EntityManager appears only inside custom repository implementations.
+## Dependency rules
 
-## Schema ownership
+- Features may import `persistence/` and `shared/`.
+- Features must **not** import another feature's internals (e.g. no `features/payments` → `features/bookings.mapper`).
+- Cross-entity workflows (e.g. payment finalization updating a booking) live in the owning feature's service and may use multiple repositories from `persistence/`.
+- Controllers stay thin — no repository access.
 
-Supabase SQL migrations remain the sole DDL source. JPA entities reflect the schema; Hibernate `ddl-auto=validate` catches drift.
+## Business logic placement
 
-## Comparison with Python backend
+Domain rules belong in **services**, not in SQL functions or repository classes:
 
-| Concern | Python backend | Java backend |
-| --- | --- | --- |
-| Simple reads | SQLAlchemy queries / raw SQL | Spring Data derived methods |
-| Pricing / validation | Often via PostgreSQL RPC | Java service code |
-| Property search | `search_properties` RPC | `PropertySearchService` + `PropertySearchNativeQuery` (native SQL, PostGIS) |
-| Payment finalize | PostgreSQL RPCs | `PaymentFinalizationService` (Java; pessimistic locks + JPA save) |
-| Admin dashboards | Native SQL aggregations | `AdminRepositoryCustom` / `AdminRepositoryImpl` |
-| Notifications side effects | `notify_*` RPCs | `NotificationService` creates rows in Java |
-| Auth helpers | SQLAlchemy | `persistence/repository/ProfileRepository`, etc. |
-
-Both backends implement the same OpenAPI contract and authorization matrix; implementation style differs by language norms.
+- Booking pricing and validation → `BookingPricingService`, `BookingValidationService`
+- Payment finalization → `PaymentFinalizationService`
+- Property search → `PropertySearchService` (delegates to native SQL in `PropertySearchNativeQuery`)
