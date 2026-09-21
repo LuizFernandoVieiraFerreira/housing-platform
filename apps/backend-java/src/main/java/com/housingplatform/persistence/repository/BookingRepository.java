@@ -3,17 +3,23 @@ package com.housingplatform.persistence.repository;
 import com.housingplatform.bookings.model.BookingListView;
 import com.housingplatform.persistence.entity.Booking;
 import com.housingplatform.persistence.enums.BookingStatus;
+import jakarta.persistence.LockModeType;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface BookingRepository extends JpaRepository<Booking, UUID> {
+
+  @Lock(LockModeType.PESSIMISTIC_WRITE)
+  @Query("SELECT b FROM Booking b WHERE b.id = :id")
+  Optional<Booking> findByIdForUpdate(@Param("id") UUID id);
 
   @Query("SELECT b.propertyId FROM Booking b WHERE b.id = :id")
   Optional<UUID> findPropertyIdById(@Param("id") UUID id);
@@ -139,4 +145,38 @@ public interface BookingRepository extends JpaRepository<Booking, UUID> {
       @Param("bookingId") UUID bookingId,
       @Param("holdExpiresAt") java.time.OffsetDateTime holdExpiresAt,
       @Param("approver") com.housingplatform.persistence.entity.Profile approver);
+
+  @Modifying(clearAutomatically = true, flushAutomatically = true)
+  @Query(
+      """
+      UPDATE Booking b
+      SET b.status = com.housingplatform.persistence.enums.BookingStatus.confirmed,
+          b.updatedAt = CURRENT_TIMESTAMP
+      WHERE b.id = :bookingId
+      """)
+  int confirmFromPayment(@Param("bookingId") UUID bookingId);
+
+  @Modifying(clearAutomatically = true, flushAutomatically = true)
+  @Query(
+      """
+      UPDATE Booking b
+      SET b.status = com.housingplatform.persistence.enums.BookingStatus.expired,
+          b.updatedAt = CURRENT_TIMESTAMP
+      WHERE b.id = :bookingId
+      """)
+  int expireHold(@Param("bookingId") UUID bookingId);
+
+  @Modifying(clearAutomatically = true, flushAutomatically = true)
+  @Query(
+      """
+      UPDATE Booking b
+      SET b.status = com.housingplatform.persistence.enums.BookingStatus.payment_failed,
+          b.updatedAt = CURRENT_TIMESTAMP
+      WHERE b.id = :bookingId
+        AND b.status IN (
+          com.housingplatform.persistence.enums.BookingStatus.pending_payment,
+          com.housingplatform.persistence.enums.BookingStatus.payment_failed
+        )
+      """)
+  int markPaymentFailedFromPayment(@Param("bookingId") UUID bookingId);
 }

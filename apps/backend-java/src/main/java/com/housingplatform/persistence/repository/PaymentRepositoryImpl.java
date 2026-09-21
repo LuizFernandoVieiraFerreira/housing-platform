@@ -1,32 +1,20 @@
 package com.housingplatform.persistence.repository;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.housingplatform.auth.error.BadRequestException;
 import com.housingplatform.auth.error.BookingExpiredException;
 import com.housingplatform.auth.error.ForbiddenException;
-import com.housingplatform.auth.error.NotFoundException;
-import com.housingplatform.auth.error.PaymentAmountMismatchException;
-import com.housingplatform.persistence.entity.Payment;
 import com.housingplatform.persistence.enums.PaymentStatus;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import org.hibernate.exception.GenericJDBCException;
+
 public class PaymentRepositoryImpl implements PaymentRepositoryCustom {
 
   @PersistenceContext private EntityManager entityManager;
-
-  private final ObjectMapper objectMapper;
-
-  public PaymentRepositoryImpl(ObjectMapper objectMapper) {
-    this.objectMapper = objectMapper;
-  }
 
   @Override
   public Optional<PaymentLookupRow> findByOrderId(UUID orderId) {
@@ -55,6 +43,7 @@ public class PaymentRepositoryImpl implements PaymentRepositoryCustom {
     }
   }
 
+  @Override
   public PaymentOrderRow createPaymentOrder(UUID bookingId, UUID customerId) {
     lockBooking(bookingId);
 
@@ -184,125 +173,6 @@ public class PaymentRepositoryImpl implements PaymentRepositoryCustom {
         propertyTitle == null || propertyTitle.isBlank() ? "Housing Platform stay" : propertyTitle);
   }
 
-  public Payment finalizeSuccessfulPayment(
-      UUID orderId, String paymentKey, int amountKrw, Map<String, Object> tossResponse) {
-    UUID paymentId = callPaymentRpc(
-        """
-        select id from public.finalize_successful_payment(
-          :orderId, :paymentKey, :amountKrw, cast(:tossResponse as jsonb)
-        )
-        """,
-        orderId,
-        paymentKey,
-        amountKrw,
-        tossResponse);
-    return findPayment(paymentId).orElseThrow(() -> new NotFoundException("Payment not found"));
-  }
-
-  public Payment markPaymentFailed(
-      UUID orderId, String reason, Map<String, Object> tossResponse) {
-    UUID paymentId =
-        callPaymentRpc(
-            """
-            select id from public.mark_payment_failed(
-              :orderId, :reason, cast(:tossResponse as jsonb)
-            )
-            """,
-            orderId,
-            null,
-            0,
-            tossResponse,
-            reason);
-    return findPayment(paymentId).orElseThrow(() -> new NotFoundException("Payment not found"));
-  }
-
-  public void recordPaymentEvent(
-      String eventId,
-      UUID paymentId,
-      UUID bookingId,
-      String eventType,
-      Map<String, Object> payload) {
-    try {
-      entityManager
-          .createNativeQuery(
-              """
-              select id from public.record_payment_event(
-                :eventId, :paymentId, :bookingId, :eventType, cast(:payload as jsonb)
-              )
-              """)
-          .setParameter("eventId", eventId)
-          .setParameter("paymentId", paymentId)
-          .setParameter("bookingId", bookingId)
-          .setParameter("eventType", eventType)
-          .setParameter("payload", objectMapper.writeValueAsString(payload))
-          .getSingleResult();
-    } catch (NoResultException exception) {
-      throw new BadRequestException("Unable to record payment event");
-    } catch (JsonProcessingException exception) {
-      throw new IllegalStateException("Unable to serialize payment event payload", exception);
-    }
-  }
-
-  public RuntimeException mapFinalizeError(RuntimeException exception) {
-    String message = extractSqlMessage(exception);
-    String lowered = message.toLowerCase();
-    if (lowered.contains("expired")) {
-      return new BookingExpiredException(message);
-    }
-    if (lowered.contains("mismatch")) {
-      return new PaymentAmountMismatchException(message);
-    }
-    if (lowered.contains("not found")) {
-      return new NotFoundException(message);
-    }
-    return new BadRequestException(message);
-  }
-
-  private UUID callPaymentRpc(
-      String sql,
-      UUID orderId,
-      String paymentKey,
-      int amountKrw,
-      Map<String, Object> tossResponse) {
-    return callPaymentRpc(sql, orderId, paymentKey, amountKrw, tossResponse, null);
-  }
-
-  private UUID callPaymentRpc(
-      String sql,
-      UUID orderId,
-      String paymentKey,
-      int amountKrw,
-      Map<String, Object> tossResponse,
-      String reason) {
-    try {
-      var query =
-          entityManager
-              .createNativeQuery(sql)
-              .setParameter("orderId", orderId)
-              .setParameter("tossResponse", toJson(tossResponse));
-      if (paymentKey != null) {
-        query.setParameter("paymentKey", paymentKey);
-      }
-      if (reason != null) {
-        query.setParameter("reason", reason);
-      }
-      if (sql.contains(":amountKrw")) {
-        query.setParameter("amountKrw", amountKrw);
-      }
-      return (UUID) query.getSingleResult();
-    } catch (NoResultException exception) {
-      throw new NotFoundException("Payment not found");
-    }
-  }
-
-  private Optional<Payment> findPayment(UUID paymentId) {
-    return entityManager
-        .createQuery("select p from Payment p where p.id = :paymentId", Payment.class)
-        .setParameter("paymentId", paymentId)
-        .getResultStream()
-        .findFirst();
-  }
-
   private void lockBooking(UUID bookingId) {
     entityManager
         .createNativeQuery("select 1 from public.bookings where id = :bookingId for update")
@@ -320,28 +190,4 @@ public class PaymentRepositoryImpl implements PaymentRepositoryCustom {
     return value.intValue();
   }
 
-  private String toJson(Map<String, Object> value) {
-    if (value == null) {
-      return null;
-    }
-    try {
-      return objectMapper.writeValueAsString(value);
-    } catch (JsonProcessingException exception) {
-      throw new IllegalStateException("Unable to serialize JSON payload", exception);
-    }
-  }
-
-  private static String extractSqlMessage(Throwable exception) {
-    Throwable current = exception;
-    while (current != null) {
-      if (current instanceof GenericJDBCException generic && generic.getSQLException() != null) {
-        return generic.getSQLException().getMessage();
-      }
-      if (current.getMessage() != null) {
-        return current.getMessage();
-      }
-      current = current.getCause();
-    }
-    return "Payment processing failed";
-  }
 }

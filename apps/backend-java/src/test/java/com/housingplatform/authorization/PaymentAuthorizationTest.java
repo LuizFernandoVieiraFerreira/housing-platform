@@ -63,6 +63,8 @@ class PaymentAuthorizationTest {
 
   @MockitoBean private PaymentRepository paymentRepository;
 
+  @MockitoBean private com.housingplatform.payments.PaymentFinalizationService paymentFinalizationService;
+
   @MockitoBean private RateLimitService rateLimitService;
 
   @MockitoBean private TossClient tossClient;

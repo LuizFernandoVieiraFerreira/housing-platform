@@ -27,12 +27,17 @@ import org.springframework.transaction.annotation.Transactional;
 public class PaymentService {
 
   private final PaymentRepository paymentRepository;
+  private final PaymentFinalizationService paymentFinalizationService;
   private final RateLimitService rateLimitService;
   private final TossClient tossClient;
 
   public PaymentService(
-      PaymentRepository paymentRepository, RateLimitService rateLimitService, TossClient tossClient) {
+      PaymentRepository paymentRepository,
+      PaymentFinalizationService paymentFinalizationService,
+      RateLimitService rateLimitService,
+      TossClient tossClient) {
     this.paymentRepository = paymentRepository;
+    this.paymentFinalizationService = paymentFinalizationService;
     this.rateLimitService = rateLimitService;
     this.tossClient = tossClient;
   }
@@ -72,24 +77,21 @@ public class PaymentService {
           tossClient.confirmPayment(
               request.paymentKey(), request.orderId().toString(), request.amount());
     } catch (TossClient.TossClientError exception) {
-      paymentRepository.markPaymentFailed(request.orderId(), exception.getMessage(), tossResponse);
+      paymentFinalizationService.markPaymentFailed(
+          request.orderId(), exception.getMessage(), tossResponse);
       throw new PaymentFailedException(exception.getMessage());
     }
 
     if (!TossClient.isSuccessful(tossResponse)) {
       String reason = String.valueOf(tossResponse.getOrDefault("status", "Payment not completed"));
-      paymentRepository.markPaymentFailed(request.orderId(), reason, tossResponse);
+      paymentFinalizationService.markPaymentFailed(request.orderId(), reason, tossResponse);
       throw new PaymentFailedException("Payment was not completed");
     }
 
-    try {
-      var finalized =
-          paymentRepository.finalizeSuccessfulPayment(
-              request.orderId(), request.paymentKey(), request.amount(), tossResponse);
-      return PaymentMapper.toConfirmResult(finalized);
-    } catch (RuntimeException exception) {
-      throw paymentRepository.mapFinalizeError(exception);
-    }
+    var finalized =
+        paymentFinalizationService.finalizeSuccessfulPayment(
+            request.orderId(), request.paymentKey(), request.amount(), tossResponse);
+    return PaymentMapper.toConfirmResult(finalized);
   }
 
   @Transactional
@@ -125,7 +127,7 @@ public class PaymentService {
             .findByOrderId(orderId)
             .orElseThrow(() -> new NotFoundException("Payment not found"));
 
-    paymentRepository.recordPaymentEvent(
+    paymentFinalizationService.recordPaymentEvent(
         eventId,
         payment.id(),
         payment.bookingId(),
@@ -148,16 +150,13 @@ public class PaymentService {
 
     if (TossClient.isSuccessful(tossPayment)) {
       int amount = ((Number) tossPayment.getOrDefault("totalAmount", payment.amountKrw())).intValue();
-      try {
-        paymentRepository.finalizeSuccessfulPayment(orderId, paymentKey, amount, tossPayment);
-      } catch (RuntimeException exception) {
-        throw paymentRepository.mapFinalizeError(exception);
-      }
+      paymentFinalizationService.finalizeSuccessfulPayment(
+          orderId, paymentKey, amount, tossPayment);
       return new WebhookAck(true, WebhookAckStatus.confirmed);
     }
 
     if (TossClient.isFailed(tossPayment)) {
-      paymentRepository.markPaymentFailed(
+      paymentFinalizationService.markPaymentFailed(
           orderId, String.valueOf(tossPayment.getOrDefault("status", "Payment failed")), tossPayment);
       return new WebhookAck(true, WebhookAckStatus.failed);
     }
