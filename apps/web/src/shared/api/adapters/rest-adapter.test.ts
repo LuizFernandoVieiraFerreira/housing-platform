@@ -173,6 +173,23 @@ describe('rest adapter', () => {
     expect(error).toMatchObject({ code: 'HOLD_EXPIRED', message: 'Hold expired' });
   });
 
+  it('uses the global fetch without illegal invocation', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(jsonResponse({ ok: true }));
+    const adapter = createRestAdapter({
+      kind: 'python',
+      baseUrl: 'http://localhost:8000/api/v1',
+      getAccessToken: async () => null,
+    });
+
+    await adapter.request({ method: 'GET', path: '/amenities', anonymous: true });
+
+    expect(fetchSpy).toHaveBeenCalledWith(
+      'http://localhost:8000/api/v1/amenities',
+      expect.objectContaining({ method: 'GET' }),
+    );
+    fetchSpy.mockRestore();
+  });
+
   it('reports a network failure when fetch throws', async () => {
     const adapter = createRestAdapter({
       kind: 'java',

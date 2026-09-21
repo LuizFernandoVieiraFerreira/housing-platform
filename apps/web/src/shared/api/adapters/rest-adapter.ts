@@ -65,7 +65,8 @@ export class RestAdapter implements BackendAdapter {
   constructor(options: RestAdapterOptions) {
     this.kind = options.kind;
     this.baseUrl = normalizeBaseUrl(options.baseUrl);
-    this.fetchFn = options.fetchFn ?? fetch;
+    // fetch must stay bound to globalThis — assigning it to a field breaks `this`.
+    this.fetchFn = options.fetchFn ?? fetch.bind(globalThis);
     this.getAccessToken = options.getAccessToken ?? getSupabaseAccessToken;
   }
 
