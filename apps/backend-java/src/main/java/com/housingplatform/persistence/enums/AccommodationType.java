@@ -1,5 +1,8 @@
 package com.housingplatform.persistence.enums;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public enum AccommodationType {
   SHARE_HOUSE("share-house"),
   STUDIO("studio"),
@@ -12,10 +15,12 @@ public enum AccommodationType {
     this.dbValue = dbValue;
   }
 
+  @JsonValue
   public String dbValue() {
     return dbValue;
   }
 
+  @JsonCreator
   public static AccommodationType fromDbValue(String value) {
     for (AccommodationType type : values()) {
       if (type.dbValue.equals(value)) {
