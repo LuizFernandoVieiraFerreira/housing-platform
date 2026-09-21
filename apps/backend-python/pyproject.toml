@@ -1,0 +1,46 @@
+[tool.poetry]
+name = "housing-platform-backend"
+version = "0.1.0"
+description = "FastAPI backend for Housing Platform"
+authors = ["Housing Platform"]
+readme = "README.md"
+packages = [{ include = "housing_platform", from = "src" }]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "^0.115.0"
+uvicorn = { version = "^0.34.0", extras = ["standard"] }
+sqlalchemy = { version = "^2.0.40", extras = ["asyncio"] }
+psycopg = { version = "^3.2.6", extras = ["binary", "pool"] }
+pydantic-settings = "^2.8.1"
+geoalchemy2 = "^0.17.1"
+pgvector = "^0.4.0"
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.11.0"
+pytest = "^8.3.5"
+httpx = "^0.28.1"
+sqlacodegen = "^3.0.0"
+
+[tool.poetry.scripts]
+serve = "housing_platform.main:run"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["src/housing_platform/db/models_generated.py"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
+
+[tool.ruff.lint.per-file-ignores]
+"src/housing_platform/db/models.py" = ["E501"]
+"scripts/postprocess_models.py" = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
