@@ -1,0 +1,480 @@
+// Introspected from Supabase migrations via `pnpm prisma:pull`.
+// Do not run prisma migrate — see docs/database-ownership.md.
+// Auth schema models are excluded; profiles.id references auth.users as a plain UUID.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["public"]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model amenities {
+  id                 String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  slug               String               @unique
+  name               String
+  icon               String?
+  sort_order         Int                  @default(0)
+  created_at         DateTime             @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
+  property_amenities property_amenities[]
+
+  @@schema("public")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model api_rate_limits {
+  bucket        String
+  window_start  DateTime @db.Timestamptz(6)
+  request_count Int      @default(0)
+
+  @@id([bucket, window_start])
+  @@index([window_start])
+  @@schema("public")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model audit_logs {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  actor_id    String   @db.Uuid
+  action      String
+  entity_type String
+  entity_id   String?  @db.Uuid
+  metadata    Json     @default("{}")
+  created_at  DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
+  profiles    profiles @relation(fields: [actor_id], references: [id], onUpdate: NoAction)
+
+  @@index([created_at(sort: Desc)])
+  @@index([entity_type, entity_id], map: "audit_logs_entity_idx")
+  @@schema("public")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model booking_price_snapshots {
+  booking_id        String   @id @db.Uuid
+  rent_krw          Int
+  service_fee_krw   Int
+  utilities_krw     Int      @default(0)
+  total_krw         Int
+  pricing_version   String
+  nightly_breakdown Json     @default("[]")
+  created_at        DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
+  bookings          bookings @relation(fields: [booking_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@schema("public")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This table contains exclusion constraints and requires additional setup for migrations. Visit https://pris.ly/d/exclusion-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model bookings {
+  id                                      String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  customer_id                             String                   @db.Uuid
+  room_id                                 String                   @db.Uuid
+  property_id                             String                   @db.Uuid
+  check_in                                DateTime                 @db.Date
+  check_out                               DateTime                 @db.Date
+  guest_count                             Int
+  status                                  booking_status
+  booking_type                            booking_type
+  hold_expires_at                         DateTime?                @db.Timestamptz(6)
+  customer_notes                          String?
+  approved_at                             DateTime?                @db.Timestamptz(6)
+  approved_by                             String?                  @db.Uuid
+  cancelled_at                            DateTime?                @db.Timestamptz(6)
+  created_at                              DateTime                 @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
+  updated_at                              DateTime                 @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
+  payment_retry_count                     Int                      @default(0)
+  booking_price_snapshots                 booking_price_snapshots?
+  profiles_bookings_approved_byToprofiles profiles?                @relation("bookings_approved_byToprofiles", fields: [approved_by], references: [id], onUpdate: NoAction)
+  profiles_bookings_customer_idToprofiles profiles                 @relation("bookings_customer_idToprofiles", fields: [customer_id], references: [id], onUpdate: NoAction)
+  properties                              properties               @relation(fields: [property_id], references: [id], onUpdate: NoAction)
+  rooms                                   rooms                    @relation(fields: [room_id], references: [id], onUpdate: NoAction)
+  payment_events                          payment_events[]
+  payments                                payments[]
+
+  @@index([customer_id, status], map: "bookings_customer_status_idx")
+  @@index([room_id, check_in, check_out], map: "bookings_room_dates_idx")
+  @@schema("public")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model hosts {
+  id           String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  profile_id   String       @unique @db.Uuid
+  display_name String
+  status       host_status  @default(pending)
+  verified_at  DateTime?    @db.Timestamptz(6)
+  deleted_at   DateTime?    @db.Timestamptz(6)
+  created_at   DateTime     @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
+  updated_at   DateTime     @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
+  profiles     profiles     @relation(fields: [profile_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  properties   properties[]
+
+  @@schema("public")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model housing_requests {
+  id                 String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  customer_id        String?                @db.Uuid
+  email              String
+  desired_area       String
+  check_in           DateTime?              @db.Date
+  check_out          DateTime?              @db.Date
+  budget_max         Int?
+  accommodation_type accommodation_type?
+  notes              String?
+  status             housing_request_status @default(new)
+  created_at         DateTime               @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
+  updated_at         DateTime               @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
+  profiles           profiles?              @relation(fields: [customer_id], references: [id], onUpdate: NoAction)
+
+  @@index([customer_id])
+  @@index([status, created_at(sort: Desc)], map: "housing_requests_status_idx")
+  @@schema("public")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+/// This model contains an expression index which requires additional setup for migrations. Visit https://pris.ly/d/expression-indexes for more info.
+model location_aliases {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  alias         String
+  district      String
+  center_lat    Float
+  center_lng    Float
+  radius_meters Int      @default(2500)
+  created_at    DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
+
+  @@index([district])
+  @@schema("public")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model notifications {
+  id         String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id    String            @db.Uuid
+  type       notification_type
+  title      String
+  body       String
+  metadata   Json              @default("{}")
+  read_at    DateTime?         @db.Timestamptz(6)
+  created_at DateTime          @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
+  profiles   profiles          @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([user_id, created_at(sort: Desc)], map: "notifications_user_created_idx")
+  @@schema("public")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model payment_events {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  event_id     String    @unique(map: "payment_events_event_id_unique")
+  payment_id   String?   @db.Uuid
+  booking_id   String?   @db.Uuid
+  event_type   String
+  payload      Json
+  processed_at DateTime  @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
+  bookings     bookings? @relation(fields: [booking_id], references: [id], onUpdate: NoAction)
+  payments     payments? @relation(fields: [payment_id], references: [id], onUpdate: NoAction)
+
+  @@schema("public")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model payments {
+  id             String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  order_id       String           @unique(map: "payments_order_id_unique") @db.Uuid
+  payment_key    String?
+  booking_id     String           @db.Uuid
+  customer_id    String           @db.Uuid
+  amount_krw     Int
+  status         payment_status   @default(pending)
+  toss_response  Json?
+  failed_reason  String?
+  confirmed_at   DateTime?        @db.Timestamptz(6)
+  created_at     DateTime         @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
+  updated_at     DateTime         @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
+  payment_events payment_events[]
+  bookings       bookings         @relation(fields: [booking_id], references: [id], onUpdate: NoAction)
+  profiles       profiles         @relation(fields: [customer_id], references: [id], onUpdate: NoAction)
+
+  @@index([booking_id])
+  @@index([customer_id])
+  @@schema("public")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model platform_settings {
+  id               Int      @id @db.SmallInt
+  service_fee_bps  Int      @default(1000)
+  hold_ttl_minutes Int      @default(15)
+  pricing_version  String   @default("v1")
+  updated_at       DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
+
+  @@schema("public")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model profiles {
+  id                                      String             @id @db.Uuid
+  role                                    user_role          @default(customer)
+  full_name                               String
+  phone                                   String?
+  avatar_url                              String?
+  preferred_language                      String             @default("en")
+  marketing_consent                       Boolean            @default(false)
+  deleted_at                              DateTime?          @db.Timestamptz(6)
+  created_at                              DateTime           @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
+  updated_at                              DateTime           @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
+  audit_logs                              audit_logs[]
+  bookings_bookings_approved_byToprofiles bookings[]         @relation("bookings_approved_byToprofiles")
+  bookings_bookings_customer_idToprofiles bookings[]         @relation("bookings_customer_idToprofiles")
+  hosts                                   hosts?
+  housing_requests                        housing_requests[]
+  notifications                           notifications[]
+  payments                                payments[]
+
+  @@schema("public")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model properties {
+  id                          String                          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  host_id                     String                          @db.Uuid
+  title                       String
+  slug                        String
+  description                 String
+  property_type               accommodation_type
+  address_line1               String
+  address_line2               String?
+  city                        String                          @default("Seoul")
+  postal_code                 String?
+  country                     String                          @default("KR")
+  location                    Unsupported("extensions.geography(Point,4326)")?
+  district                    String
+  nearest_station_name        String?
+  nearest_station_walk_min    Int?
+  status                      property_status                 @default(draft)
+  booking_mode                booking_mode                    @default(request)
+  min_stay_nights             Int                             @default(30)
+  monthly_price_min           Int?
+  is_featured                 Boolean                         @default(false)
+  tags                        String[]                        @default([])
+  published_at                DateTime?                       @db.Timestamptz(6)
+  deleted_at                  DateTime?                       @db.Timestamptz(6)
+  created_at                  DateTime                        @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
+  updated_at                  DateTime                        @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
+  embedding_sync_status       property_embedding_sync_status?
+  embedding_sync_requested_at DateTime?                       @db.Timestamptz(6)
+  embedding_synced_at         DateTime?                       @db.Timestamptz(6)
+  embedding_sync_error        String?
+  embedding_sync_attempts     Int                             @default(0)
+  bookings                    bookings[]
+  hosts                       hosts                           @relation(fields: [host_id], references: [id], onUpdate: NoAction)
+  property_amenities          property_amenities[]
+  property_images             property_images[]
+  property_search_embeddings  property_search_embeddings?
+  rooms                       rooms[]
+
+  @@schema("public")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model property_amenities {
+  property_id String     @db.Uuid
+  amenity_id  String     @db.Uuid
+  amenities   amenities  @relation(fields: [amenity_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  properties  properties @relation(fields: [property_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([property_id, amenity_id])
+  @@schema("public")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model property_images {
+  id           String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  property_id  String     @db.Uuid
+  storage_path String
+  sort_order   Int        @default(0)
+  alt_text     String?
+  is_cover     Boolean    @default(false)
+  created_at   DateTime   @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
+  properties   properties @relation(fields: [property_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([property_id, sort_order], map: "property_images_property_sort_idx")
+  @@schema("public")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model property_search_embeddings {
+  property_id  String                @id @db.Uuid
+  content      String
+  content_hash String
+  embedding    Unsupported("extensions.vector(1536)")
+  updated_at   DateTime              @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
+  properties   properties            @relation(fields: [property_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([embedding], map: "property_search_embeddings_embedding_hnsw_idx")
+  @@index([updated_at(sort: Desc)])
+  @@schema("public")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model room_images {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  room_id      String   @db.Uuid
+  storage_path String
+  sort_order   Int      @default(0)
+  alt_text     String?
+  is_cover     Boolean  @default(false)
+  created_at   DateTime @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
+  rooms        rooms    @relation(fields: [room_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([room_id, sort_order], map: "room_images_room_sort_idx")
+  @@schema("public")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model rooms {
+  id                String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  property_id       String        @db.Uuid
+  name              String
+  room_type         String?
+  size_sqm          Decimal?      @db.Decimal(8, 2)
+  max_occupancy     Int           @default(1)
+  monthly_price_krw Int
+  status            room_status   @default(available)
+  available_from    DateTime?     @db.Date
+  deleted_at        DateTime?     @db.Timestamptz(6)
+  created_at        DateTime      @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
+  updated_at        DateTime      @default(dbgenerated("timezone('utc'::text, now())")) @db.Timestamptz(6)
+  bookings          bookings[]
+  room_images       room_images[]
+  properties        properties    @relation(fields: [property_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@schema("public")
+}
+
+enum accommodation_type {
+  share_house   @map("share-house")
+  studio
+  micro_studio  @map("micro-studio")
+  multi_bedroom @map("multi-bedroom")
+
+  @@schema("public")
+}
+
+enum booking_mode {
+  instant
+  request
+
+  @@schema("public")
+}
+
+enum booking_status {
+  requested
+  pending_payment
+  expired
+  confirmed
+  payment_failed
+  active
+  completed
+  cancelled
+  rejected
+
+  @@schema("public")
+}
+
+enum booking_type {
+  instant
+  request
+
+  @@schema("public")
+}
+
+enum host_status {
+  pending
+  active
+  suspended
+
+  @@schema("public")
+}
+
+enum housing_request_status {
+  new
+  in_progress
+  closed
+
+  @@schema("public")
+}
+
+enum notification_type {
+  booking_request
+  booking_confirmed
+  booking_rejected
+
+  @@schema("public")
+}
+
+enum payment_status {
+  pending
+  confirmed
+  failed
+  cancelled
+
+  @@schema("public")
+}
+
+enum property_embedding_sync_status {
+  pending
+  synced
+  failed
+  not_applicable
+
+  @@schema("public")
+}
+
+enum property_status {
+  draft
+  pending_review
+  published
+  archived
+
+  @@schema("public")
+}
+
+enum room_status {
+  available
+  unavailable
+  archived
+
+  @@schema("public")
+}
+
+enum user_role {
+  customer
+  host
+  admin
+
+  @@schema("public")
+}
