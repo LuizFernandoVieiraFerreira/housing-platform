@@ -1,4 +1,12 @@
-import { Controller, Get, Param, ParseUUIDPipe, Post } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseUUIDPipe,
+  Post,
+} from '@nestjs/common';
 
 import type { AuthUser } from '../../shared/auth/auth-user.model';
 import { RequireUser } from '../../shared/auth/require-user.decorator';
@@ -28,6 +36,7 @@ export class NotificationsController {
   }
 
   @Post('read-all')
+  @HttpCode(HttpStatus.OK)
   markAllNotificationsRead(
     @RequireUser() user: AuthUser,
   ): Promise<MarkAllNotificationsReadResultDto> {
@@ -35,6 +44,7 @@ export class NotificationsController {
   }
 
   @Post(':notificationId/read')
+  @HttpCode(HttpStatus.OK)
   markNotificationRead(
     @RequireUser() user: AuthUser,
     @Param('notificationId', ParseUUIDPipe) notificationId: string,

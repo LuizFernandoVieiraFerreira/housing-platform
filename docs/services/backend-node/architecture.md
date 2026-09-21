@@ -80,7 +80,7 @@ REST connects with service credentials and **bypasses RLS**. Authorization is en
 | --- | --- |
 | Services | Vitest unit tests with mocked repositories |
 | Controllers | `@nestjs/testing` + Vitest |
-| Contract | Shared OpenAPI contract tests (future) |
-| Authorization | Dedicated authz suite per backend (future) |
+| Contract | `src/test/contract.test.ts` — OpenAPI route parity and error envelope |
+| Authorization | `src/test/authorization.test.ts` — fail-closed checks per authorization matrix |
 
 Run with `pnpm test` from `apps/backend-node`.

@@ -9,6 +9,8 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:contract": "vitest run src/test/contract.test.ts",
+    "test:authorization": "vitest run src/test/authorization.test.ts",
     "postinstall": "prisma generate",
     "prisma:generate": "prisma generate",
     "prisma:pull": "node scripts/prepare-pull-schema.mjs && prisma db pull && node scripts/postprocess-schema.mjs && prisma generate",
@@ -29,6 +31,7 @@
     "@nestjs/cli": "^11.0.6",
     "@nestjs/schematics": "^11.0.5",
     "@nestjs/testing": "^11.0.12",
+    "@swc/core": "^1.16.2",
     "@types/express": "^5.0.1",
     "@types/node": "^22.14.1",
     "@types/supertest": "^7.2.1",
@@ -37,6 +40,8 @@
     "supertest": "^7.2.2",
     "typescript": "^5.8.2",
     "typescript-eslint": "^8.30.1",
-    "vitest": "^3.1.1"
+    "unplugin-swc": "^1.6.0",
+    "vitest": "^3.1.1",
+    "yaml": "^2.8.0"
   }
 }
