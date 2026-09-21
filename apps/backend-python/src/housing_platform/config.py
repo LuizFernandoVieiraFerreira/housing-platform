@@ -15,6 +15,8 @@ class Settings(BaseSettings):
     supabase_url: str = "http://127.0.0.1:54321"
     supabase_jwt_secret: str | None = None
     supabase_jwt_audience: str = "authenticated"
+    toss_secret_key: str = ""
+    payment_dev_mock: bool = False
 
     @field_validator("cors_origins", mode="before")
     @classmethod

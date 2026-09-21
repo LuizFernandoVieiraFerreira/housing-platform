@@ -47,6 +47,26 @@ class ConflictError(AppError):
         super().__init__(code="BOOKING_CONFLICT", message=message, status_code=409)
 
 
+class BookingExpiredError(AppError):
+    def __init__(self, message: str = "Booking hold has expired") -> None:
+        super().__init__(code="BOOKING_EXPIRED", message=message, status_code=409)
+
+
+class PaymentFailedError(AppError):
+    def __init__(self, message: str = "Payment was not completed") -> None:
+        super().__init__(code="PAYMENT_FAILED", message=message, status_code=409)
+
+
+class PaymentAmountMismatchError(AppError):
+    def __init__(self, message: str = "Payment amount does not match booking total") -> None:
+        super().__init__(code="PAYMENT_AMOUNT_MISMATCH", message=message, status_code=409)
+
+
+class ExternalServiceError(AppError):
+    def __init__(self, message: str = "External service error") -> None:
+        super().__init__(code="EXTERNAL_SERVICE_ERROR", message=message, status_code=502)
+
+
 class RateLimitedError(AppError):
     def __init__(self, message: str = "Rate limit exceeded") -> None:
         super().__init__(code="RATE_LIMITED", message=message, status_code=429)

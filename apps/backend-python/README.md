@@ -57,3 +57,5 @@ poetry run ruff check src tests
 | `SUPABASE_URL` | `http://127.0.0.1:54321` | Supabase project URL for JWT validation |
 | `SUPABASE_JWT_SECRET` | — | HS256 secret from `supabase status` (required for local tokens) |
 | `SUPABASE_JWT_AUDIENCE` | `authenticated` | Expected JWT `aud` claim for user access tokens |
+| `TOSS_SECRET_KEY` | — | Toss Payments secret key (test/live) |
+| `PAYMENT_DEV_MOCK` | `false` | When `true` (or secret key empty), accept `devmock_*` payment keys without calling Toss |
