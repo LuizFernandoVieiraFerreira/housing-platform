@@ -9,11 +9,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import com.housingplatform.auth.jwt.SupabaseJwtValidator;
+import com.housingplatform.auth.service.AuthorizationService;
 import javax.sql.DataSource;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -23,14 +27,20 @@ import org.springframework.test.web.servlet.MockMvc;
     controllers = HealthController.class,
     excludeAutoConfiguration = {
       DataSourceAutoConfiguration.class,
-      HibernateJpaAutoConfiguration.class
+      HibernateJpaAutoConfiguration.class,
+      SecurityAutoConfiguration.class
     })
 @TestPropertySource(properties = "housing-platform.api-prefix=/api/v1")
+@AutoConfigureMockMvc(addFilters = false)
 class HealthControllerTest {
 
   @Autowired private MockMvc mockMvc;
 
   @MockitoBean private DataSource dataSource;
+
+  @MockitoBean private SupabaseJwtValidator supabaseJwtValidator;
+
+  @MockitoBean private AuthorizationService authorizationService;
 
   @Test
   void healthEndpointReturnsOkWhenDatabaseIsReachable() throws Exception {
