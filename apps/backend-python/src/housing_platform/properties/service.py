@@ -14,6 +14,7 @@ from housing_platform.properties.mappers import (
     request_to_property_fields,
 )
 from housing_platform.properties.repository import PropertyRepository
+from housing_platform.properties.search_criteria import to_search_criteria
 from housing_platform.properties.schemas import (
     CreatedId,
     HostPropertyDetail,
@@ -40,8 +41,8 @@ class PropertyService:
 
     def search(self, query: PropertySearchQuery) -> PropertySearchResult:
         self._validate_search_query(query)
-        filters = self._filters_to_rpc_payload(query)
-        rows = self._repo.search(filters, limit=query.limit, offset=query.offset)
+        criteria = to_search_criteria(query)
+        rows = self._repo.search(criteria, limit=query.limit, offset=query.offset)
         total_count = rows[0].total_count if rows else 0
         items = [
             map_search_property_card(
@@ -206,43 +207,3 @@ class PropertyService:
         ):
             raise BadRequestError("checkOut must be after checkIn")
 
-    @staticmethod
-    def _filters_to_rpc_payload(query: PropertySearchQuery) -> dict[str, object]:
-        payload: dict[str, object] = {"sort": query.sort.value}
-
-        if query.query:
-            payload["query"] = query.query
-        if query.property_type is not None:
-            payload["property_type"] = query.property_type.value
-        if query.check_in is not None:
-            payload["check_in"] = query.check_in.isoformat()
-        if query.check_out is not None:
-            payload["check_out"] = query.check_out.isoformat()
-        if query.guests is not None:
-            payload["guests"] = query.guests
-        if query.price_min is not None:
-            payload["price_min"] = query.price_min
-        if query.price_max is not None:
-            payload["price_max"] = query.price_max
-        if query.center_lat is not None:
-            payload["center_lat"] = query.center_lat
-        if query.center_lng is not None:
-            payload["center_lng"] = query.center_lng
-        if (
-            query.north is not None
-            and query.south is not None
-            and query.east is not None
-            and query.west is not None
-        ):
-            payload["north"] = query.north
-            payload["south"] = query.south
-            payload["east"] = query.east
-            payload["west"] = query.west
-        if query.amenity_slugs:
-            payload["amenity_slugs"] = query.amenity_slugs
-        if query.max_station_walk_min is not None:
-            payload["max_station_walk_min"] = query.max_station_walk_min
-        if query.exclude_property_ids:
-            payload["exclude_property_ids"] = [str(value) for value in query.exclude_property_ids]
-
-        return payload

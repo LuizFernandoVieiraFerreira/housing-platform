@@ -7,10 +7,12 @@ import pytest
 from housing_platform.auth.errors import ConflictError, ForbiddenError
 from housing_platform.auth.models import AuthUser, UserRole
 from housing_platform.auth.service import AuthorizationService
-from housing_platform.bookings.repository import BookingInputs, BookingListRow, BookingPrice
+from housing_platform.bookings.pricing import BookingPrice
+from housing_platform.bookings.repository import BookingInputs, BookingListRow
 from housing_platform.bookings.schemas import BookingQuoteQuery, CreateBookingRequest
 from housing_platform.bookings.service import BookingService
 from housing_platform.db.models import Bookings
+from tests.conftest import noop_rate_limit
 
 
 def _booking_row(*, status: str = "requested", booking_type: str = "request") -> Bookings:
@@ -78,10 +80,18 @@ def _list_row(*, customer_id=None) -> BookingListRow:
 def test_quote_returns_price_breakdown() -> None:
     db = MagicMock()
     repo = MagicMock(unsafe=True)
+    pricing = MagicMock(unsafe=True)
+    rate_limit = MagicMock(unsafe=True)
     inputs = _booking_inputs()
     repo.validate_booking_inputs.return_value = inputs
-    repo.calculate_booking_price.return_value = _booking_price()
-    service = BookingService(db, AuthorizationService(db), repository=repo)
+    pricing.calculate_price.return_value = _booking_price()
+    service = BookingService(
+        db,
+        AuthorizationService(db),
+        repository=repo,
+        pricing=pricing,
+        rate_limit=rate_limit,
+    )
 
     result = service.quote(
         BookingQuoteQuery(
@@ -94,20 +104,30 @@ def test_quote_returns_price_breakdown() -> None:
 
     assert result.total_krw == 1_023_000
     assert result.nights == 31
-    repo.assert_rate_limit.assert_called_once_with("quote:anon", 60, 60)
+    rate_limit.assert_rate_limit.assert_called_once_with("quote:anon", 60, 60)
 
 
 def test_create_booking_hold_commits_transaction() -> None:
     db = MagicMock()
     auth = AuthorizationService(db)
     repo = MagicMock(unsafe=True)
+    pricing = MagicMock(unsafe=True)
+    notifications = MagicMock(unsafe=True)
+    rate_limit = MagicMock(unsafe=True)
     inputs = _booking_inputs(booking_mode="request")
     created = _booking_row(status="requested", booking_type="request")
     repo.validate_booking_inputs.return_value = inputs
     repo.room_has_booking_conflict.return_value = False
-    repo.calculate_booking_price.return_value = _booking_price()
+    pricing.calculate_price.return_value = _booking_price()
     repo.create_booking_hold.return_value = created
-    service = BookingService(db, auth, repository=repo)
+    service = BookingService(
+        db,
+        auth,
+        repository=repo,
+        pricing=pricing,
+        notifications=notifications,
+        rate_limit=rate_limit,
+    )
     user = AuthUser(id=uuid4(), email="guest@example.com", role=UserRole.CUSTOMER)
 
     result = service.create_booking_hold(
@@ -121,7 +141,7 @@ def test_create_booking_hold_commits_transaction() -> None:
     )
 
     assert result.id == created.id
-    repo.notify_booking_request.assert_called_once_with(created.id)
+    notifications.notify_booking_request.assert_called_once_with(created)
     db.commit.assert_called_once()
 
 
@@ -131,7 +151,12 @@ def test_create_booking_hold_rejects_conflicts() -> None:
     inputs = _booking_inputs()
     repo.validate_booking_inputs.return_value = inputs
     repo.room_has_booking_conflict.return_value = True
-    service = BookingService(db, AuthorizationService(db), repository=repo)
+    service = BookingService(
+        db,
+        AuthorizationService(db),
+        repository=repo,
+        rate_limit=noop_rate_limit(),
+    )
     user = AuthUser(id=uuid4(), email="guest@example.com", role=UserRole.CUSTOMER)
 
     with pytest.raises(ConflictError, match="conflict"):

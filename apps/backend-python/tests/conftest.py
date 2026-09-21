@@ -7,6 +7,7 @@ from uuid import uuid4
 
 import pytest
 from fastapi.testclient import TestClient
+from unittest.mock import MagicMock
 
 from housing_platform.auth.dependencies import get_current_user, get_db
 from housing_platform.auth.models import AuthUser, UserRole
@@ -60,3 +61,7 @@ def api_client() -> Iterator[TestClient]:
 def authenticated_client(customer: AuthUser) -> Iterator[TestClient]:
     with make_client(customer) as client:
         yield client
+
+
+def noop_rate_limit() -> MagicMock:
+    return MagicMock(unsafe=True)

@@ -27,7 +27,7 @@ from housing_platform.profile.router import get_profile_service
 from housing_platform.profile.service import ProfileService
 from housing_platform.properties.router import get_property_service
 from housing_platform.properties.service import PropertyService
-from tests.conftest import make_client
+from tests.conftest import make_client, noop_rate_limit
 from tests.support.contract import assert_error_envelope
 
 API = settings.api_prefix
@@ -330,7 +330,7 @@ class TestPaymentAuthorization:
         db = MagicMock()
         repo = MagicMock(unsafe=True)
         repo.create_payment_order.side_effect = ForbiddenError("Booking not found")
-        service = PaymentService(db, repository=repo)
+        service = PaymentService(db, repository=repo, rate_limit=noop_rate_limit())
 
         with make_client(customer, overrides={get_payment_service: lambda: service}) as client:
             response = client.post(
@@ -353,7 +353,12 @@ class TestPaymentAuthorization:
             amount_krw=1_023_000,
             status="pending",
         )
-        service = PaymentService(db, repository=repo, toss_client=MagicMock(unsafe=True))
+        service = PaymentService(
+            db,
+            repository=repo,
+            toss_client=MagicMock(unsafe=True),
+            rate_limit=noop_rate_limit(),
+        )
 
         with make_client(customer, overrides={get_payment_service: lambda: service}) as client:
             response = client.post(
@@ -373,7 +378,12 @@ class TestPaymentAuthorization:
         db = MagicMock()
         repo = MagicMock(unsafe=True)
         repo.get_payment_by_order_id.return_value = None
-        service = PaymentService(db, repository=repo, toss_client=MagicMock(unsafe=True))
+        service = PaymentService(
+            db,
+            repository=repo,
+            toss_client=MagicMock(unsafe=True),
+            rate_limit=noop_rate_limit(),
+        )
 
         with make_client(customer, overrides={get_payment_service: lambda: service}) as client:
             response = client.post(

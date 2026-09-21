@@ -16,6 +16,8 @@ from housing_platform.bookings.mappers import (
     map_booking_list_item,
     map_booking_quote,
 )
+from housing_platform.bookings.notifications import BookingNotificationService
+from housing_platform.bookings.pricing import BookingPricingService
 from housing_platform.bookings.repository import BookingListRow, BookingRepository
 from housing_platform.bookings.schemas import (
     Booking,
@@ -25,6 +27,7 @@ from housing_platform.bookings.schemas import (
     BookingQuoteQuery,
     CreateBookingRequest,
 )
+from housing_platform.shared.rate_limit import RateLimitService
 
 
 class BookingService:
@@ -33,10 +36,16 @@ class BookingService:
         db: Session,
         auth_service: AuthorizationService,
         repository: BookingRepository | None = None,
+        pricing: BookingPricingService | None = None,
+        notifications: BookingNotificationService | None = None,
+        rate_limit: RateLimitService | None = None,
     ) -> None:
         self._db = db
         self._auth = auth_service
         self._repo = repository or BookingRepository(db)
+        self._pricing = pricing or BookingPricingService(db)
+        self._notifications = notifications or BookingNotificationService(db)
+        self._rate_limit = rate_limit or RateLimitService(db)
 
     def quote(
         self,
@@ -44,14 +53,14 @@ class BookingService:
         *,
         rate_limit_actor: str = "anon",
     ) -> BookingQuote:
-        self._repo.assert_rate_limit(f"quote:{rate_limit_actor}", 60, 60)
+        self._rate_limit.assert_rate_limit(f"quote:{rate_limit_actor}", 60, 60)
         inputs = self._repo.validate_booking_inputs(
             query.room_id,
             query.check_in,
             query.check_out,
             query.guest_count,
         )
-        price = self._repo.calculate_booking_price(inputs.monthly_price_krw, inputs.nights)
+        price = self._pricing.calculate_price(inputs.monthly_price_krw, inputs.nights)
         return map_booking_quote(
             room_id=inputs.room_id,
             property_id=inputs.property_id,
@@ -76,7 +85,7 @@ class BookingService:
         return self._map_detail_row(row)
 
     def create_booking_hold(self, user: AuthUser, request: CreateBookingRequest) -> Booking:
-        self._repo.assert_rate_limit(f"booking_hold:{user.id}", 10, 60)
+        self._rate_limit.assert_rate_limit(f"booking_hold:{user.id}", 10, 60)
 
         inputs = self._repo.validate_booking_inputs(
             request.room_id,
@@ -92,7 +101,7 @@ class BookingService:
         ):
             raise ConflictError("Selected dates conflict with an existing booking hold")
 
-        price = self._repo.calculate_booking_price(inputs.monthly_price_krw, inputs.nights)
+        price = self._pricing.calculate_price(inputs.monthly_price_krw, inputs.nights)
         customer_notes = request.customer_notes.strip() if request.customer_notes else None
         if customer_notes == "":
             customer_notes = None
@@ -112,7 +121,7 @@ class BookingService:
         )
 
         if inputs.booking_mode == "request":
-            self._repo.notify_booking_request(booking.id)
+            self._notifications.notify_booking_request(booking)
 
         self._db.commit()
         self._db.refresh(booking)
@@ -145,7 +154,7 @@ class BookingService:
         if approved is None:
             raise BadRequestError("Booking must be in requested status to approve")
 
-        self._repo.notify_booking_confirmed(booking_id)
+        self._notifications.notify_booking_confirmed(approved)
         self._db.commit()
         self._db.refresh(approved)
         return map_booking(approved)
@@ -161,7 +170,7 @@ class BookingService:
         if rejected is None:
             raise BadRequestError("Booking must be in requested status to reject")
 
-        self._repo.notify_booking_rejected(booking_id)
+        self._notifications.notify_booking_rejected(rejected)
         self._db.commit()
         self._db.refresh(rejected)
         return map_booking(rejected)

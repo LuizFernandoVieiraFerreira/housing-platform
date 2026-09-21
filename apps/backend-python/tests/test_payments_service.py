@@ -21,6 +21,7 @@ from housing_platform.payments.schemas import (
 )
 from housing_platform.payments.service import PaymentService
 from housing_platform.payments.toss_client import TossClient, TossClientError
+from tests.conftest import noop_rate_limit
 
 
 def _user() -> AuthUser:
@@ -41,9 +42,10 @@ def _order_row() -> PaymentOrderRow:
 def test_create_payment_order_commits_transaction() -> None:
     db = MagicMock()
     repo = MagicMock(unsafe=True)
+    rate_limit = MagicMock(unsafe=True)
     order = _order_row()
     repo.create_payment_order.return_value = order
-    service = PaymentService(db, repository=repo)
+    service = PaymentService(db, repository=repo, rate_limit=rate_limit)
     user = _user()
 
     result = service.create_payment_order(
@@ -53,7 +55,7 @@ def test_create_payment_order_commits_transaction() -> None:
 
     assert result.payment_id == order.payment_id
     assert result.order_name == "Test Property"
-    repo.assert_rate_limit.assert_called_once_with(f"create-payment:{user.id}", 20, 60)
+    rate_limit.assert_rate_limit.assert_called_once_with(f"create-payment:{user.id}", 20, 60)
     db.commit.assert_called_once()
 
 
@@ -69,7 +71,12 @@ def test_confirm_payment_requires_owner() -> None:
         amount_krw=1_023_000,
         status="pending",
     )
-    service = PaymentService(db, repository=repo, toss_client=MagicMock(unsafe=True))
+    service = PaymentService(
+        db,
+        repository=repo,
+        toss_client=MagicMock(unsafe=True),
+        rate_limit=noop_rate_limit(),
+    )
 
     with pytest.raises(ForbiddenError, match="cannot confirm"):
         service.confirm_payment(
@@ -95,7 +102,12 @@ def test_confirm_payment_rejects_amount_mismatch() -> None:
         amount_krw=1_023_000,
         status="pending",
     )
-    service = PaymentService(db, repository=repo, toss_client=MagicMock(unsafe=True))
+    service = PaymentService(
+        db,
+        repository=repo,
+        toss_client=MagicMock(unsafe=True),
+        rate_limit=noop_rate_limit(),
+    )
 
     with pytest.raises(PaymentAmountMismatchError):
         service.confirm_payment(
@@ -122,7 +134,12 @@ def test_confirm_payment_is_idempotent_when_already_confirmed() -> None:
         amount_krw=1_023_000,
         status="confirmed",
     )
-    service = PaymentService(db, repository=repo, toss_client=MagicMock(unsafe=True))
+    service = PaymentService(
+        db,
+        repository=repo,
+        toss_client=MagicMock(unsafe=True),
+        rate_limit=noop_rate_limit(),
+    )
 
     result = service.confirm_payment(
         user,
@@ -142,6 +159,7 @@ def test_confirm_payment_marks_failed_when_toss_rejects() -> None:
     user = _user()
     db = MagicMock()
     repo = MagicMock(unsafe=True)
+    finalization = MagicMock(unsafe=True)
     toss = MagicMock(unsafe=True)
     order_id = uuid4()
     repo.get_payment_by_order_id.return_value = PaymentLookupRow(
@@ -153,7 +171,13 @@ def test_confirm_payment_marks_failed_when_toss_rejects() -> None:
         status="pending",
     )
     toss.confirm_payment.side_effect = TossClientError("Card declined")
-    service = PaymentService(db, repository=repo, toss_client=toss)
+    service = PaymentService(
+        db,
+        repository=repo,
+        toss_client=toss,
+        finalization=finalization,
+        rate_limit=noop_rate_limit(),
+    )
 
     with pytest.raises(PaymentFailedError, match="Card declined"):
         service.confirm_payment(
@@ -165,7 +189,7 @@ def test_confirm_payment_marks_failed_when_toss_rejects() -> None:
             ),
         )
 
-    repo.mark_payment_failed.assert_called_once()
+    finalization.mark_payment_failed.assert_called_once()
     db.commit.assert_called_once()
 
 
@@ -173,6 +197,7 @@ def test_confirm_payment_finalizes_successful_toss_response() -> None:
     user = _user()
     db = MagicMock()
     repo = MagicMock(unsafe=True)
+    finalization = MagicMock(unsafe=True)
     toss = MagicMock(unsafe=True)
     order_id = uuid4()
     payment_id = uuid4()
@@ -192,8 +217,14 @@ def test_confirm_payment_finalizes_successful_toss_response() -> None:
     finalized.order_id = order_id
     finalized.booking_id = booking_id
     finalized.status = "confirmed"
-    repo.finalize_successful_payment.return_value = finalized
-    service = PaymentService(db, repository=repo, toss_client=toss)
+    finalization.finalize_successful_payment.return_value = finalized
+    service = PaymentService(
+        db,
+        repository=repo,
+        toss_client=toss,
+        finalization=finalization,
+        rate_limit=noop_rate_limit(),
+    )
 
     result = service.confirm_payment(
         user,
@@ -212,6 +243,7 @@ def test_confirm_payment_finalizes_successful_toss_response() -> None:
 def test_webhook_confirms_successful_payment() -> None:
     db = MagicMock()
     repo = MagicMock(unsafe=True)
+    finalization = MagicMock(unsafe=True)
     toss = TossClient(secret_key="test_secret", payment_dev_mock=False)
     order_id = uuid4()
     payment_id = uuid4()
@@ -230,8 +262,8 @@ def test_webhook_confirms_successful_payment() -> None:
     finalized.order_id = order_id
     finalized.booking_id = booking_id
     finalized.status = "confirmed"
-    repo.finalize_successful_payment.return_value = finalized
-    service = PaymentService(db, repository=repo, toss_client=toss)
+    finalization.finalize_successful_payment.return_value = finalized
+    service = PaymentService(db, repository=repo, toss_client=toss, finalization=finalization)
 
     result = service.receive_webhook(
         TossWebhookPayload(
@@ -243,7 +275,7 @@ def test_webhook_confirms_successful_payment() -> None:
 
     assert result.ok is True
     assert result.status == WebhookAckStatus.CONFIRMED
-    repo.record_payment_event.assert_called_once()
+    finalization.record_payment_event.assert_called_once()
 
 
 def test_webhook_returns_external_service_error_when_toss_unavailable() -> None:

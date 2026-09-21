@@ -1,7 +1,6 @@
 import uuid
 from typing import Any
 
-from sqlalchemy.exc import DBAPIError
 from sqlalchemy.orm import Session
 
 from housing_platform.auth.errors import (
@@ -13,6 +12,7 @@ from housing_platform.auth.errors import (
     PaymentFailedError,
 )
 from housing_platform.auth.models import AuthUser
+from housing_platform.payments.finalization import PaymentFinalizationService
 from housing_platform.payments.mappers import (
     map_confirm_payment_result,
     map_create_payment_order_result,
@@ -29,6 +29,7 @@ from housing_platform.payments.schemas import (
     WebhookAckStatus,
 )
 from housing_platform.payments.toss_client import TossClient, TossClientError
+from housing_platform.shared.rate_limit import RateLimitService
 
 
 class PaymentService:
@@ -37,17 +38,21 @@ class PaymentService:
         db: Session,
         repository: PaymentRepository | None = None,
         toss_client: TossClient | None = None,
+        finalization: PaymentFinalizationService | None = None,
+        rate_limit: RateLimitService | None = None,
     ) -> None:
         self._db = db
         self._repo = repository or PaymentRepository(db)
         self._toss = toss_client or TossClient()
+        self._finalization = finalization or PaymentFinalizationService(db)
+        self._rate_limit = rate_limit or RateLimitService(db)
 
     def create_payment_order(
         self,
         user: AuthUser,
         request: CreatePaymentOrderRequest,
     ) -> CreatePaymentOrderResult:
-        self._repo.assert_rate_limit(f"create-payment:{user.id}", 20, 60)
+        self._rate_limit.assert_rate_limit(f"create-payment:{user.id}", 20, 60)
 
         order = self._repo.create_payment_order(request.booking_id, user.id)
         self._db.commit()
@@ -65,7 +70,7 @@ class PaymentService:
         user: AuthUser,
         request: ConfirmPaymentRequest,
     ) -> ConfirmPaymentResult:
-        self._repo.assert_rate_limit(f"confirm-payment:{user.id}", 20, 60)
+        self._rate_limit.assert_rate_limit(f"confirm-payment:{user.id}", 20, 60)
 
         payment = self._repo.get_payment_by_order_id(request.order_id)
         if payment is None:
@@ -94,7 +99,7 @@ class PaymentService:
                 amount=request.amount,
             )
         except TossClientError as exc:
-            self._repo.mark_payment_failed(
+            self._finalization.mark_payment_failed(
                 order_id=request.order_id,
                 reason=str(exc),
                 toss_response=toss_response,
@@ -104,7 +109,7 @@ class PaymentService:
 
         if not self._toss.is_successful(toss_response):
             reason = str(toss_response.get("status", "Payment not completed"))
-            self._repo.mark_payment_failed(
+            self._finalization.mark_payment_failed(
                 order_id=request.order_id,
                 reason=reason,
                 toss_response=toss_response,
@@ -112,16 +117,12 @@ class PaymentService:
             self._db.commit()
             raise PaymentFailedError("Payment was not completed")
 
-        try:
-            finalized = self._repo.finalize_successful_payment(
-                order_id=request.order_id,
-                payment_key=request.payment_key,
-                amount_krw=request.amount,
-                toss_response=toss_response,
-            )
-        except DBAPIError as exc:
-            mapped = self._repo.map_finalize_error(exc)
-            raise mapped from exc
+        finalized = self._finalization.finalize_successful_payment(
+            order_id=request.order_id,
+            payment_key=request.payment_key,
+            amount_krw=request.amount,
+            toss_response=toss_response,
+        )
 
         self._db.commit()
         self._db.refresh(finalized)
@@ -151,7 +152,7 @@ class PaymentService:
         if payment is None:
             raise NotFoundError("Payment not found")
 
-        self._repo.record_payment_event(
+        self._finalization.record_payment_event(
             event_id=event_id,
             payment_id=payment.id,
             booking_id=payment.booking_id,
@@ -170,22 +171,17 @@ class PaymentService:
 
         if self._toss.is_successful(toss_payment):
             amount = int(toss_payment.get("totalAmount", payment.amount_krw))
-            try:
-                self._repo.finalize_successful_payment(
-                    order_id=order_id,
-                    payment_key=payment_key,
-                    amount_krw=amount,
-                    toss_response=toss_payment,
-                )
-            except DBAPIError as exc:
-                mapped = self._repo.map_finalize_error(exc)
-                raise mapped from exc
-
+            self._finalization.finalize_successful_payment(
+                order_id=order_id,
+                payment_key=payment_key,
+                amount_krw=amount,
+                toss_response=toss_payment,
+            )
             self._db.commit()
             return WebhookAck(ok=True, status=WebhookAckStatus.CONFIRMED)
 
         if self._toss.is_failed(toss_payment):
-            self._repo.mark_payment_failed(
+            self._finalization.mark_payment_failed(
                 order_id=order_id,
                 reason=str(toss_payment.get("status", "Payment failed")),
                 toss_response=toss_payment,

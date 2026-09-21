@@ -7,7 +7,7 @@ from housing_platform.auth.errors import BadRequestError, ForbiddenError, NotFou
 from housing_platform.auth.models import AuthUser, UserRole
 from housing_platform.auth.service import AuthorizationService
 from housing_platform.db.models import Properties
-from housing_platform.properties.repository import SearchPropertyRow
+from housing_platform.properties.search_criteria import SearchPropertyRow
 from housing_platform.properties.schemas import (
     HostPropertyRequest,
     PropertySearchQuery,

@@ -3,15 +3,11 @@ from dataclasses import dataclass
 from datetime import UTC, date, datetime, timedelta
 
 from sqlalchemy import select, text
-from sqlalchemy.exc import DBAPIError, IntegrityError
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, selectinload
 
-from housing_platform.auth.errors import (
-    BadRequestError,
-    ConflictError,
-    NotFoundError,
-    RateLimitedError,
-)
+from housing_platform.auth.errors import BadRequestError, ConflictError, NotFoundError
+from housing_platform.bookings.pricing import BookingPrice
 from housing_platform.db.models import (
     BookingPriceSnapshots,
     Bookings,
@@ -30,14 +26,6 @@ class BookingInputs:
     monthly_price_krw: int
     max_occupancy: int
     nights: int
-
-
-@dataclass(frozen=True)
-class BookingPrice:
-    rent_krw: int
-    service_fee_krw: int
-    total_krw: int
-    pricing_version: str
 
 
 @dataclass(frozen=True)
@@ -66,25 +54,6 @@ class BookingListRow:
 class BookingRepository:
     def __init__(self, db: Session) -> None:
         self._db = db
-
-    def assert_rate_limit(self, bucket: str, max_requests: int, window_seconds: int) -> None:
-        try:
-            self._db.execute(
-                text(
-                    """
-                    select public.assert_rate_limit(:bucket, :max_requests, :window_seconds)
-                    """
-                ),
-                {
-                    "bucket": bucket,
-                    "max_requests": max_requests,
-                    "window_seconds": window_seconds,
-                },
-            )
-        except DBAPIError as exc:
-            if self._is_rate_limit_error(exc):
-                raise RateLimitedError("Rate limit exceeded") from exc
-            raise
 
     def validate_booking_inputs(
         self,
@@ -142,27 +111,6 @@ class BookingRepository:
             nights=nights,
         )
 
-    def calculate_booking_price(self, monthly_price_krw: int, nights: int) -> BookingPrice:
-        row = self._db.execute(
-            text(
-                """
-                select rent_krw, service_fee_krw, total_krw, pricing_version
-                from public.calculate_booking_price(:monthly_price_krw, :nights)
-                """
-            ),
-            {"monthly_price_krw": monthly_price_krw, "nights": nights},
-        ).mappings().first()
-
-        if row is None:
-            raise BadRequestError("Unable to calculate booking price")
-
-        return BookingPrice(
-            rent_krw=row["rent_krw"],
-            service_fee_krw=row["service_fee_krw"],
-            total_krw=row["total_krw"],
-            pricing_version=row["pricing_version"],
-        )
-
     def room_has_booking_conflict(
         self,
         room_id: uuid.UUID,
@@ -173,7 +121,14 @@ class BookingRepository:
             self._db.scalar(
                 text(
                     """
-                    select public.room_has_booking_conflict(:room_id, :check_in, :check_out)
+                    select exists (
+                      select 1
+                      from public.bookings b
+                      where b.room_id = :room_id
+                        and b.status in ('pending_payment', 'confirmed', 'active')
+                        and daterange(b.check_in, b.check_out, '[)')
+                            && daterange(:check_in, :check_out, '[)')
+                    )
                     """
                 ),
                 {
@@ -456,47 +411,7 @@ class BookingRepository:
         self._db.flush()
         return booking
 
-    def notify_booking_request(self, booking_id: uuid.UUID) -> None:
-        self._db.execute(
-            text(
-                """
-                select public.notify_booking_request(b)
-                from public.bookings b
-                where b.id = :booking_id
-                """
-            ),
-            {"booking_id": booking_id},
-        )
-
-    def notify_booking_confirmed(self, booking_id: uuid.UUID) -> None:
-        self._db.execute(
-            text(
-                """
-                select public.notify_booking_confirmed(b)
-                from public.bookings b
-                where b.id = :booking_id
-                """
-            ),
-            {"booking_id": booking_id},
-        )
-
-    def notify_booking_rejected(self, booking_id: uuid.UUID) -> None:
-        self._db.execute(
-            text(
-                """
-                select public.notify_booking_rejected(b)
-                from public.bookings b
-                where b.id = :booking_id
-                """
-            ),
-            {"booking_id": booking_id},
-        )
-
     @staticmethod
     def _is_overlap_conflict(exc: IntegrityError) -> bool:
         message = str(exc.orig).lower()
         return "bookings_no_overlap" in message or "exclusion" in message
-
-    @staticmethod
-    def _is_rate_limit_error(exc: DBAPIError) -> bool:
-        return "rate limit exceeded" in str(exc.orig).lower()

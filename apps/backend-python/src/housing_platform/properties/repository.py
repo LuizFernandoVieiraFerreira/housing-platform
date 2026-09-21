@@ -1,4 +1,3 @@
-import json
 import uuid
 from dataclasses import dataclass
 
@@ -12,24 +11,8 @@ from housing_platform.db.models import (
     Rooms,
     t_property_amenities,
 )
-
-
-@dataclass(frozen=True)
-class SearchPropertyRow:
-    id: uuid.UUID
-    title: str
-    slug: str
-    property_type: str
-    district: str
-    nearest_station_name: str | None
-    monthly_price_min: int
-    tags: list[str] | None
-    cover_storage_path: str | None
-    cover_alt_text: str | None
-    latitude: float
-    longitude: float
-    distance_meters: float | None
-    total_count: int
+from housing_platform.properties.search_criteria import PropertySearchCriteria, SearchPropertyRow
+from housing_platform.properties.search_query import execute_property_search
 
 
 @dataclass(frozen=True)
@@ -44,44 +27,17 @@ class PropertyRepository:
 
     def search(
         self,
-        filters: dict[str, object],
+        criteria: PropertySearchCriteria,
         *,
         limit: int,
         offset: int,
     ) -> list[SearchPropertyRow]:
-        rows = self._db.execute(
-            text(
-                """
-                select *
-                from public.search_properties(
-                  cast(:filters as jsonb),
-                  :limit,
-                  :offset
-                )
-                """
-            ),
-            {"filters": json.dumps(filters), "limit": limit, "offset": offset},
-        ).mappings()
-
-        return [
-            SearchPropertyRow(
-                id=row["id"],
-                title=row["title"],
-                slug=row["slug"],
-                property_type=row["property_type"],
-                district=row["district"],
-                nearest_station_name=row["nearest_station_name"],
-                monthly_price_min=row["monthly_price_min"],
-                tags=row["tags"],
-                cover_storage_path=row["cover_storage_path"],
-                cover_alt_text=row["cover_alt_text"],
-                latitude=row["latitude"],
-                longitude=row["longitude"],
-                distance_meters=row["distance_meters"],
-                total_count=int(row["total_count"]),
-            )
-            for row in rows
-        ]
+        return execute_property_search(
+            self._db,
+            criteria,
+            limit=limit,
+            offset=offset,
+        )
 
     def get_published_property(self, property_id: uuid.UUID) -> Properties | None:
         return self._db.scalar(
