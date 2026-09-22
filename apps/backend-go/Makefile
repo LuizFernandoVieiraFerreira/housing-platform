@@ -22,6 +22,14 @@ build:
 test:
 	go test -v ./...
 
+# Run contract tests
+test-contract:
+	go test -v ./internal/contract/...
+
+# Run authorization tests
+test-authorization:
+	go test -v ./internal/authorization/...
+
 # Run tests with coverage
 test-coverage:
 	go test -v -coverprofile=coverage.out ./...

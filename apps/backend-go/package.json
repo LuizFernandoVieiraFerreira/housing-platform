@@ -5,6 +5,8 @@
     "dev": "make dev",
     "build": "make build",
     "test": "make test",
+    "test:contract": "make test-contract",
+    "test:authorization": "make test-authorization",
     "lint": "make lint",
     "typecheck": "make typecheck",
     "generate": "make generate"
