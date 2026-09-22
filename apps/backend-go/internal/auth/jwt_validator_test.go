@@ -140,8 +140,8 @@ func assertUnauthorized(t *testing.T, err error, message string) {
 	if !errors.As(err, &appErr) {
 		t.Fatalf("expected AppError, got %T: %v", err, err)
 	}
-	if appErr.Code != apierrors.CodeUnauthorized {
-		t.Fatalf("code = %q, want %q", appErr.Code, apierrors.CodeUnauthorized)
+	if appErr.Code != apierrors.CodeUnauthenticated {
+		t.Fatalf("code = %q, want %q", appErr.Code, apierrors.CodeUnauthenticated)
 	}
 	if appErr.Message != message {
 		t.Fatalf("message = %q, want %q", appErr.Message, message)

@@ -11,25 +11,24 @@ import (
 	"time"
 
 	"github.com/housing-platform/backend-go/internal/api"
+	"github.com/housing-platform/backend-go/internal/auth"
+	"github.com/housing-platform/backend-go/internal/deps"
 	"github.com/housing-platform/backend-go/internal/config"
 	"github.com/housing-platform/backend-go/internal/db"
 )
 
 func main() {
-	// Initialize structured logger
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
 		Level: slog.LevelInfo,
 	}))
 	slog.SetDefault(logger)
 
-	// Load configuration
 	cfg, err := config.Load()
 	if err != nil {
 		slog.Error("failed to load configuration", "error", err)
 		os.Exit(1)
 	}
 
-	// Connect to database
 	pool, err := db.NewPool(context.Background(), cfg.DatabaseURL)
 	if err != nil {
 		slog.Error("failed to connect to database", "error", err)
@@ -37,10 +36,20 @@ func main() {
 	}
 	defer pool.Close()
 
-	// Create router
-	router := api.NewRouter(pool, cfg)
+	authModule, err := auth.NewModule(context.Background(), pool, cfg)
+	if err != nil {
+		slog.Error("failed to initialize auth module", "error", err)
+		os.Exit(1)
+	}
 
-	// Create server
+	routerDeps := &deps.Deps{
+		Pool:   pool,
+		Config: cfg,
+		Auth:   authModule,
+	}
+
+	router := api.NewRouter(routerDeps)
+
 	addr := fmt.Sprintf(":%d", cfg.Port)
 	srv := &http.Server{
 		Addr:         addr,
@@ -50,7 +59,6 @@ func main() {
 		IdleTimeout:  60 * time.Second,
 	}
 
-	// Start server in goroutine
 	go func() {
 		slog.Info("API listening", "address", fmt.Sprintf("http://localhost:%d%s", cfg.Port, cfg.APIPrefix))
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
@@ -59,14 +67,12 @@ func main() {
 		}
 	}()
 
-	// Wait for interrupt signal
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 
 	slog.Info("shutting down server...")
 
-	// Graceful shutdown with timeout
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 

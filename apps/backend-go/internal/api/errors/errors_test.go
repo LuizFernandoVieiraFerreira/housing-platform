@@ -9,7 +9,7 @@ import (
 )
 
 func TestAppError_Error(t *testing.T) {
-	err := New(CodeBadRequest, "test message", http.StatusBadRequest)
+	err := New(CodeValidationError, "test message", http.StatusBadRequest)
 	if err.Error() != "test message" {
 		t.Errorf("expected 'test message', got %s", err.Error())
 	}
@@ -40,14 +40,17 @@ func TestErrorConstructors(t *testing.T) {
 		wantCode   string
 		wantStatus int
 	}{
-		{"BadRequest", BadRequest("bad"), CodeBadRequest, http.StatusBadRequest},
-		{"Unauthorized", Unauthorized("unauth"), CodeUnauthorized, http.StatusUnauthorized},
+		{"BadRequest", BadRequest("bad"), CodeValidationError, http.StatusBadRequest},
+		{"Unauthorized", Unauthorized("unauth"), CodeUnauthenticated, http.StatusUnauthorized},
 		{"Forbidden", Forbidden("forbidden"), CodeForbidden, http.StatusForbidden},
 		{"NotFound", NotFound("not found"), CodeNotFound, http.StatusNotFound},
-		{"Conflict", Conflict("conflict"), CodeConflict, http.StatusConflict},
-		{"UnprocessableEntity", UnprocessableEntity("invalid"), CodeUnprocessableEntity, http.StatusUnprocessableEntity},
+		{"Conflict", Conflict("conflict"), CodeBookingConflict, http.StatusConflict},
+		{"BookingExpired", BookingExpired("expired"), CodeBookingExpired, http.StatusConflict},
+		{"PaymentFailed", PaymentFailed("failed"), CodePaymentFailed, http.StatusConflict},
+		{"PaymentAmountMismatch", PaymentAmountMismatch("mismatch"), CodePaymentAmountMismatch, http.StatusConflict},
+		{"ExternalServiceError", ExternalServiceError("external"), CodeExternalServiceError, http.StatusBadGateway},
+		{"RateLimited", RateLimited("limited"), CodeRateLimited, http.StatusTooManyRequests},
 		{"InternalError", InternalError("internal"), CodeInternalError, http.StatusInternalServerError},
-		{"ServiceUnavailable", ServiceUnavailable("unavailable"), CodeServiceUnavailable, http.StatusServiceUnavailable},
 	}
 
 	for _, tt := range tests {

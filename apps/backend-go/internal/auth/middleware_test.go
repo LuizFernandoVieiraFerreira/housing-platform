@@ -22,7 +22,7 @@ func TestRequiredMiddlewareRejectsMissingToken(t *testing.T) {
 	rec := httptest.NewRecorder()
 	handler.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/protected", nil))
 
-	assertErrorResponse(t, rec, apierrors.CodeUnauthorized, "Authentication required")
+	assertErrorResponse(t, rec, apierrors.CodeUnauthenticated, "Authentication required")
 }
 
 func TestRequiredMiddlewareAttachesUser(t *testing.T) {

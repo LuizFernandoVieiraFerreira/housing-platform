@@ -75,7 +75,7 @@ func TestAuthorizationServiceResolveUserMissingProfile(t *testing.T) {
 	})
 
 	_, err := service.ResolveUser(context.Background(), "11111111-1111-4111-8111-111111111111", "")
-	assertAppError(t, err, apierrors.CodeUnauthorized, "User profile not found")
+	assertAppError(t, err, apierrors.CodeUnauthenticated, "User profile not found")
 }
 
 func TestAuthorizationServiceRequireAdmin(t *testing.T) {
