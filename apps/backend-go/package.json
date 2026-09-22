@@ -1,0 +1,12 @@
+{
+  "name": "@housing-platform/backend-go",
+  "private": true,
+  "scripts": {
+    "dev": "make dev",
+    "build": "make build",
+    "test": "make test",
+    "lint": "make lint",
+    "typecheck": "make typecheck",
+    "generate": "make generate"
+  }
+}
