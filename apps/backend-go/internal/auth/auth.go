@@ -6,14 +6,24 @@ package auth
 
 import (
 	"context"
-	"net/http"
+
+	apierrors "github.com/housing-platform/backend-go/internal/api/errors"
+	"github.com/housing-platform/backend-go/internal/config"
+	"github.com/housing-platform/backend-go/internal/db"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-// User represents the authenticated user extracted from JWT.
+const (
+	RoleCustomer = "customer"
+	RoleHost     = "host"
+	RoleAdmin    = "admin"
+)
+
+// User represents the authenticated user extracted from JWT and profile lookup.
 type User struct {
 	ID    string // Supabase Auth user ID (UUID)
 	Email string
-	Role  string // From profiles table: "user", "host", "admin"
+	Role  string // From profiles table: customer, host, admin
 }
 
 type contextKey string
@@ -39,41 +49,42 @@ func SetUser(ctx context.Context, user *User) context.Context {
 func RequireUser(ctx context.Context) *User {
 	user := GetUser(ctx)
 	if user == nil {
-		panic("unauthorized: no authenticated user")
+		panic(apierrors.Unauthorized("Authentication required"))
 	}
 	return user
 }
 
-// Middleware placeholder - to be implemented with JWT validation.
-// TODO: Implement JWT validation using Supabase JWKS or HS256 secret.
-func Middleware(jwtSecret string) func(http.Handler) http.Handler {
-	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			// TODO: Extract and validate JWT from Authorization header
-			// TODO: Load user role from profiles table
-			// TODO: Set user in context
-			next.ServeHTTP(w, r)
-		})
+// NewModule wires JWT validation and authorization services.
+func NewModule(ctx context.Context, pool *pgxpool.Pool, cfg *config.Config) (*Module, error) {
+	validator, err := NewJWTValidator(ctx, cfg)
+	if err != nil {
+		return nil, err
 	}
+
+	queries := db.New(pool)
+	return &Module{
+		Validator:     validator,
+		Authorization: NewAuthorizationService(queries),
+	}, nil
 }
 
 // Authorization helpers - equivalent to RLS helper functions.
 
-// IsAdmin checks if the user has admin role.
+// IsAdmin checks if the user has admin role from the resolved profile.
 func IsAdmin(user *User) bool {
-	return user != nil && user.Role == "admin"
+	return user != nil && user.Role == RoleAdmin
 }
 
-// IsHost checks if the user has host role.
+// IsHost checks if the user has host role from the resolved profile.
 func IsHost(user *User) bool {
-	return user != nil && user.Role == "host"
+	return user != nil && user.Role == RoleHost
 }
 
-// RequireAdmin panics if the user is not an admin.
+// RequireAdmin panics if the user is not an admin based on resolved profile role.
 func RequireAdmin(ctx context.Context) *User {
 	user := RequireUser(ctx)
 	if !IsAdmin(user) {
-		panic("forbidden: admin role required")
+		panic(apierrors.Forbidden("Admin access required"))
 	}
 	return user
 }

@@ -37,15 +37,14 @@ func NewRouter(pool *pgxpool.Pool, cfg *config.Config) *chi.Mux {
 		// Health check (public)
 		r.Get("/health", health.Handler(pool))
 
-		// Feature routes - placeholder mounts
-		// TODO: Implement auth middleware and feature handlers
-		// r.Route("/properties", properties.Routes(pool, cfg))
-		// r.Route("/bookings", bookings.Routes(pool, cfg))
-		// r.Route("/payments", payments.Routes(pool, cfg))
-		// r.Route("/hosts", hosts.Routes(pool, cfg))
-		// r.Route("/admin", admin.Routes(pool, cfg))
-		// r.Route("/notifications", notifications.Routes(pool, cfg))
-		// r.Route("/profile", profile.Routes(pool, cfg))
+		// Feature routes - mount with auth.NewModule(ctx, pool, cfg):
+		// r.With(authModule.Required()).Route("/bookings", bookings.Routes(pool, cfg))
+		// r.With(authModule.Optional()).Route("/properties", properties.Routes(pool, cfg))
+		// r.With(authModule.Required()).Route("/payments", payments.Routes(pool, cfg))
+		// r.With(authModule.Required()).Route("/hosts", hosts.Routes(pool, cfg))
+		// r.With(authModule.RequireAdmin()).Route("/admin", admin.Routes(pool, cfg))
+		// r.With(authModule.Required()).Route("/notifications", notifications.Routes(pool, cfg))
+		// r.With(authModule.Required()).Route("/profile", profile.Routes(pool, cfg))
 	})
 
 	return r
