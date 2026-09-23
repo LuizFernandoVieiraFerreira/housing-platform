@@ -4,19 +4,19 @@ Agentic coding assistant instructions for housing-platform monorepo.
 
 ## Quick Reference
 
-| What              | Command                                                    |
-| ----------------- | ---------------------------------------------------------- |
-| Dev server        | `npm run dev`                                              |
-| Build all         | `npm run build`                                            |
-| Lint              | `npm run lint`                                             |
-| Typecheck         | `npm run typecheck`                                        |
-| All tests         | `npm run test`                                             |
-| Single test file  | `cd apps/web && npx vitest run src/path/to/file.test.ts`   |
-| Watch single test | `cd apps/web && npx vitest watch src/path/to/file.test.ts` |
-| Format code       | `npm run format`                                           |
-| Storybook         | `npm run storybook`                                        |
-| Database reset    | `npm run db:reset`                                         |
-| Integration tests | `npm run test:integration`                                 |
+| What              | Command                                                            |
+| ----------------- | ------------------------------------------------------------------ |
+| Dev server        | `npm run dev`                                                      |
+| Build all         | `npm run build`                                                    |
+| Lint              | `npm run lint`                                                     |
+| Typecheck         | `npm run typecheck`                                                |
+| All tests         | `npm run test`                                                     |
+| Single test file  | `cd apps/web && npx vitest run src/path/to/file.test.ts`           |
+| Watch single test | `cd apps/web && npx vitest watch src/path/to/file.test.ts`         |
+| Format code       | `npm run format`                                                   |
+| Storybook         | `npm run storybook`                                                |
+| Database reset    | `npm run db:reset`                                                 |
+| Integration tests | `npm run test:integration`                                         |
 | E2E tests         | `pnpm db:reset && pnpm test:e2e` (starts edge functions if needed) |
 
 ## Project Structure
@@ -87,13 +87,13 @@ features/<feature-name>/
 model/ ← api/ ← state/ ← hooks/ ← components/
 ```
 
-| Layer | Can Import | Purpose |
-|-------|------------|---------|
-| `model/` | Nothing | Pure types, schemas, constants |
-| `api/` | `model/` | Data fetching, mappers |
-| `state/` | `model/` | Client state management |
-| `hooks/` | `model/`, `api/`, `state/` | Query + state composition |
-| `components/` | All layers | UI rendering |
+| Layer         | Can Import                 | Purpose                        |
+| ------------- | -------------------------- | ------------------------------ |
+| `model/`      | Nothing                    | Pure types, schemas, constants |
+| `api/`        | `model/`                   | Data fetching, mappers         |
+| `state/`      | `model/`                   | Client state management        |
+| `hooks/`      | `model/`, `api/`, `state/` | Query + state composition      |
+| `components/` | All layers                 | UI rendering                   |
 
 ### Import Rules
 
@@ -367,6 +367,20 @@ function BookingPanel() {
 | `@housing-platform/validation` | Zod schemas            | Form/API validation     |
 | `@housing-platform/utils`      | Utility functions      | Shared helpers          |
 
+## Docs Reference
+
+Read from `docs/` when relevant context is needed. **Trust docs over outdated code patterns.**
+
+| Situation                      | Document                       |
+| ------------------------------ | ------------------------------ |
+| Architecture overview          | `docs/architecture.md`         |
+| Feature layer rules            | `docs/layers.md`               |
+| Error handling, queries, forms | `docs/patterns.md`             |
+| Naming, imports, testing       | `docs/conventions.md`          |
+| Security pre-deploy            | `docs/security-checklist.md`   |
+| Database migrations            | `docs/database-ownership.md`   |
+| RLS / permissions              | `docs/authorization-matrix.md` |
+
 ## File Reference
 
 | Need                    | File                                               |
@@ -377,5 +391,3 @@ function BookingPanel() {
 | Error handling          | `apps/web/src/shared/lib/errors.ts`                |
 | Logging                 | `apps/web/src/shared/lib/logger.ts`                |
 | Query keys              | `apps/web/src/shared/api/query-keys.ts`            |
-| Schema ownership        | `docs/database-ownership.md`                       |
-| Authorization matrix    | `docs/authorization-matrix.md`                     |
