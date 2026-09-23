@@ -2,31 +2,35 @@
 
 ## Naming
 
-| Type | Convention | Example |
-|------|------------|---------|
-| Files | kebab-case | `booking-api.ts` |
-| Components | PascalCase | `BookingPanel.tsx` |
-| Hooks | camelCase, `use` prefix | `useBookingPanel.ts` |
-| Constants | SCREAMING_SNAKE | `MAX_GUEST_COUNT` |
-| Types | PascalCase | `BookingStatus` |
-| Folders | kebab-case | `my-feature/` |
+| Type            | Convention                        | Example                     |
+| --------------- | --------------------------------- | --------------------------- |
+| Files/folders   | kebab-case                        | `booking-api.ts`            |
+| Components      | PascalCase (match kebab filename) | `BookingPanel.tsx`          |
+| Props interface | `{ComponentName}Props`            | `BookingPanelProps`         |
+| Hooks           | camelCase, `use` prefix           | `useBookingPanel.ts`        |
+| API files       | `<feature>-api.ts`                | `booking-api.ts`            |
+| Utility files   | `<feature>-utils.ts`              | `booking-utils.ts`          |
+| Test files      | `<name>.test.ts(x)`               | `BookingPanel.test.tsx`     |
+| Constants       | SCREAMING_SNAKE_CASE              | `MAX_GUEST_COUNT`           |
+| Types           | PascalCase                        | `BookingStatus`             |
 
 ## Imports
 
 Grouped and ordered:
+
 ```typescript
 // 1. React/libraries
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
 // 2. Workspace packages
-import { cn } from '@housing/utils';
-import { Button } from '@housing/ui';
+import { cn } from '@housing-platform/utils';
+import { Button } from '@housing-platform/ui';
 
 // 3. Shared code
-import { supabase } from '@/shared/lib/supabase';
+import { supabase } from '@/shared/api/supabase';
 
-// 4. Feature imports (relative)
+// 4. Feature imports (relative within feature)
 import { useBookingForm } from '../state';
 import type { Booking } from '../model';
 ```
@@ -38,51 +42,67 @@ import type { Booking } from '../model';
 - Never bypass barrel exports from other features
 
 ```typescript
-// ✅ Good
+// ✅ Correct
 import { BookingPanel } from '@/features/booking';
 
-// ❌ Bad - bypassing barrel
+// ❌ Incorrect — bypassing barrel
 import { BookingPanel } from '@/features/booking/components/BookingPanel';
 ```
 
+## TypeScript
+
+- **Strict mode**: Enabled
+- **No type suppression**: Never use `as any`, `@ts-ignore`, `@ts-expect-error`
+- **Props**: Define with `interface`, place directly above component
+- **Zod**: Use for runtime validation, types in `@housing-platform/validation`
+
 ## Testing
 
+### Location
+
 ```
-__tests__/           # Unit tests (if many)
-Component.test.tsx   # Colocated tests (if few)
+Component.tsx           # Source
+Component.test.tsx      # Colocated test (preferred)
+__tests__/Component.ts  # Alternative for many tests
 ```
 
-Key rules:
+### Key Rules
+
 - Mock external dependencies only
 - Use `renderHook` for hook tests
 - Test behavior, not implementation
+- Use `data-testid` on forms and primary actions
+
+### Fixtures
+
+```typescript
+// src/test/fixtures/property.ts
+export function createPropertyDetail(overrides?: Partial<PropertyDetail>): PropertyDetail {
+  return {
+    id: 'prop-1',
+    title: 'Test Property',
+    ...overrides,
+  };
+}
+```
 
 ## E2E (Playwright)
 
-Critical flows live in `tests/e2e/specs/`:
+Critical flows in `tests/e2e/specs/`:
 
 ```bash
-supabase start && pnpm db:reset   # seed dev accounts + catalog
-pnpm test:e2e                     # starts edge functions if needed, then Playwright
+supabase start && pnpm db:reset   # seed dev accounts
+pnpm test:e2e                     # runs Playwright
 ```
-
-Use `data-testid` on forms and primary actions (`login-form`, `booking-form`, `checkout-pay`).
 
 ## Storybook
 
-Two Storybook instances:
-
 ```bash
-pnpm storybook           # UI components (packages/ui, port 6006)
-pnpm storybook:features  # Feature components (apps/web, port 6007)
+pnpm storybook           # packages/ui (port 6006)
+pnpm storybook:features  # apps/web (port 6007)
 ```
 
-Story file naming:
-```
-Component.stories.tsx    # Colocated with component
-```
-
-Feature stories include providers (QueryClient, i18n, Router) automatically.
+Story naming: `Component.stories.tsx` colocated with component.
 
 ## Styling
 
@@ -105,26 +125,14 @@ const buttonVariants = cva('px-4 py-2 rounded', {
 
 ## i18n
 
-Type-safe translations with autocomplete:
+Type-safe translations:
 
 ```typescript
-// Standard hook (existing code)
-const { t } = useTranslation('booking');
-t('status.confirmed'); // works
-
-// Typed hook (new - provides autocomplete)
 import { useTypedTranslation } from '@/i18n/hooks';
 
 const { t } = useTypedTranslation('auth');
 t('login.title');     // ✓ autocomplete
 t('login.invalid');   // ✗ compile error
-
-// Files
-i18n/
-├── types.ts          # Type definitions
-├── hooks.ts          # useTypedTranslation, useTranslation
-├── locales/
-│   ├── en/*.json
-│   └── ko/*.json
-└── i18next.d.ts      # i18next type augmentation
 ```
+
+Files: `src/i18n/locales/{en,ko}/*.json`
