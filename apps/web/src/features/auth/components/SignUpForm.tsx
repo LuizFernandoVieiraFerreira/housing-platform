@@ -7,6 +7,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 import { getAuthErrorMessage } from '@/features/auth/lib/auth-utils';
+import { track } from '@/shared/analytics';
 import { supabase } from '@/shared/api/supabase';
 
 const appUrl = import.meta.env.VITE_APP_URL ?? window.location.origin;
@@ -44,6 +45,8 @@ export function SignUpForm({ title, description, successRedirectTo, loginPath }:
     setFormError(null);
     setSuccessMessage(null);
 
+    track({ name: 'signup_started', properties: { method: 'email' } });
+
     const { data, error } = await supabase.auth.signUp({
       email: values.email,
       password: values.password,
@@ -62,10 +65,13 @@ export function SignUpForm({ title, description, successRedirectTo, loginPath }:
     }
 
     if (data.session) {
+      track({ name: 'signup_completed', properties: { method: 'email' } });
       navigate(successRedirectTo, { replace: true });
       return;
     }
 
+    // Email confirmation required - track signup as completed (verification is separate)
+    track({ name: 'signup_completed', properties: { method: 'email' } });
     setSuccessMessage(t('signup.successMessage'));
     navigate('/signup/verify-email', {
       replace: true,

@@ -4,6 +4,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 
 import { getBookingErrorMessage } from '@/features/booking/lib/booking-utils';
 import { useConfirmPayment } from '@/features/checkout/hooks/usePayment';
+import { track } from '@/shared/analytics';
 
 type ConfirmStatus = 'confirming' | 'success' | 'error';
 
@@ -36,11 +37,27 @@ export function PaymentSuccessPage() {
       .then((result) => {
         if (result.bookingId) {
           setBookingId(result.bookingId);
+
+          track({
+            name: 'payment_completed',
+            properties: {
+              booking_id: result.bookingId,
+              total_price_krw: amount,
+              payment_method: 'card',
+            },
+          });
         }
 
         setStatus('success');
       })
       .catch((confirmError) => {
+        track({
+          name: 'payment_failed',
+          properties: {
+            booking_id: orderId.split('_')[1] ?? orderId, // Extract booking ID from order ID if possible
+            error_code: confirmError instanceof Error ? confirmError.message : undefined,
+          },
+        });
         setError(getBookingErrorMessage(confirmError, 'Unable to confirm payment.'));
         setStatus('error');
       });

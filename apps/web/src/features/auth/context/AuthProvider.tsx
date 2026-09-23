@@ -7,6 +7,7 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react
 
 import { ProfileSync } from '@/features/auth/components/ProfileSync';
 import { AuthContext, type AuthContextValue } from '@/features/auth/hooks/useAuth';
+import { analytics, identify, track } from '@/shared/analytics';
 import { supabase } from '@/shared/api/supabase';
 import { logger } from '@/shared/lib/logger';
 
@@ -41,6 +42,22 @@ function syncAuthSession(
   setSession(nextSession);
   setIsLoading(false);
 
+  // Analytics: identify user on sign in, reset on sign out
+  if (nextSession?.user) {
+    const user = nextSession.user;
+    identify(user.id, {
+      email_verified: Boolean(user.email_confirmed_at),
+      signup_date: user.created_at?.split('T')[0],
+    });
+
+    // Track login event (SIGNED_IN fires on login and page refresh with valid session)
+    if (event === 'SIGNED_IN') {
+      track({ name: 'login_completed', properties: { method: 'email' } });
+    }
+  } else if (event === 'SIGNED_OUT') {
+    analytics.reset();
+  }
+
   if (!nextSession?.user) {
     applyLoggedOutTheme();
   }
@@ -69,6 +86,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = useCallback(async () => {
     log.info('User signing out', { action: 'signOut', userId: session?.user?.id });
+
+    // Track logout before clearing identity
+    track({ name: 'logout_completed', properties: {} });
+
     const { error } = await supabase.auth.signOut();
 
     if (error) {

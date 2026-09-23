@@ -1,5 +1,6 @@
 import { Badge, Button, Card, PageHeader, Skeleton } from '@housing-platform/ui';
-import { Link, useParams } from 'react-router-dom';
+import { useEffect, useRef } from 'react';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 import { BookingPanel } from '@/features/booking/components/BookingPanel';
@@ -8,14 +9,37 @@ import { NaverPropertyMap } from '@/features/search/components/NaverPropertyMap'
 import { usePropertyDetail } from '@/features/search/hooks/usePropertyDetail';
 import { useFormatPrice } from '@/i18n/CurrencyProvider';
 import { usePropertyTypeLabel } from '@/i18n/hooks';
+import { track } from '@/shared/analytics';
 
 export function PropertyDetailPage() {
   const { t } = useTranslation('account');
   const { t: tBooking } = useTranslation('booking');
   const formatPrice = useFormatPrice();
   const { propertyId } = useParams<{ propertyId: string }>();
+  const [searchParams] = useSearchParams();
   const { data: property, isLoading, isError } = usePropertyDetail(propertyId);
   const propertyTypeLabel = usePropertyTypeLabel(property?.propertyType ?? 'studio');
+  const trackedPropertyId = useRef<string | null>(null);
+
+  // Track property view when property loads
+  useEffect(() => {
+    if (property && trackedPropertyId.current !== property.id) {
+      trackedPropertyId.current = property.id;
+
+      // Determine source from referrer or search params
+      const source = searchParams.get('source') as 'search' | 'featured' | 'ai_search' | null;
+
+      track({
+        name: 'property_viewed',
+        properties: {
+          property_id: property.id,
+          property_type: property.propertyType,
+          district: property.district,
+          source: source ?? 'direct',
+        },
+      });
+    }
+  }, [property, searchParams]);
 
   if (isLoading) {
     return (

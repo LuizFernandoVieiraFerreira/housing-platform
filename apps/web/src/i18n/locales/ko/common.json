@@ -67,5 +67,12 @@
     "studio": "스튜디오",
     "micro-studio": "마이크로 스튜디오",
     "multi-bedroom": "멀티베드룸"
+  },
+  "consent": {
+    "title": "더 나은 서비스를 위해 쿠키를 사용합니다",
+    "description": "사이트 이용 방식을 분석하고 서비스를 개선하기 위해 분석 쿠키를 사용합니다.",
+    "learnMore": "자세히 보기",
+    "accept": "동의",
+    "decline": "거부"
   }
 }

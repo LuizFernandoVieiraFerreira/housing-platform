@@ -10,6 +10,7 @@ import { AuthProvider } from '@/features/auth/context/AuthProvider';
 import { NotificationProvider } from '@/features/notifications/components/NotificationProvider';
 import { ChannelWidget } from '@/features/support/components/ChannelWidget';
 import { CurrencyProvider } from '@/i18n/CurrencyProvider';
+import { ConsentBanner } from '@/shared/analytics/components';
 import { createQueryClientOptions } from '@/shared/lib/errors';
 
 // ============================================================================
@@ -66,6 +67,7 @@ export function AppProviders({ children }: { children: ReactNode }) {
 
       {/* Global widgets */}
       <ChannelWidget />
+      <ConsentBanner />
     </CoreProviders>
   );
 }

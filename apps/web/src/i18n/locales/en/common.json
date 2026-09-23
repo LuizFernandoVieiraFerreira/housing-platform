@@ -67,5 +67,12 @@
     "studio": "Studio",
     "micro-studio": "Micro Studio",
     "multi-bedroom": "Multi-bedroom"
+  },
+  "consent": {
+    "title": "We use cookies to improve your experience",
+    "description": "We use analytics cookies to understand how you use our site and improve it.",
+    "learnMore": "Learn more",
+    "accept": "Accept",
+    "decline": "Decline"
   }
 }

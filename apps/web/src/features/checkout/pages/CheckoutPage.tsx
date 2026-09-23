@@ -1,5 +1,5 @@
 import { Alert, Button, Card, PageHeader } from '@housing-platform/ui';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import { useBookingDetail } from '@/features/booking/hooks/useBooking';
@@ -12,6 +12,7 @@ import {
   isPaymentDevMockEnabled,
 } from '@/features/checkout/api/payment-api';
 import { useConfirmPayment, useCreatePaymentOrder } from '@/features/checkout/hooks/usePayment';
+import { track } from '@/shared/analytics';
 
 export function CheckoutPage() {
   const { bookingId } = useParams<{ bookingId: string }>();
@@ -21,6 +22,21 @@ export function CheckoutPage() {
   const confirmPayment = useConfirmPayment();
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [isLaunchingPayment, setIsLaunchingPayment] = useState(false);
+  const trackedCheckoutId = useRef<string | null>(null);
+
+  // Track checkout started when booking loads
+  useEffect(() => {
+    if (booking && booking.status === 'pending_payment' && trackedCheckoutId.current !== booking.id) {
+      trackedCheckoutId.current = booking.id;
+      track({
+        name: 'checkout_started',
+        properties: {
+          booking_id: booking.id,
+          total_price_krw: booking.totalKrw,
+        },
+      });
+    }
+  }, [booking]);
 
   useEffect(() => {
     if (!booking || booking.status !== 'pending_payment') {
@@ -43,12 +59,32 @@ export function CheckoutPage() {
     try {
       const order = await createPayment.mutateAsync(bookingId);
 
+      const paymentMethod = isPaymentDevMockEnabled() ? 'mock' : 'card';
+      track({
+        name: 'payment_initiated',
+        properties: {
+          booking_id: bookingId,
+          total_price_krw: order.amountKrw,
+          payment_method: paymentMethod,
+        },
+      });
+
       if (isPaymentDevMockEnabled()) {
         await confirmPayment.mutateAsync({
           paymentKey: createDevMockPaymentKey(order.orderId),
           orderId: order.orderId,
           amount: order.amountKrw,
         });
+
+        track({
+          name: 'payment_completed',
+          properties: {
+            booking_id: bookingId,
+            total_price_krw: order.amountKrw,
+            payment_method: 'mock',
+          },
+        });
+
         navigate(`/bookings/${bookingId}`);
         return;
       }
@@ -75,6 +111,13 @@ export function CheckoutPage() {
         failUrl: getTossFailUrl(),
       });
     } catch (paymentError) {
+      track({
+        name: 'payment_failed',
+        properties: {
+          booking_id: bookingId,
+          error_code: paymentError instanceof Error ? paymentError.message : undefined,
+        },
+      });
       setCheckoutError(getBookingErrorMessage(paymentError, 'Unable to start payment.'));
     } finally {
       setIsLaunchingPayment(false);

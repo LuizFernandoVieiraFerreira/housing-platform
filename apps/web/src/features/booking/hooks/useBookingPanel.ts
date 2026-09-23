@@ -6,10 +6,11 @@
  */
 
 import type { PropertyDetail, PropertyDetailRoom } from '@housing-platform/types';
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { useAuth } from '@/features/auth/hooks/useAuth';
+import { track } from '@/shared/analytics';
 import { getBookingErrorMessage } from '../lib/booking-utils';
 import { useBookingQuote, useCreateBookingHold } from './useBooking';
 import { useBookingForm } from '../state';
@@ -118,6 +119,25 @@ export function useBookingPanel({ property }: UseBookingPanelOptions): UseBookin
     ? getBookingErrorMessage(quoteErrorRaw, 'Unable to calculate price for these dates.')
     : null;
 
+  // Track quote viewed when quote loads
+  const trackedQuoteKey = useRef<string | null>(null);
+  useEffect(() => {
+    if (quote) {
+      const quoteKey = `${property.id}-${quote.totalKrw}-${quote.nights}`;
+      if (trackedQuoteKey.current !== quoteKey) {
+        trackedQuoteKey.current = quoteKey;
+        track({
+          name: 'booking_quote_viewed',
+          properties: {
+            property_id: property.id,
+            total_price_krw: quote.totalKrw,
+            stay_nights: quote.nights,
+          },
+        });
+      }
+    }
+  }, [quote, property.id]);
+
   // ============================================================================
   // Panel State
   // ============================================================================
@@ -145,8 +165,28 @@ export function useBookingPanel({ property }: UseBookingPanelOptions): UseBookin
     form.handleSubmit(async (values: CreateBookingHoldInput) => {
       setSubmitError(null);
 
+      // Track booking started
+      track({
+        name: 'booking_started',
+        properties: {
+          property_id: property.id,
+          room_id: values.roomId,
+          booking_mode: property.bookingMode,
+        },
+      });
+
       try {
         const booking = await createBooking.mutateAsync(values);
+
+        // Track booking hold created (use quote price as booking row doesn't include price)
+        track({
+          name: 'booking_hold_created',
+          properties: {
+            booking_id: booking.id,
+            property_id: property.id,
+            total_price_krw: quote?.totalKrw ?? 0,
+          },
+        });
 
         if (booking.status === 'pending_payment') {
           navigate(`/checkout/${booking.id}`);
@@ -158,7 +198,7 @@ export function useBookingPanel({ property }: UseBookingPanelOptions): UseBookin
         setSubmitError(getBookingErrorMessage(error, 'Unable to create booking.'));
       }
     })();
-  }, [form, createBooking, navigate]);
+  }, [form, createBooking, navigate, property.id, property.bookingMode]);
 
   const canSubmit = Boolean(quote) && !createBooking.isPending;
   const isSubmitting = createBooking.isPending;

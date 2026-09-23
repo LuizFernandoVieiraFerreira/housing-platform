@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 
 import { fetchCurrentProfile } from '@/features/account/api/profile-api';
 import { getAuthErrorMessage, resolvePostLoginPath } from '@/features/auth/lib/auth-utils';
+import { track } from '@/shared/analytics';
 import { supabase } from '@/shared/api/supabase';
 
 export interface LoginFormProps {
@@ -62,6 +63,10 @@ export function LoginForm({
     });
 
     if (error) {
+      track({
+        name: 'login_failed',
+        properties: { method: 'email', error_code: error.code },
+      });
       setFormError(getAuthErrorMessage(error, t('login.errorFallback')));
       return;
     }

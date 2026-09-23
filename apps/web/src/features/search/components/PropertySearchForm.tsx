@@ -17,6 +17,7 @@ import {
 import { useState, type FormEvent } from 'react';
 
 import { ACCOMMODATION_TYPE_OPTIONS, SORT_OPTIONS } from '@/features/search/model';
+import { track } from '@/shared/analytics';
 
 interface PropertySearchFormProps {
   filters: PropertySearchFilters;
@@ -47,7 +48,7 @@ export function PropertySearchForm({
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    onSubmit({
+    const submittedFilters = {
       ...filters,
       query: query.trim() || undefined,
       propertyType: propertyType || undefined,
@@ -57,7 +58,22 @@ export function PropertySearchForm({
       priceMin: priceMin ? Number(priceMin) : undefined,
       priceMax: priceMax ? Number(priceMax) : undefined,
       sort,
+    };
+
+    // Track search - result_count will be 0 since we don't have results yet
+    // The actual result count is tracked in the search results component
+    track({
+      name: 'search_submitted',
+      properties: {
+        query: submittedFilters.query,
+        property_type: submittedFilters.propertyType,
+        has_date_filter: Boolean(submittedFilters.checkIn || submittedFilters.checkOut),
+        has_price_filter: Boolean(submittedFilters.priceMin || submittedFilters.priceMax),
+        result_count: 0, // Unknown at submit time
+      },
     });
+
+    onSubmit(submittedFilters);
   };
 
   const isModal = variant === 'modal';
